@@ -7,7 +7,7 @@
 /.env.*.local
 /public/bundles/
 /var/
-/vendor/
+/vendor/p
 ###< symfony/framework-bundle ###
 
 ###> symfony/web-server-bundle ###
