@@ -11,6 +11,10 @@ use Doctrine\Common\Collections\Collection;
  */
 class User
 {
+    public const SENIORITY_JUNIOR = 0;
+    public const SENIORITY_MIDDLE = 1;
+    public const SENIORITY_SENIOR = 2;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -19,32 +23,32 @@ class User
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string")
      */
     private $username;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string")
      */
     private $password;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string")
      */
     private $role;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="integer")
      */
-    private $seniority;
+    private $seniority = self::SENIORITY_JUNIOR;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string")
      */
     private $surname;
 
@@ -59,36 +63,38 @@ class User
     private $updatedAt;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection|Technology[]
+     * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      */
-    protected $userTechnologies;
+    protected $technologies;
 
     public function __construct()
     {
-        $this->userTechnologies = new ArrayCollection();
+        $this->technologies = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
     }
 
     /**
-     * @param Technology $userTechnology
+     * @param Technology $technology
      */
-    public function addUserTechnology(Technology $userTechnology)
+    public function addUserTechnology(Technology $technology): void
     {
-        if ($this->userTechnologies->contains($userTechnology)) {
+        if ($this->technologies->contains($technology)) {
             return;
         }
-        $this->userTechnologies->add($userTechnology);
+        $this->technologies->add($technology);
     }
 
     /**
-     * @param Technology $userTechnology
+     * @param Technology $technology
      */
-    public function removeUserTechnology(Technology $userTechnology)
+    public function removeUserTechnology(Technology $technology): void
     {
-        if (!$this->userTechnologies->contains($userTechnology)) {
+        if (!$this->technologies->contains($technology)) {
             return;
         }
-        $this->userTechnologies->removeElement($userTechnology);
+        $this->technologies->removeElement($technology);
     }
 
     public function getId(): ?int
@@ -101,11 +107,9 @@ class User
         return $this->username;
     }
 
-    public function setUsername(string $username): self
+    public function setUsername(string $username): void
     {
         $this->username = $username;
-
-        return $this;
     }
 
     public function getPassword(): ?string
@@ -113,11 +117,9 @@ class User
         return $this->password;
     }
 
-    public function setPassword(string $password): self
+    public function setPassword(string $password): void
     {
         $this->password = $password;
-
-        return $this;
     }
 
     public function getRole(): ?string
@@ -125,11 +127,9 @@ class User
         return $this->role;
     }
 
-    public function setRole(string $role): self
+    public function setRole(string $role): void
     {
         $this->role = $role;
-
-        return $this;
     }
 
     public function getSeniority(): ?string
@@ -137,11 +137,9 @@ class User
         return $this->seniority;
     }
 
-    public function setSeniority(string $seniority): self
+    public function setSeniority(string $seniority): void
     {
         $this->seniority = $seniority;
-
-        return $this;
     }
 
     public function getName(): ?string
@@ -149,11 +147,9 @@ class User
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): void
     {
         $this->name = $name;
-
-        return $this;
     }
 
     public function getSurname(): ?string
@@ -161,11 +157,9 @@ class User
         return $this->surname;
     }
 
-    public function setSurname(string $surname): self
+    public function setSurname(string $surname): void
     {
         $this->surname = $surname;
-
-        return $this;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
@@ -173,11 +167,9 @@ class User
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
-
-        return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeInterface
@@ -185,10 +177,8 @@ class User
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 }

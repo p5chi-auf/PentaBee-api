@@ -4,12 +4,17 @@ namespace App\Entity;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\Common\Collections\Collection;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ActivityRepository")
  */
 class Activity
 {
+    public const STATUS_NEW = 0;
+    public const STATUS_FINISHED = 1;
+    public const STATUS_CLOSED = 2;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -18,12 +23,12 @@ class Activity
     protected $id;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="string")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="string", length=1000)
+     * @ORM\Column(type="text")
      */
     private $description;
 
@@ -38,14 +43,15 @@ class Activity
     private $finalDeadline;
 
     /**
-     * @ORM\Column(type="string", length=30)
+     * @ORM\Column(type="integer")
      */
-    private $status;
+    private $status = self::STATUS_NEW;
 
     /**
      * @ORM\Column(type="integer")
+     * @ORM\ManyToOne(targetEntity="User")
      */
-    private $idOwner;
+    private $owner;
 
     /**
      * @ORM\Column(type="datetime")
@@ -58,65 +64,67 @@ class Activity
     private $updatedAt;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection|Technology[]
+     * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      */
-    protected $activityTechnologies;
+    protected $technologies;
 
     /**
-     * @var \Doctrine\Common\Collections\Collection|Type[]
+     * @var Collection|Type[]
      * @ORM\ManyToMany(targetEntity="Type")
      */
-    protected $activityTypes;
+    protected $types;
 
     public function __construct()
     {
-        $this->activityTechnologies = new ArrayCollection();
-        $this->activityTypes = new ArrayCollection();
+        $this->technologies = new ArrayCollection();
+        $this->types = new ArrayCollection();
+        $this->createdAt = new \DateTime();
+        $this->updatedAt = new \DateTime();
     }
 
     /**
-     * @param Technology $activityTechnology
+     * @param Technology $technology
      */
-    public function addActivityTechnology(Technology $activityTechnology)
+    public function addActivityTechnology(Technology $technology): void
     {
-        if ($this->activityTechnologies->contains($activityTechnology)) {
+        if ($this->technologies->contains($technology)) {
             return;
         }
-        $this->activityTechnologies->add($activityTechnology);
+        $this->technologies->add($technology);
     }
 
     /**
-     * @param Technology $activityTechnology
+     * @param Technology $technology
      */
-    public function removeActivityTechnology(Technology $activityTechnology)
+    public function removeActivityTechnology(Technology $technology): void
     {
-        if (!$this->activityTechnologies->contains($activityTechnology)) {
+        if (!$this->technologies->contains($technology)) {
             return;
         }
-        $this->activityTechnologies->removeElement($activityTechnology);
+        $this->technologies->removeElement($technology);
     }
 
     /**
-     * @param Type $activityType
+     * @param Type $type
      */
-    public function addActivityType(Type $activityType)
+    public function addActivityType(Type $type): void
     {
-        if ($this->activityTypes->contains($activityType)) {
+        if ($this->types->contains($type)) {
             return;
         }
-        $this->activityTypes->add($activityType);
+        $this->types->add($type);
     }
 
     /**
-     * @param Type $activityType
+     * @param Type $type
      */
-    public function removeActivityType(Type $activityType)
+    public function removeActivityType(Type $type): void
     {
-        if (!$this->activityTypes->contains($activityType)) {
+        if (!$this->types->contains($type)) {
             return;
         }
-        $this->activityTypes->removeElement($activityType);
+        $this->types->removeElement($type);
     }
 
     public function getId(): ?int
@@ -129,11 +137,9 @@ class Activity
         return $this->name;
     }
 
-    public function setName(string $name): self
+    public function setName(string $name): void
     {
         $this->name = $name;
-
-        return $this;
     }
 
     public function getDescription(): ?string
@@ -141,11 +147,9 @@ class Activity
         return $this->description;
     }
 
-    public function setDescription(string $description): self
+    public function setDescription(string $description): void
     {
         $this->description = $description;
-
-        return $this;
     }
 
     public function getApplicationDeadline(): ?\DateTimeInterface
@@ -153,11 +157,9 @@ class Activity
         return $this->applicationDeadline;
     }
 
-    public function setApplicationDeadline(\DateTimeInterface $applicationDeadline): self
+    public function setApplicationDeadline(\DateTimeInterface $applicationDeadline): void
     {
         $this->applicationDeadline = $applicationDeadline;
-
-        return $this;
     }
 
     public function getFinalDeadline(): ?\DateTimeInterface
@@ -165,11 +167,9 @@ class Activity
         return $this->finalDeadline;
     }
 
-    public function setFinalDeadline(\DateTimeInterface $finalDeadline): self
+    public function setFinalDeadline(\DateTimeInterface $finalDeadline): void
     {
         $this->finalDeadline = $finalDeadline;
-
-        return $this;
     }
 
     public function getStatus(): ?string
@@ -177,23 +177,19 @@ class Activity
         return $this->status;
     }
 
-    public function setStatus(string $status): self
+    public function setStatus(string $status): void
     {
         $this->status = $status;
-
-        return $this;
     }
 
-    public function getIdOwner(): ?int
+    public function getOwner(): ?int
     {
-        return $this->idOwner;
+        return $this->owner;
     }
 
-    public function setIdOwner(int $idOwner): self
+    public function setOwner(int $owner): void
     {
-        $this->idOwner = $idOwner;
-
-        return $this;
+        $this->owner = $owner;
     }
 
     public function getCreatedAt(): ?\DateTimeInterface
@@ -201,11 +197,9 @@ class Activity
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
-
-        return $this;
     }
 
     public function getUpdatedAt(): ?\DateTimeInterface
@@ -213,10 +207,8 @@ class Activity
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): self
+    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
-
-        return $this;
     }
 }
