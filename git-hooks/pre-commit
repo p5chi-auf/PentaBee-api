@@ -21,7 +21,6 @@ cd $projectRoot
 ./bin/qa -t bf
 
 ./bin/qa -t cs
-./bin/qa -t md
 
 # re add the staged files so that any CS fixes are applied
 git add $(git diff --name-only --cached)
