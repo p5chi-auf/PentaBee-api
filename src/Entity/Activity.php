@@ -48,7 +48,6 @@ class Activity
     private $status = self::STATUS_NEW;
 
     /**
-     * @ORM\Column(type="integer")
      * @ORM\ManyToOne(targetEntity="User")
      */
     private $owner;
