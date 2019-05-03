@@ -12,7 +12,7 @@ class TechnologyFixtures extends Fixture
     public const TECHNOLOGIES = [
         'PHP' => 'Backend language.',
         'JavaScript' => 'Language to make everything trashy.',
-        'Node.js' => 'Frontend'
+        'Node.js' => 'Backend'
     ];
 
     public function load(ObjectManager $manager): void
