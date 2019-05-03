@@ -21,7 +21,6 @@ class TechnologyFixtures extends Fixture
             $technology = new Technology();
             $technology->setName($name);
             $technology->setDescription($description);
-            $technology->setVersion('');
             $technology->setCreatedAt(new DateTime());
             $technology->setUpdatedAt(new DateTime());
             $manager->persist($technology);

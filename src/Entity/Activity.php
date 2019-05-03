@@ -178,6 +178,16 @@ class Activity
         return $this->status;
     }
 
+    public function getAllStatuses(): array
+    {
+        $statuses = [
+            self::STATUS_NEW,
+            self::STATUS_FINISHED,
+            self::STATUS_CLOSED
+        ];
+        return $statuses;
+    }
+
     public function setStatus(string $status): void
     {
         $this->status = $status;

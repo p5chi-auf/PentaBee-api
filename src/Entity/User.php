@@ -37,7 +37,7 @@ class User
     /**
      * @ORM\Column(type="string")
      */
-    private $role;
+    private $position;
 
     /**
      * @ORM\Column(type="integer")
@@ -124,14 +124,14 @@ class User
         $this->password = $password;
     }
 
-    public function getRole(): ?string
+    public function getPosition(): ?string
     {
-        return $this->role;
+        return $this->position;
     }
 
-    public function setRole(string $role): void
+    public function setPosition(string $position): void
     {
-        $this->role = $role;
+        $this->position = $position;
     }
 
     public function getSeniority(): ?string

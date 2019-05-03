@@ -23,16 +23,22 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
             $activity->setDescription($faker->sentence);
             $activity->setApplicationDeadline($faker->dateTimeInInterval('now', '+10 days'));
             $activity->setFinalDeadline($faker->dateTimeInInterval('+10 days', '+30 days'));
-            $activity->setStatus(rand(0, 2));
+            $activity->setStatus($activity->getAllStatuses()[rand(0, 2)]);
             $activity->setCreatedAt(new DateTime());
             $activity->setUpdatedAt(new DateTime());
+
             /** @var User $owner */
+
             $owner = $this->getReference('user_' . rand(3, 6));
             $activity->setOwner($owner);
+
             /** @var Type $type */
+
             $type = $this->getReference('type_' . TypeFixtures::TYPES[rand(0, 2)]);
             $activity->addType($type);
+
             /** @var Technology $technology */
+
             $technology = $this->getReference('tech_' . array_rand(TechnologyFixtures::TECHNOLOGIES));
             $activity->addTechnology($technology);
             $manager->persist($activity);
