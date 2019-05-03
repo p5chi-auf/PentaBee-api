@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
@@ -78,14 +80,14 @@ class Activity
     {
         $this->technologies = new ArrayCollection();
         $this->types = new ArrayCollection();
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     /**
      * @param Technology $technology
      */
-    public function addActivityTechnology(Technology $technology): void
+    public function addTechnology(Technology $technology): void
     {
         if ($this->technologies->contains($technology)) {
             return;
@@ -96,7 +98,7 @@ class Activity
     /**
      * @param Technology $technology
      */
-    public function removeActivityTechnology(Technology $technology): void
+    public function removeTechnology(Technology $technology): void
     {
         if (!$this->technologies->contains($technology)) {
             return;
@@ -107,7 +109,7 @@ class Activity
     /**
      * @param Type $type
      */
-    public function addActivityType(Type $type): void
+    public function addType(Type $type): void
     {
         if ($this->types->contains($type)) {
             return;
@@ -118,7 +120,7 @@ class Activity
     /**
      * @param Type $type
      */
-    public function removeActivityType(Type $type): void
+    public function removeType(Type $type): void
     {
         if (!$this->types->contains($type)) {
             return;
@@ -151,22 +153,22 @@ class Activity
         $this->description = $description;
     }
 
-    public function getApplicationDeadline(): ?\DateTimeInterface
+    public function getApplicationDeadline(): ?DateTimeInterface
     {
         return $this->applicationDeadline;
     }
 
-    public function setApplicationDeadline(\DateTimeInterface $applicationDeadline): void
+    public function setApplicationDeadline(DateTimeInterface $applicationDeadline): void
     {
         $this->applicationDeadline = $applicationDeadline;
     }
 
-    public function getFinalDeadline(): ?\DateTimeInterface
+    public function getFinalDeadline(): ?DateTimeInterface
     {
         return $this->finalDeadline;
     }
 
-    public function setFinalDeadline(\DateTimeInterface $finalDeadline): void
+    public function setFinalDeadline(DateTimeInterface $finalDeadline): void
     {
         $this->finalDeadline = $finalDeadline;
     }
@@ -181,32 +183,32 @@ class Activity
         $this->status = $status;
     }
 
-    public function getOwner(): ?int
+    public function getOwner(): ?User
     {
         return $this->owner;
     }
 
-    public function setOwner(int $owner): void
+    public function setOwner(?User $owner): void
     {
         $this->owner = $owner;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    public function setCreatedAt(DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): ?DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
