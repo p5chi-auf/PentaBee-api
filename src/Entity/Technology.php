@@ -29,11 +29,6 @@ class Technology
     private $description;
 
     /**
-     * @ORM\Column(type="string")
-     */
-    private $version;
-
-    /**
      * @ORM\Column(type="datetime")
      */
     private $createdAt;
@@ -72,16 +67,6 @@ class Technology
     public function setDescription(string $description): void
     {
         $this->description = $description;
-    }
-
-    public function getVersion(): ?string
-    {
-        return $this->version;
-    }
-
-    public function setVersion(string $version): void
-    {
-        $this->version = $version;
     }
 
     public function getCreatedAt(): ?DateTimeInterface
