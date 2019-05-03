@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use DateTime;
+use DateTimeInterface;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
@@ -71,14 +73,14 @@ class User
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
-        $this->createdAt = new \DateTime();
-        $this->updatedAt = new \DateTime();
+        $this->createdAt = new DateTime();
+        $this->updatedAt = new DateTime();
     }
 
     /**
      * @param Technology $technology
      */
-    public function addUserTechnology(Technology $technology): void
+    public function addTechnology(Technology $technology): void
     {
         if ($this->technologies->contains($technology)) {
             return;
@@ -89,7 +91,7 @@ class User
     /**
      * @param Technology $technology
      */
-    public function removeUserTechnology(Technology $technology): void
+    public function removeTechnology(Technology $technology): void
     {
         if (!$this->technologies->contains($technology)) {
             return;
@@ -162,22 +164,22 @@ class User
         $this->surname = $surname;
     }
 
-    public function getCreatedAt(): ?\DateTimeInterface
+    public function getCreatedAt(): ?DateTimeInterface
     {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createdAt): void
+    public function setCreatedAt(DateTimeInterface $createdAt): void
     {
         $this->createdAt = $createdAt;
     }
 
-    public function getUpdatedAt(): ?\DateTimeInterface
+    public function getUpdatedAt(): ?DateTimeInterface
     {
         return $this->updatedAt;
     }
 
-    public function setUpdatedAt(\DateTimeInterface $updatedAt): void
+    public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
     }
