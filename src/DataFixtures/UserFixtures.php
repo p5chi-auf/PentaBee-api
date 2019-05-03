@@ -56,7 +56,6 @@ class UserFixtures extends Fixture
             $this->setReference('user_' . $i, $user);
 
             /** @var Technology $technology */
-
             $technology = $this->getReference('tech_' . array_rand(TechnologyFixtures::TECHNOLOGIES));
             $user->addTechnology($technology);
             $manager->persist($user);
