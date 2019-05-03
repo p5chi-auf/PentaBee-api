@@ -178,7 +178,7 @@ class Activity
         return $this->status;
     }
 
-    public function getAllStatuses(): array
+    public static function getAllStatuses(): array
     {
         $statuses = [
             self::STATUS_NEW,
