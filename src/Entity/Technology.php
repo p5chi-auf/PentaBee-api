@@ -19,27 +19,31 @@ class Technology
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"TechnologyDetail, ActivityDetails"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"TechnologyDetail"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"TechnologyDetail"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"TechnologyDetail"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"TechnologyDetail"})
      */
     private $updatedAt;
 

@@ -25,13 +25,14 @@ class User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"UserDetail, ActivityDetails"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $username;
 
@@ -43,36 +44,42 @@ class User
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $position;
 
     /**
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $seniority = self::SENIORITY_JUNIOR;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $surname;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     private $updatedAt;
 
@@ -80,6 +87,7 @@ class User
      * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      * @Serializer\Expose()
+     * @Groups({"UserDetail"})
      */
     protected $technologies;
 
