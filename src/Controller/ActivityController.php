@@ -43,7 +43,6 @@ class ActivityController extends AbstractController
     /**
      * Lists all Activities.
      * @Rest\Get("/activities/{id}")
-     *
      * @param SerializerInterface $serializer
      * @return Response
      */

@@ -25,7 +25,7 @@ class User
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"UserDetail, ActivityDetails"})
+     * @Groups({"UserDetail", "ActivityDetails"})
      */
     protected $id;
 
