@@ -8,7 +8,6 @@
     "friendsofsymfony/rest-bundle": "^2.5",
     "fzaninotto/faker": "^1.8",
     "jms/serializer-bundle": "^3.3",
-    "knpuniversity/oauth2-client-bundle": "^1.28",
     "nelmio/api-doc-bundle": "^3.4",
     "nelmio/cors-bundle": "^1.5",
     "sensio/framework-extra-bundle": "^5.3",
