@@ -19,7 +19,7 @@ class Type
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails, ActivityDetails"})
+     * @Groups({"TypeDetails", "ActivityDetails"})
      */
     protected $id;
 
