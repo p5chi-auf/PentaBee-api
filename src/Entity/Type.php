@@ -19,27 +19,31 @@ class Type
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"TypeDetails, ActivityDetails"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
+     * @Groups({"TypeDetails"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Groups({"TypeDetails"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"TypeDetails"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Groups({"TypeDetails"})
      */
     private $updatedAt;
 
