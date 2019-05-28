@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\DTO\ActivityDTO;
 use App\Entity\Activity;
+use App\Service\ActivityTransformer;
+use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -10,9 +13,11 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Activity controller.
@@ -20,14 +25,23 @@ use FOS\RestBundle\Controller\Annotations as Rest;
  */
 class ActivityController extends AbstractController
 {
-    /**
-     * @var SerializerInterface
-     */
+    /** @var SerializerInterface */
     private $serializer;
 
-    public function __construct(SerializerInterface $serializer)
-    {
+    /** @var ActivityTransformer */
+    private $transformer;
+
+    /** @var ValidatorInterface */
+    private $validator;
+
+    public function __construct(
+        SerializerInterface $serializer,
+        ActivityTransformer $transformer,
+        ValidatorInterface $validator
+    ) {
         $this->serializer = $serializer;
+        $this->transformer = $transformer;
+        $this->validator = $validator;
     }
 
     /**
@@ -91,5 +105,42 @@ class ActivityController extends AbstractController
         $activityRepository->delete($activity);
 
         return new JsonResponse(['message' => 'The activity was successfully deleted!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Create an Activity.
+     * @Rest\Post("/activities/create")
+     * @param Request $request
+     * @return Response
+     */
+    public function createAction(Request $request): Response
+    {
+        $data = $request->getContent();
+
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create();
+
+        $activityDTO = $this->serializer->deserialize(
+            $data,
+            ActivityDTO::class,
+            'json',
+            $context
+        );
+
+        $errors = $this->validator->validate($activityDTO);
+
+        if (count($errors) > 0) {
+            $errorsString = (string)$errors;
+            return new Response($errorsString);
+        }
+
+        $manager = $this->getDoctrine()->getManager();
+
+        $entityToPersist = $this->transformer->transform($activityDTO);
+
+        $manager->persist($entityToPersist);
+        $manager->flush();
+
+        return new JsonResponse(['message' => 'Activity succesfully created!'], Response::HTTP_CREATED);
     }
 }
