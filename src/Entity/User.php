@@ -9,12 +9,13 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class User
+class User implements UserInterface
 {
     public const SENIORITY_JUNIOR = 0;
     public const SENIORITY_MIDDLE = 1;
@@ -30,7 +31,7 @@ class User
     protected $id;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
      */
@@ -42,14 +43,21 @@ class User
     private $password;
 
     /**
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="string", unique=true)
+     * @Serializer\Expose()
+     * @Groups({"UserDetail"})
+     */
+    protected $email;
+
+    /**
+     * @ORM\Column(type="string", nullable=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
      */
     private $position;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
      */
@@ -135,6 +143,16 @@ class User
         $this->username = $username;
     }
 
+    public function getEmail(): ?string
+    {
+        return $this->email;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
     public function getPassword(): ?string
     {
         return $this->password;
@@ -203,5 +221,18 @@ class User
     public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    public function getRoles(): array
+    {
+        return array('ROLE_USER');
+    }
+
+    public function getSalt()
+    {
+    }
+
+    public function eraseCredentials(): void
+    {
     }
 }

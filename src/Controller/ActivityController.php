@@ -18,20 +18,28 @@ use FOS\RestBundle\Controller\Annotations as Rest;
 class ActivityController extends AbstractController
 {
     /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer)
+    {
+        $this->serializer = $serializer;
+    }
+
+    /**
      * Lists all Activities.
      * @Rest\Get("/activities")
-     *
-     * @param SerializerInterface $serializer
      * @return Response
      */
-    public function getActivitiesList(SerializerInterface $serializer): Response
+    public function getActivitiesList(): Response
     {
         $activities = $this->getDoctrine()->getRepository(Activity::class)->findAll();
 
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityList'));
 
-        $json = $serializer->serialize(
+        $json = $this->serializer->serialize(
             $activities,
             'json',
             $context
@@ -41,19 +49,18 @@ class ActivityController extends AbstractController
     }
 
     /**
-     * Lists all Activities.
+     * Show details about an Activity.
      * @Rest\Get("/activities/{id}")
-     * @param SerializerInterface $serializer
      * @return Response
      */
-    public function getActivityDetails(SerializerInterface $serializer, $id): Response
+    public function getActivityDetails($id): Response
     {
         $activity = $this->getDoctrine()->getRepository(Activity::class)->find($id);
 
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityDetails'));
 
-        $json = $serializer->serialize(
+        $json = $this->serializer->serialize(
             $activity,
             'json',
             $context
