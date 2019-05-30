@@ -3,6 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\Activity;
+use App\Repository\ActivityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -65,21 +68,21 @@ class ActivityController extends AbstractController
     /**
      * @Rest\Delete("/activities/delete/{id}")
      * @param int $id
-     * @return Response
+     * @param ActivityRepository $activityRepository
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
-
-    public function deleteActivity($id): Response
+    public function deleteActivity($id, ActivityRepository $activityRepository): JsonResponse
     {
-        $em = $this->getDoctrine()->getManager();
-        $activity =  $em->getRepository(Activity::class)->find($id);
+        $activity = $activityRepository->find($id);
 
         if (!$activity) {
-            throw $this->createNotFoundException('No activity found for id '.$id);
+            return new JsonResponse(['message' => 'The activity was not found!'], Response::HTTP_NOT_FOUND);
         }
 
-        $em->remove($activity);
-        $em->flush();
+        $activityRepository->delete($activity);
 
-        return new Response('Succesfully deleted!', Response::HTTP_OK);
+        return new JsonResponse(['message' => 'The activity was successfully deleted!'], Response::HTTP_OK);
     }
 }
