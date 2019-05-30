@@ -7,10 +7,12 @@ use App\Entity\Activity;
 use App\Entity\Technology;
 use App\Entity\Type;
 use App\Entity\User;
+use App\Exceptions\EntityNotFound;
 use App\Repository\TechnologyRepository;
 use App\Repository\TypeRepository;
 use App\Repository\UserRepository;
 use Exception;
+use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ActivityTransformer
 {
@@ -38,6 +40,11 @@ class ActivityTransformer
         $this->typeRepo = $typeRepo;
     }
 
+    /**
+     * @param ActivityDTO $dto
+     * @return Activity
+     * @throws EntityNotFound
+     */
     public function transform(
         ActivityDTO $dto
     ): Activity {
@@ -57,20 +64,30 @@ class ActivityTransformer
 
         /** @var Technology $tech */
         foreach ($dto->technologies as $tech) {
-            $techID = $tech->getId();
+            $techID = $tech->id;
             $techToAdd = $this->techRepo->find($techID);
             if (!$techToAdd) {
-                throw new Exception('No technology found for ID ' . $techID . '!');
+                $entityNotFound = new EntityNotFound(
+                    Technology::class,
+                    $techID,
+                    'No technology found.'
+                );
+                throw $entityNotFound;
             }
             $entity->addTechnology($techToAdd);
         }
 
         /** @var Type $activityType */
         foreach ($dto->types as $activityType) {
-            $activityTypeID = $activityType->getId();
+            $activityTypeID = $activityType->id;
             $activityTypeToAdd = $this->typeRepo->find($activityTypeID);
             if (!$activityTypeToAdd) {
-                throw new Exception('No activity type found for ID ' . $activityTypeID . '!');
+                $entityNotFound = new EntityNotFound(
+                    Type::class,
+                    $activityTypeID,
+                    'No activity type found.'
+                );
+                throw $entityNotFound;
             }
             $entity->addType($activityTypeToAdd);
         }

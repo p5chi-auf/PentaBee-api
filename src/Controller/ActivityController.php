@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
+use App\Exceptions\EntityNotFound;
 use App\Service\ActivityTransformer;
 use Exception;
 use JMS\Serializer\DeserializationContext;
@@ -138,7 +139,18 @@ class ActivityController extends AbstractController
 
         $manager = $this->getDoctrine()->getManager();
 
-        $newActivity = $this->transformer->transform($activityDTO);
+        try {
+            $newActivity = $this->transformer->transform($activityDTO);
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage(),
+                    'entity' => $exception->getEntity(),
+                    'id' => $exception->getId()
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
 
         $manager->persist($newActivity);
         $manager->flush();
