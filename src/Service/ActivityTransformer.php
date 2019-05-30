@@ -5,7 +5,7 @@ namespace App\Service;
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
 use App\Entity\Technology;
-use App\Entity\Type;
+use App\Entity\ActivityType;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\TechnologyRepository;
@@ -77,13 +77,13 @@ class ActivityTransformer
             $entity->addTechnology($techToAdd);
         }
 
-        /** @var Type $activityType */
+        /** @var ActivityType $activityType */
         foreach ($dto->types as $activityType) {
             $activityTypeID = $activityType->id;
             $activityTypeToAdd = $this->typeRepo->find($activityTypeID);
             if (!$activityTypeToAdd) {
                 $entityNotFound = new EntityNotFound(
-                    Type::class,
+                    ActivityType::class,
                     $activityTypeID,
                     'No activity type found.'
                 );

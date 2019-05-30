@@ -3,14 +3,14 @@
 
 namespace App\Service;
 
-use App\DTO\TypeDTO;
-use App\Entity\Type;
+use App\DTO\ActivityTypeDTO;
+use App\Entity\ActivityType;
 
 class TypeTransformer
 {
-    public function transform(TypeDTO $dto): Type
+    public function transform(ActivityTypeDTO $dto): ActivityType
     {
-        $entity = new Type();
+        $entity = new ActivityType();
         $entity->setName($dto->name);
         $entity->setDescription($dto->description);
         $entity->setCreatedAt($dto->createdAt);
@@ -19,9 +19,9 @@ class TypeTransformer
         return $entity;
     }
 
-    public function inverseTransform(Type $entity): TypeDTO
+    public function inverseTransform(ActivityType $entity): ActivityTypeDTO
     {
-        $dto = new TypeDTO();
+        $dto = new ActivityTypeDTO();
         $dto->name = $entity->getName();
         $dto->description = $entity->getDescription();
         $dto->createdAt = $entity->getCreatedAt();

@@ -5,7 +5,7 @@ namespace App\DTO;
 use DateTime;
 use JMS\Serializer\Annotation as Serializer;
 
-class TypeDTO
+class ActivityTypeDTO
 {
     /**
      * @var integer

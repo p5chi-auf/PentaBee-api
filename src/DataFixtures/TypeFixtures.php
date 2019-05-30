@@ -2,7 +2,7 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\Type;
+use App\Entity\ActivityType;
 use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -20,7 +20,7 @@ class TypeFixtures extends Fixture
     {
         $faker = Factory::create();
         foreach (self::TYPES as $typeName) {
-            $type = new Type();
+            $type = new ActivityType();
             $type->setName($typeName);
             $type->setDescription($faker->sentence);
             $type->setCreatedAt(new DateTime());

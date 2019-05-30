@@ -98,8 +98,8 @@ class ActivityDTO
     public $technologies;
 
     /**
-     * @var Collection|TypeDTO[]
-     * @Serializer\Type("ArrayCollection<App\DTO\TypeDTO>")
+     * @var Collection|ActivityTypeDTO[]
+     * @Serializer\Type("ArrayCollection<App\DTO\ActivityTypeDTO>")
      */
     public $types;
 

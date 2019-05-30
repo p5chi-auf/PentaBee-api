@@ -4,7 +4,7 @@ namespace App\DataFixtures;
 
 use App\Entity\Activity;
 use App\Entity\Technology;
-use App\Entity\Type;
+use App\Entity\ActivityType;
 use App\Entity\User;
 use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
@@ -31,7 +31,7 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
             $owner = $this->getReference('user_' . rand(3, 6));
             $activity->setOwner($owner);
 
-            /** @var Type $type */
+            /** @var ActivityType $type */
             $type = $this->getReference('type_' . TypeFixtures::TYPES[rand(0, 2)]);
             $activity->addType($type);
 
