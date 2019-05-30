@@ -38,22 +38,6 @@ class ActivityTransformer
         $this->typeRepo = $typeRepo;
     }
 
-    public function checkTechnologyIntegrity(Technology $technology): bool
-    {
-        if ($technology === null) {
-            throw new Exception('Technology type Object cannot be null.');
-        }
-        return true;
-    }
-
-    public function checkTypeIntegrity(Type $type): bool
-    {
-        if ($type === null) {
-            throw new Exception('ActivityType type Object cannot be null.');
-        }
-        return true;
-    }
-
     public function transform(
         ActivityDTO $dto
     ): Activity {
@@ -75,24 +59,20 @@ class ActivityTransformer
         foreach ($dto->technologies as $tech) {
             $techID = $tech->getId();
             $techToAdd = $this->techRepo->find($techID);
-            try {
-                $this->checkTechnologyIntegrity($techToAdd);
-            } catch (Exception $exception) {
-                echo 'Message: ' . $exception->getMessage();
+            if (!$techToAdd) {
+                throw new Exception('No technology found for ID ' . $techID . '!');
             }
             $entity->addTechnology($techToAdd);
         }
 
-        /** @var Type $type */
-        foreach ($dto->types as $type) {
-            $typeID = $type->getId();
-            $typeToAdd = $this->typeRepo->find($typeID);
-            try {
-                $this->checkTypeIntegrity($typeToAdd);
-            } catch (Exception $exception) {
-                echo 'Message: ' . $exception->getMessage();
+        /** @var Type $activityType */
+        foreach ($dto->types as $activityType) {
+            $activityTypeID = $activityType->getId();
+            $activityTypeToAdd = $this->typeRepo->find($activityTypeID);
+            if (!$activityTypeToAdd) {
+                throw new Exception('No activity type found for ID ' . $activityTypeID . '!');
             }
-            $entity->addType($typeToAdd);
+            $entity->addType($activityTypeToAdd);
         }
         return $entity;
     }

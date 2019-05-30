@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
 use App\Service\ActivityTransformer;
+use Exception;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -112,6 +113,7 @@ class ActivityController extends AbstractController
      * @Rest\Post("/activities/create")
      * @param Request $request
      * @return Response
+     * @throws Exception
      */
     public function createAction(Request $request): Response
     {
@@ -136,11 +138,11 @@ class ActivityController extends AbstractController
 
         $manager = $this->getDoctrine()->getManager();
 
-        $entityToPersist = $this->transformer->transform($activityDTO);
+        $newActivity = $this->transformer->transform($activityDTO);
 
-        $manager->persist($entityToPersist);
+        $manager->persist($newActivity);
         $manager->flush();
 
-        return new JsonResponse(['message' => 'Activity succesfully created!'], Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'Activity successfully created!'], Response::HTTP_CREATED);
     }
 }
