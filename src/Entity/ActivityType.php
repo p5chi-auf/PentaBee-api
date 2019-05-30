@@ -12,7 +12,7 @@ use JMS\Serializer\Annotation as Serializer;
  * @ORM\Entity(repositoryClass="App\Repository\TypeRepository")
  * @Serializer\ExclusionPolicy("all")
  */
-class Type
+class ActivityType
 {
     /**
      * @ORM\Id()

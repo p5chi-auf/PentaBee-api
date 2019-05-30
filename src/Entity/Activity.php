@@ -94,8 +94,9 @@ class Activity
     protected $technologies;
 
     /**
-     * @var Collection|Type[]
-     * @ORM\ManyToMany(targetEntity="Type")
+     * @var Collection|ActivityType[]
+     * @ORM\ManyToMany(targetEntity="ActivityType")
+     * @ORM\JoinTable(name="activity_to_activity_type")
      * @Serializer\Expose()
      * @Groups({"ActivityDetails"})
      */
@@ -132,9 +133,9 @@ class Activity
     }
 
     /**
-     * @param Type $type
+     * @param ActivityType $type
      */
-    public function addType(Type $type): void
+    public function addType(ActivityType $type): void
     {
         if ($this->types->contains($type)) {
             return;
@@ -143,9 +144,9 @@ class Activity
     }
 
     /**
-     * @param Type $type
+     * @param ActivityType $type
      */
-    public function removeType(Type $type): void
+    public function removeType(ActivityType $type): void
     {
         if (!$this->types->contains($type)) {
             return;
