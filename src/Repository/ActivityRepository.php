@@ -4,6 +4,8 @@ namespace App\Repository;
 
 use App\Entity\Activity;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -17,5 +19,19 @@ class ActivityRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Activity::class);
+    }
+
+    /**
+     * @Rest\Delete("/activities/delete/{id}")
+     * @param Activity $activity
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(Activity $activity): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($activity);
+        $em->flush();
     }
 }
