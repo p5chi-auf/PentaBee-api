@@ -8,9 +8,9 @@ security:
       security: false
     main:
       anonymous: true
-      guard:
-        authenticators:
-          - App\Security\SecurityAuthenticator
+      #      guard:
+      #        authenticators:
+      #          - App\Security\SecurityAuthenticator
 
       # activate different ways to authenticate
 
