@@ -19,7 +19,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Register controller.
- * @Route("/api", name="user")
+ * @Route("/api", name="register")
  */
 class RegisterController extends AbstractController
 {
