@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\DTO\UserDTO;
+use App\Entity\User;
 use App\Service\UserTransformer;
 use JMS\Serializer\DeserializationContext;
+use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -24,10 +26,19 @@ class UserController extends AbstractController
      */
     private $validator;
 
-    public function __construct(UserTransformer $transformer, ValidatorInterface $validator)
-    {
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
+
+    public function __construct(
+        UserTransformer $transformer,
+        ValidatorInterface $validator,
+        SerializerInterface $serializer
+    ) {
         $this->transformer = $transformer;
         $this->validator = $validator;
+        $this->serializer = $serializer;
     }
 
     /**
@@ -66,5 +77,26 @@ class UserController extends AbstractController
         $em->persist($entityToPersist);
         $em->flush();
         return new JsonResponse('Success!', Response::HTTP_CREATED);
+    }
+
+    /**
+     * Show details about an User.
+     * @Rest\Get("/user/{id}")
+     * @param User $user
+     * @return Response
+     */
+    public function getUserDetails(User $user): Response
+    {
+
+        /** @var SerializationContext $context */
+        $context = SerializationContext::create()->setGroups(array('UserDetail'));
+
+        $json = $this->serializer->serialize(
+            $user,
+            'json',
+            $context
+        );
+
+        return new JsonResponse($json, 200, [], true);
     }
 }

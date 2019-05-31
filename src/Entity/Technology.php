@@ -19,7 +19,7 @@ class Technology
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"TechnologyDetail", "ActivityDetails"})
+     * @Groups({"TechnologyDetail", "ActivityDetails", "UserDetail"})
      */
     protected $id;
 
