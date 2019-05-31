@@ -22,7 +22,6 @@ class ActivityRepository extends ServiceEntityRepository
     }
 
     /**
-     * @Rest\Delete("/activities/{id}/delete")
      * @param Activity $activity
      * @return void
      * @throws ORMException

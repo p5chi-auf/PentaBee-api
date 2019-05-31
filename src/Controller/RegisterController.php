@@ -72,9 +72,9 @@ class RegisterController extends AbstractController
             return new Response($errorsString);
         }
 
-        $entityToPersist = $this->transformer->transform($userDTO);
+        $newUser = $this->transformer->transform($userDTO);
 
-        $userRepository->register($entityToPersist);
+        $userRepository->save($newUser);
         return new JsonResponse('Success!', Response::HTTP_CREATED);
     }
 }

@@ -23,16 +23,15 @@ class UserRepository extends ServiceEntityRepository
 
     /**
      * Create an User.
-     * @Rest\Post("/register")
-     * @param User $entityToPersist
+     * @param User $newUser
      * @return void
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function register(User $entityToPersist): void
+    public function save(User $newUser): void
     {
         $em = $this->getEntityManager();
-        $em->persist($entityToPersist);
+        $em->persist($newUser);
         $em->flush();
     }
 }
