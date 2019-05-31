@@ -23,7 +23,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
  * Activity controller.
- * @Route("/api", name="api_")
+ * @Route("/api/activities", name="activities")
  */
 class ActivityController extends AbstractController
 {
@@ -48,7 +48,7 @@ class ActivityController extends AbstractController
 
     /**
      * Lists all Activities.
-     * @Rest\Get("/activities")
+     * @Rest\Get("/")
      * @return Response
      */
     public function getActivitiesList(): Response
@@ -69,7 +69,7 @@ class ActivityController extends AbstractController
 
     /**
      * Show details about an Activity.
-     * @Rest\Get("/activities/{id}")
+     * @Rest\Get("/{id}")
      * @return Response
      */
     public function getActivityDetails($id): Response
@@ -89,7 +89,7 @@ class ActivityController extends AbstractController
     }
 
     /**
-     * @Rest\Delete("/activities/delete/{id}")
+     * @Rest\Delete("/{id}/delete")
      * @param int $id
      * @param ActivityRepository $activityRepository
      * @return JsonResponse
@@ -111,7 +111,7 @@ class ActivityController extends AbstractController
 
     /**
      * Create an Activity.
-     * @Rest\Post("/activities/create")
+     * @Rest\Post("/create")
      * @param Request $request
      * @return Response
      * @throws Exception
