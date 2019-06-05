@@ -1,5 +1,5 @@
 lexik_jwt_authentication:
   secret_key:       '%kernel.project_dir%/config/jwt/private.pem' # required for token creation
   public_key:       '%kernel.project_dir%/config/jwt/public.pem'  # required for token verification
-  pass_phrase:      'passphrase'
+  pass_phrase:      'e71a9024f16962c9112485e933802f19'
   token_ttl:        604800
