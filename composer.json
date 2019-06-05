@@ -10,6 +10,7 @@
     "fzaninotto/faker": "^1.8",
     "jms/serializer-bundle": "^3.3",
     "knpuniversity/oauth2-client-bundle": "^1.28",
+    "lexik/jwt-authentication-bundle": "^2.6",
     "nelmio/api-doc-bundle": "^3.4",
     "nelmio/cors-bundle": "^1.5",
     "sensio/framework-extra-bundle": "^5.3",
@@ -25,8 +26,7 @@
     "symfony/serializer-pack": "^1.0",
     "symfony/translation": "4.2.*",
     "symfony/validator": "4.2.*",
-    "symfony/yaml": "4.2.*",
-    "ext-http": "*"
+    "symfony/yaml": "4.2.*"
   },
   "config": {
     "preferred-install": {

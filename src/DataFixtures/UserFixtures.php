@@ -8,6 +8,7 @@ use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserFixtures extends Fixture
 {
@@ -16,6 +17,15 @@ class UserFixtures extends Fixture
         'po',
         'qa'
     ];
+    /**
+     * @var UserPasswordEncoderInterface
+     */
+    private $encoder;
+
+    public function __construct(UserPasswordEncoderInterface $encoder)
+    {
+        $this->encoder = $encoder;
+    }
 
     public function load(ObjectManager $manager): void
     {
@@ -23,7 +33,7 @@ class UserFixtures extends Fixture
 
         $user = new User();
         $user->setUsername('ADMIN');
-        $user->setPassword('iamadmin');
+        $user->setPassword($this->encoder->encodePassword($user, 'iamadmin'));
         $user->setPosition(self::POSITIONS[rand(0, 2)]);
         $user->setSeniority(1);
         $user->setName('Staci');
@@ -35,7 +45,7 @@ class UserFixtures extends Fixture
 
         $user = new User();
         $user->setUsername('USER');
-        $user->setPassword('passtester');
+        $user->setPassword($this->encoder->encodePassword($user, 'passtester'));
         $user->setPosition(self::POSITIONS[rand(0, 2)]);
         $user->setSeniority(1);
         $user->setName('Druta');
@@ -48,7 +58,7 @@ class UserFixtures extends Fixture
         for ($i = 0; $i < 10; $i++) {
             $user = new User();
             $user->setUsername($faker->userName);
-            $user->setPassword($faker->password);
+            $user->setPassword($this->encoder->encodePassword($user, 'password'));
             $user->setPosition(self::POSITIONS[rand(0, 2)]);
             $user->setSeniority(mt_rand(0, 2));
             $user->setName($faker->firstName);
