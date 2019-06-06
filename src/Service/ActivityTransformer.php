@@ -45,6 +45,66 @@ class ActivityTransformer
         $this->activityRepo = $activityRepo;
     }
 
+
+    /**
+     * @param ActivityDTO $dto
+     * @param Activity $entity
+     * @throws EntityNotFound
+     */
+    public function addTechnologies(ActivityDTO $dto, Activity $entity): void
+    {
+        /** @var Technology $tech */
+        foreach ($dto->technologies as $tech) {
+            $techID = $tech->id;
+            $techToAdd = $this->techRepo->find($techID);
+            if (!$techToAdd) {
+                $entityNotFound = new EntityNotFound(
+                    Technology::class,
+                    $techID,
+                    'No technology found.'
+                );
+                throw $entityNotFound;
+            }
+            $entity->addTechnology($techToAdd);
+        }
+    }
+
+    /**
+     * @param ActivityDTO $dto
+     * @param Activity $entity
+     * @throws EntityNotFound
+     */
+    public function addTypes(ActivityDTO $dto, Activity $entity): void
+    {
+        /** @var ActivityType $activityType */
+        foreach ($dto->types as $activityType) {
+            $activityTypeID = $activityType->id;
+            $activityTypeToAdd = $this->typeRepo->find($activityTypeID);
+            if (!$activityTypeToAdd) {
+                $entityNotFound = new EntityNotFound(
+                    ActivityType::class,
+                    $activityTypeID,
+                    'No activity type found.'
+                );
+                throw $entityNotFound;
+            }
+            $entity->addType($activityTypeToAdd);
+        }
+    }
+
+    /**
+     * @param Activity $entity
+     */
+    public function resetTechTypeCollections(Activity $entity): void
+    {
+        foreach ($entity->getTechnologies() as $techToRemove) {
+            $entity->removeTechnology($techToRemove);
+        }
+        foreach ($entity->getTypes() as $typeToRemove) {
+            $entity->removeType($typeToRemove);
+        }
+    }
+
     /**
      * @param ActivityDTO $dto
      * @return Activity
@@ -64,12 +124,7 @@ class ActivityTransformer
                 );
                 throw $entityNotFound;
             }
-            foreach ($entity->getTechnologies() as $techToRemove) {
-                $entity->removeTechnology($techToRemove);
-            }
-            foreach ($entity->getTypes() as $typeToRemove) {
-                $entity->removeType($typeToRemove);
-            }
+            $this->resetTechTypeCollections($entity);
         } else {
             $entity = new Activity();
         }
@@ -85,35 +140,9 @@ class ActivityTransformer
         $tempUser = $this->userRepo->find($dto->owner);
         $entity->setOwner($tempUser);
 
-        /** @var Technology $tech */
-        foreach ($dto->technologies as $tech) {
-            $techID = $tech->id;
-            $techToAdd = $this->techRepo->find($techID);
-            if (!$techToAdd) {
-                $entityNotFound = new EntityNotFound(
-                    Technology::class,
-                    $techID,
-                    'No technology found.'
-                );
-                throw $entityNotFound;
-            }
-            $entity->addTechnology($techToAdd);
-        }
+        $this->addTechnologies($dto, $entity);
+        $this->addTypes($dto, $entity);
 
-        /** @var ActivityType $activityType */
-        foreach ($dto->types as $activityType) {
-            $activityTypeID = $activityType->id;
-            $activityTypeToAdd = $this->typeRepo->find($activityTypeID);
-            if (!$activityTypeToAdd) {
-                $entityNotFound = new EntityNotFound(
-                    ActivityType::class,
-                    $activityTypeID,
-                    'No activity type found.'
-                );
-                throw $entityNotFound;
-            }
-            $entity->addType($activityTypeToAdd);
-        }
         return $entity;
     }
 }

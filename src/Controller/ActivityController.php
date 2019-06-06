@@ -112,11 +112,13 @@ class ActivityController extends AbstractController
     /**
      * Create an Activity.
      * @Rest\Post("/create")
+     * @param ActivityRepository $activityRepository
      * @param Request $request
      * @return Response
-     * @throws Exception
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
-    public function createAction(Request $request): Response
+    public function createAction(ActivityRepository $activityRepository, Request $request): Response
     {
         $data = $request->getContent();
 
@@ -137,8 +139,6 @@ class ActivityController extends AbstractController
             return new Response($errorsString);
         }
 
-        $manager = $this->getDoctrine()->getManager();
-
         try {
             $newActivity = $this->transformer->transform($activityDTO);
         } catch (EntityNotFound $exception) {
@@ -152,8 +152,7 @@ class ActivityController extends AbstractController
             );
         }
 
-        $manager->persist($newActivity);
-        $manager->flush();
+        $activityRepository->save($newActivity);
 
         return new JsonResponse(['message' => 'Activity successfully created!'], Response::HTTP_CREATED);
     }
@@ -165,6 +164,8 @@ class ActivityController extends AbstractController
      * @param ActivityRepository $activityRepository
      * @param Request $request
      * @return Response
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function editAction($id, ActivityRepository $activityRepository, Request $request): Response
     {
@@ -191,10 +192,8 @@ class ActivityController extends AbstractController
 
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
-            return new Response($errorsString);
+            return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
         }
-
-        $manager = $this->getDoctrine()->getManager();
 
         try {
             $activityToEdit = $this->transformer->transform($activityDTO);
@@ -209,8 +208,7 @@ class ActivityController extends AbstractController
             );
         }
 
-        $manager->persist($activityToEdit);
-        $manager->flush();
+        $activityRepository->save($activityToEdit);
 
         return new JsonResponse(['message' => 'Activity successfully edited!'], Response::HTTP_OK);
     }

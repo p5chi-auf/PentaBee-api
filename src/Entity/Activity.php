@@ -110,12 +110,18 @@ class Activity
         $this->updatedAt = new DateTime();
     }
 
-    public function getTechnologies()
+    /**
+     * @return Technology[]
+     */
+    public function getTechnologies(): ?iterable
     {
         return $this->technologies;
     }
 
-    public function getTypes()
+    /**
+     * @return ActivityType[]
+     */
+    public function getTypes(): ?iterable
     {
         return $this->types;
     }
