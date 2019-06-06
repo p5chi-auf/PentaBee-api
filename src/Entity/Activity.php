@@ -110,6 +110,16 @@ class Activity
         $this->updatedAt = new DateTime();
     }
 
+    public function getTechnologies()
+    {
+        return $this->technologies;
+    }
+
+    public function getTypes()
+    {
+        return $this->types;
+    }
+
     /**
      * @param Technology $technology
      */

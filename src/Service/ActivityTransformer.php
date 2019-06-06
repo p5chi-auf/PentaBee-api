@@ -8,11 +8,10 @@ use App\Entity\Technology;
 use App\Entity\ActivityType;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Repository\ActivityRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\TypeRepository;
 use App\Repository\UserRepository;
-use Exception;
-use Symfony\Component\HttpFoundation\JsonResponse;
 
 class ActivityTransformer
 {
@@ -29,15 +28,21 @@ class ActivityTransformer
      * @var TypeRepository
      */
     private $typeRepo;
+    /**
+     * @var ActivityRepository
+     */
+    private $activityRepo;
 
     public function __construct(
         UserRepository $userRepo,
         TechnologyRepository $techRepo,
-        TypeRepository $typeRepo
+        TypeRepository $typeRepo,
+        ActivityRepository $activityRepo
     ) {
         $this->userRepo = $userRepo;
         $this->techRepo = $techRepo;
         $this->typeRepo = $typeRepo;
+        $this->activityRepo = $activityRepo;
     }
 
     /**
@@ -49,7 +54,25 @@ class ActivityTransformer
         ActivityDTO $dto
     ): Activity {
 
-        $entity = new Activity();
+        if ($dto->id !== null) {
+            $entity = $this->activityRepo->find($dto->id);
+            if (!$entity) {
+                $entityNotFound = new EntityNotFound(
+                    Activity::class,
+                    $dto->id,
+                    'No activity found.'
+                );
+                throw $entityNotFound;
+            }
+            foreach ($entity->getTechnologies() as $techToRemove) {
+                $entity->removeTechnology($techToRemove);
+            }
+            foreach ($entity->getTypes() as $typeToRemove) {
+                $entity->removeType($typeToRemove);
+            }
+        } else {
+            $entity = new Activity();
+        }
         $entity->setName($dto->name);
         $entity->setDescription($dto->description);
         $entity->setApplicationDeadline($dto->applicationDeadline);

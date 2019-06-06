@@ -157,4 +157,61 @@ class ActivityController extends AbstractController
 
         return new JsonResponse(['message' => 'Activity successfully created!'], Response::HTTP_CREATED);
     }
+
+    /**
+     * Create an Activity.
+     * @Rest\Post("/{id}/edit")
+     * @param $id
+     * @param ActivityRepository $activityRepository
+     * @param Request $request
+     * @return Response
+     */
+    public function editAction($id, ActivityRepository $activityRepository, Request $request): Response
+    {
+        /** Verifying if the activity exists*/
+        $activity = $activityRepository->find($id);
+
+        if (!$activity) {
+            return new JsonResponse(['message' => 'The activity was not found!'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = $request->getContent();
+
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create();
+
+        $activityDTO = $this->serializer->deserialize(
+            $data,
+            ActivityDTO::class,
+            'json',
+            $context
+        );
+
+        $errors = $this->validator->validate($activityDTO);
+
+        if (count($errors) > 0) {
+            $errorsString = (string)$errors;
+            return new Response($errorsString);
+        }
+
+        $manager = $this->getDoctrine()->getManager();
+
+        try {
+            $activityToEdit = $this->transformer->transform($activityDTO);
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage(),
+                    'entity' => $exception->getEntity(),
+                    'id' => $exception->getId()
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $manager->persist($activityToEdit);
+        $manager->flush();
+
+        return new JsonResponse(['message' => 'Activity successfully edited!'], Response::HTTP_OK);
+    }
 }
