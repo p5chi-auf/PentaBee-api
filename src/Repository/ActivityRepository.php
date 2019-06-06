@@ -36,15 +36,15 @@ class ActivityRepository extends ServiceEntityRepository
 
     /**
      * Persist an Activity.
-     * @param Activity $newActivity
+     * @param Activity $activity
      * @return void
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function save(Activity $newActivity): void
+    public function save(Activity $activity): void
     {
         $em = $this->getEntityManager();
-        $em->persist($newActivity);
+        $em->persist($activity);
         $em->flush();
     }
 }

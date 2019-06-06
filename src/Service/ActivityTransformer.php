@@ -51,7 +51,7 @@ class ActivityTransformer
      * @param Activity $entity
      * @throws EntityNotFound
      */
-    public function addTechnologies(ActivityDTO $dto, Activity $entity): void
+    private function addTechnologies(ActivityDTO $dto, Activity $entity): void
     {
         /** @var Technology $tech */
         foreach ($dto->technologies as $tech) {
@@ -74,7 +74,7 @@ class ActivityTransformer
      * @param Activity $entity
      * @throws EntityNotFound
      */
-    public function addTypes(ActivityDTO $dto, Activity $entity): void
+    private function addTypes(ActivityDTO $dto, Activity $entity): void
     {
         /** @var ActivityType $activityType */
         foreach ($dto->types as $activityType) {
@@ -95,7 +95,7 @@ class ActivityTransformer
     /**
      * @param Activity $entity
      */
-    public function resetTechTypeCollections(Activity $entity): void
+    private function resetTechTypeCollections(Activity $entity): void
     {
         foreach ($entity->getTechnologies() as $techToRemove) {
             $entity->removeTechnology($techToRemove);
