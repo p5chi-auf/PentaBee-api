@@ -6,6 +6,7 @@
     "ext-ctype": "*",
     "ext-iconv": "*",
     "doctrine/annotations": "^1.6",
+    "friendsofsymfony/oauth-server-bundle": "dev-master",
     "friendsofsymfony/rest-bundle": "^2.5",
     "fzaninotto/faker": "^1.8",
     "jms/serializer-bundle": "^3.3",

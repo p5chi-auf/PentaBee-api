@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\UserDTO;
+use App\Exceptions\EntityNotFound;
 use App\Repository\UserRepository;
 use App\Service\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
@@ -49,8 +50,9 @@ class RegisterController extends AbstractController
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws EntityNotFound
      */
-    public function createAction(SerializerInterface $serializer, Request $request, UserRepository $userRepository)
+    public function createUser(SerializerInterface $serializer, Request $request, UserRepository $userRepository)
     {
         $data = $request->getContent();
 
@@ -75,6 +77,6 @@ class RegisterController extends AbstractController
         $newUser = $this->transformer->transform($userDTO);
 
         $userRepository->save($newUser);
-        return new JsonResponse('Success!', Response::HTTP_CREATED);
+        return new JsonResponse(['message' => 'User successfully created!'], Response::HTTP_OK);
     }
 }

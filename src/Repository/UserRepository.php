@@ -34,4 +34,17 @@ class UserRepository extends ServiceEntityRepository
         $em->persist($newUser);
         $em->flush();
     }
+
+    /**
+     * @param User $user
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function delete(User $user): void
+    {
+        $em = $this->getEntityManager();
+        $em->remove($user);
+        $em->flush();
+    }
 }

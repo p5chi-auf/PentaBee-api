@@ -2,7 +2,6 @@
 
 namespace App\DTO;
 
-use App\Entity\Technology;
 use DateTime;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
@@ -37,8 +36,8 @@ class UserDTO
      * @var string
      * @Serializer\Type("string")
      * @Assert\NotNull
-     * @Assert\Regex("/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/", message = "password
-     *     must be a minimum of 8 characters 1 number, one uppercase character, one lowercase character"
+     * @Assert\Regex("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[-_!@#$%^&*])\S*$/",
+     * message = "password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special"
      * )
      */
     public $password;
@@ -95,8 +94,8 @@ class UserDTO
     public $updatedAt;
 
     /**
-     * @var Collection|Technology[]
-     * @Serializer\Type("ArrayCollection<App\Entity\Technology>")
+     * @var Collection|TechnologyDTO[]
+     * @Serializer\Type("ArrayCollection<App\DTO\TechnologyDTO>")
      */
-    protected $technologies;
+    public $technologies;
 }
