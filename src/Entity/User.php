@@ -107,6 +107,14 @@ class User implements UserInterface
     }
 
     /**
+     * @return Technology[]
+     */
+    public function getTechnologies(): ?iterable
+    {
+        return $this->technologies;
+    }
+
+    /**
      * @param Technology $technology
      */
     public function addTechnology(Technology $technology): void
