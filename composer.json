@@ -6,11 +6,9 @@
     "ext-ctype": "*",
     "ext-iconv": "*",
     "doctrine/annotations": "^1.6",
-    "friendsofsymfony/oauth-server-bundle": "dev-master",
     "friendsofsymfony/rest-bundle": "^2.5",
     "fzaninotto/faker": "^1.8",
     "jms/serializer-bundle": "^3.3",
-    "knpuniversity/oauth2-client-bundle": "^1.28",
     "lexik/jwt-authentication-bundle": "^2.6",
     "nelmio/api-doc-bundle": "^3.4",
     "nelmio/cors-bundle": "^1.5",
@@ -71,7 +69,7 @@
   },
   "extra": {
     "symfony": {
-      "allow-contrib": false,
+      "allow-contrib": true,
       "require": "4.2.*"
     }
   },
