@@ -7,7 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use Symfony\Component\Validator\Constraints as Assert;
 
-class UserDTO
+class UserRegisterDTO
 {
     public const SENIORITY_JUNIOR = 0;
     public const SENIORITY_MIDDLE = 1;
@@ -46,11 +46,20 @@ class UserDTO
      * @var string
      * @Serializer\Type("string")
      * @Assert\NotNull
+     * @Assert\EqualTo(propertyPath="password", message="Passwords do not match.")
+     */
+    public $confirmPassword;
+
+    /**
+     * @var string
+     * @Serializer\Type("string")
+     * @Assert\NotNull
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     checkMX = true
      * )
      */
+
     public $email;
 
     /**

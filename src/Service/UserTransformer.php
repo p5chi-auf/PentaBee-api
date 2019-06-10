@@ -2,13 +2,17 @@
 
 namespace App\Service;
 
-use App\DTO\UserDTO;
+use App\DTO\UserChangePasswordDTO;
+use App\DTO\UserEditDTO;
+use App\DTO\UserRegisterDTO;
 use App\Entity\Technology;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidOldPassword;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 class UserTransformer
 {
@@ -42,29 +46,14 @@ class UserTransformer
     }
 
     /**
-     * @param UserDTO $dto
+     * @param UserRegisterDTO $dto
      * @return User
      * @throws EntityNotFound
      */
-    public function transform(
-        UserDTO $dto
+    public function registerTransform(
+        UserRegisterDTO $dto
     ): User {
-        if ($dto->id !== null) {
-            $entity = $this->userRepo->find($dto->id);
-            if (!$entity) {
-                $entityNotFound = new EntityNotFound(
-                    User::class,
-                    $dto->id,
-                    'No user found.'
-                );
-                throw $entityNotFound;
-            }
-            foreach ($entity->getTechnologies() as $techToRemove) {
-                $entity->removeTechnology($techToRemove);
-            }
-        } else {
-            $entity = new User();
-        }
+        $entity = new User();
         $entity->setName($dto->name);
         $entity->setPassword($this->encoder->encodePassword($entity, $dto->password));
         $entity->setSurname($dto->surname);
@@ -88,6 +77,84 @@ class UserTransformer
                 $entity->addTechnology($techToAdd);
             }
         }
+        return $entity;
+    }
+
+    /**
+     * @param UserEditDTO $dto
+     * @return User
+     * @throws EntityNotFound
+     */
+    public function editTransform(
+        UserEditDTO $dto
+    ): User {
+        $entity = $this->userRepo->find($dto->id);
+        if (!$entity) {
+            $entityNotFound = new EntityNotFound(
+                User::class,
+                $dto->id,
+                'No user found.'
+            );
+            throw $entityNotFound;
+        }
+        foreach ($entity->getTechnologies() as $techToRemove) {
+            $entity->removeTechnology($techToRemove);
+        }
+
+        $entity->setName($dto->name);
+        $entity->setSurname($dto->surname);
+        $entity->setUsername($dto->username);
+        $entity->setCreatedAt($dto->createdAt);
+        $entity->setUpdatedAt($dto->updatedAt);
+        $entity->setEmail($dto->email);
+
+        if ($dto->technologies !== null) {
+            foreach ($dto->technologies as $tech) {
+                $techID = $tech->id;
+                $techToAdd = $this->techRepo->find($techID);
+                if (!$techToAdd) {
+                    $entityNotFound = new EntityNotFound(
+                        Technology::class,
+                        $techID,
+                        'No technology found.'
+                    );
+                    throw $entityNotFound;
+                }
+                $entity->addTechnology($techToAdd);
+            }
+        }
+        return $entity;
+    }
+
+    /**
+     * @param UserChangePasswordDTO $dto
+     * @return User
+     * @throws NotValidOldPassword
+     * @throws EntityNotFound
+     */
+    public function changePasswordTransform(
+        UserChangePasswordDTO $dto
+    ): User {
+        $entity = $this->userRepo->find($dto->id);
+        if (!$entity) {
+            $entityNotFound = new EntityNotFound(
+                User::class,
+                $dto->id,
+                'No user found.'
+            );
+            throw $entityNotFound;
+        }
+
+        $match = $this->encoder->isPasswordValid($entity, $dto->oldPassword);
+        if (!$match) {
+            $passwordDoNotMatch = new NotValidOldPassword(
+                'Old password not valid.'
+            );
+            throw $passwordDoNotMatch;
+        }
+
+        $entity->setPassword($this->encoder->encodePassword($entity, $dto->newPassword));
+
         return $entity;
     }
 }

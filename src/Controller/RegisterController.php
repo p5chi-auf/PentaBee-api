@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\DTO\UserDTO;
+use App\DTO\UserRegisterDTO;
 use App\Exceptions\EntityNotFound;
 use App\Repository\UserRepository;
 use App\Service\UserTransformer;
@@ -61,7 +61,7 @@ class RegisterController extends AbstractController
 
         $userDTO = $serializer->deserialize(
             $data,
-            UserDTO::class,
+            UserRegisterDTO::class,
             'json',
             $context
         );
@@ -74,7 +74,7 @@ class RegisterController extends AbstractController
             return new Response($errorsString);
         }
 
-        $newUser = $this->transformer->transform($userDTO);
+        $newUser = $this->transformer->registerTransform($userDTO);
 
         $userRepository->save($newUser);
         return new JsonResponse(['message' => 'User successfully created!'], Response::HTTP_OK);
