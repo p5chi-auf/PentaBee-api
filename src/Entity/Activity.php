@@ -111,6 +111,22 @@ class Activity
     }
 
     /**
+     * @return Technology[]
+     */
+    public function getTechnologies(): ?iterable
+    {
+        return $this->technologies;
+    }
+
+    /**
+     * @return ActivityType[]
+     */
+    public function getTypes(): ?iterable
+    {
+        return $this->types;
+    }
+
+    /**
      * @param Technology $technology
      */
     public function addTechnology(Technology $technology): void

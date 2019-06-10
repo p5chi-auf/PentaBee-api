@@ -112,11 +112,13 @@ class ActivityController extends AbstractController
     /**
      * Create an Activity.
      * @Rest\Post("/create")
+     * @param ActivityRepository $activityRepository
      * @param Request $request
      * @return Response
-     * @throws Exception
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
-    public function createAction(Request $request): Response
+    public function createAction(ActivityRepository $activityRepository, Request $request): Response
     {
         $data = $request->getContent();
 
@@ -137,8 +139,6 @@ class ActivityController extends AbstractController
             return new Response($errorsString);
         }
 
-        $manager = $this->getDoctrine()->getManager();
-
         try {
             $newActivity = $this->transformer->transform($activityDTO);
         } catch (EntityNotFound $exception) {
@@ -152,9 +152,64 @@ class ActivityController extends AbstractController
             );
         }
 
-        $manager->persist($newActivity);
-        $manager->flush();
+        $activityRepository->save($newActivity);
 
         return new JsonResponse(['message' => 'Activity successfully created!'], Response::HTTP_CREATED);
+    }
+
+    /**
+     * Create an Activity.
+     * @Rest\Post("/{id}/edit")
+     * @param $id
+     * @param ActivityRepository $activityRepository
+     * @param Request $request
+     * @return Response
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function editAction($id, ActivityRepository $activityRepository, Request $request): Response
+    {
+        /** Verifying if the activity exists*/
+        $activity = $activityRepository->find($id);
+
+        if (!$activity) {
+            return new JsonResponse(['message' => 'The activity was not found!'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = $request->getContent();
+
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create();
+
+        $activityDTO = $this->serializer->deserialize(
+            $data,
+            ActivityDTO::class,
+            'json',
+            $context
+        );
+
+        $errors = $this->validator->validate($activityDTO);
+
+        if (count($errors) > 0) {
+            $errorsString = (string)$errors;
+            return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $activityToEdit = $this->transformer->transform($activityDTO);
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage(),
+                    'entity' => $exception->getEntity(),
+                    'id' => $exception->getId()
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
+        $activityRepository->save($activityToEdit);
+
+        return new JsonResponse(['message' => 'Activity successfully edited!'], Response::HTTP_OK);
     }
 }

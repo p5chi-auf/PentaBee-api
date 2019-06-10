@@ -18,8 +18,8 @@ class ActivityDTO
     public const STATUS_CLOSED = 2;
 
     /**
-     * @var integer
-     * @Serializer\Type("integer")
+     * @var int
+     * @Serializer\Type("int")
      */
     public $id;
 
