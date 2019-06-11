@@ -57,7 +57,7 @@ class RegisterController extends AbstractController
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
-        $context = DeserializationContext::create();
+        $context = DeserializationContext::create()->setGroups(array('UserCreate'));
 
         $userDTO = $serializer->deserialize(
             $data,
@@ -66,7 +66,7 @@ class RegisterController extends AbstractController
             $context
         );
 
-        $errors = $this->validator->validate($userDTO);
+        $errors = $this->validator->validate($userDTO, null, ['UserCreate']);
 
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
@@ -74,7 +74,7 @@ class RegisterController extends AbstractController
             return new Response($errorsString);
         }
 
-        $newUser = $this->transformer->transform($userDTO);
+        $newUser = $this->transformer->registerTransform($userDTO);
 
         $userRepository->save($newUser);
         return new JsonResponse(['message' => 'User successfully created!'], Response::HTTP_OK);

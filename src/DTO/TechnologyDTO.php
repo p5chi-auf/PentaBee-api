@@ -4,12 +4,14 @@ namespace App\DTO;
 
 use DateTime;
 use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Groups;
 
 class TechnologyDTO
 {
     /**
      * @var integer
      * @Serializer\Type("integer")
+     * @Groups({"UserEdit"})
      */
     public $id;
 

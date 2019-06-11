@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidOldPassword;
 use App\Repository\UserRepository;
 use App\Service\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
@@ -70,16 +71,16 @@ class UserController extends AbstractController
     }
 
     /**
-     * Create an User.
+     * Modify an User.
      * @Rest\Post("/{id}/edit")
-     * @param SerializerInterface $serializer
+     * @param $id
      * @param Request $request
      * @param UserRepository $userRepository
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function editUser($id, SerializerInterface $serializer, Request $request, UserRepository $userRepository)
+    public function editUser($id, Request $request, UserRepository $userRepository)
     {
         $user = $userRepository->find($id);
         if (!$user) {
@@ -89,16 +90,16 @@ class UserController extends AbstractController
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
-        $context = DeserializationContext::create();
+        $context = DeserializationContext::create()->setGroups(array('UserEdit'));
 
-        $userDTO = $serializer->deserialize(
+        $userDTO = $this->serializer->deserialize(
             $data,
             UserDTO::class,
             'json',
             $context
         );
 
-        $errors = $this->validator->validate($userDTO);
+        $errors = $this->validator->validate($userDTO, null, ['UserEdit']);
 
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
@@ -108,7 +109,7 @@ class UserController extends AbstractController
 
 
         try {
-            $userEdit = $this->transformer->transform($userDTO);
+            $userEdit = $this->transformer->editTransform($userDTO);
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
@@ -126,6 +127,7 @@ class UserController extends AbstractController
     }
 
     /**
+     * Delete an User.
      * @Rest\Delete("/{id}/delete")
      * @param int $id
      * @param UserRepository $userRepository
@@ -144,5 +146,60 @@ class UserController extends AbstractController
         $userRepository->delete($user);
 
         return new JsonResponse(['message' => 'The user was successfully deleted!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Change password
+     * @Rest\Post("/{id}/change_password")
+     * @param int $id
+     * @param UserRepository $userRepository
+     * @param Request $request
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function userChangePassword($id, UserRepository $userRepository, Request $request): JsonResponse
+    {
+        $user = $userRepository->find($id);
+        if (!$user) {
+            return new JsonResponse(['message' => 'The user was not found!'], Response::HTTP_NOT_FOUND);
+        }
+        $data = $request->getContent();
+
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create()->setGroups(array('PasswordEdit'));
+
+        $userDTO = $this->serializer->deserialize(
+            $data,
+            UserDTO::class,
+            'json',
+            $context
+        );
+        $errors = $this->validator->validate($userDTO, null, ['PasswordEdit']);
+        if (count($errors) > 0) {
+            $errorsString = (string)$errors;
+            return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
+        }
+        try {
+            $userChangePassword = $this->transformer->changePasswordTransform($userDTO);
+        } catch (NotValidOldPassword $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage()
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage(),
+                    'entity' => $exception->getEntity(),
+                    'id' => $exception->getId()
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+        $userRepository->save($userChangePassword);
+        return new JsonResponse(['message' => 'Password successfully changed!'], Response::HTTP_OK);
     }
 }
