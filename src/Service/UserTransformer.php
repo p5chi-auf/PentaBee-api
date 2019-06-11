@@ -56,21 +56,6 @@ class UserTransformer
         $entity->setCreatedAt($dto->createdAt);
         $entity->setUpdatedAt($dto->updatedAt);
         $entity->setEmail($dto->email);
-        if ($dto->technologies !== null) {
-            foreach ($dto->technologies as $tech) {
-                $techID = $tech->id;
-                $techToAdd = $this->techRepo->find($techID);
-                if (!$techToAdd) {
-                    $entityNotFound = new EntityNotFound(
-                        Technology::class,
-                        $techID,
-                        'No technology found.'
-                    );
-                    throw $entityNotFound;
-                }
-                $entity->addTechnology($techToAdd);
-            }
-        }
         return $entity;
     }
 
