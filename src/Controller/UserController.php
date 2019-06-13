@@ -19,7 +19,6 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
-use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 
 /**
@@ -74,62 +73,54 @@ class UserController extends AbstractController
     /**
      * Modify an User.
      * @Rest\Post("/{id}/edit")
-     * @param $id
+     * @param User $user
      * @param Request $request
      * @param UserRepository $userRepository
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function editUser($id, Request $request, UserRepository $userRepository, UserInterface $user)
+    public function editUser(User $user, Request $request, UserRepository $userRepository)
     {
-        $userUsername = $user->getUsername();
-        $userPage = $userRepository->find($id);
-        if ($userPage === null) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_NOT_FOUND);
+        $authenticatedUser = $this->getUser();
+
+        if ($authenticatedUser->getId() !== $user->getId()) {
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
         }
 
-        $userPage = $userRepository->find($id)->getUsername();
-        if ($userUsername === $userPage) {
-            $data = $request->getContent();
+        $data = $request->getContent();
 
-            /** @var DeserializationContext $context */
-            $context = DeserializationContext::create()->setGroups(array('UserEdit'));
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create()->setGroups(array('UserEdit'));
 
-            $userDTO = $this->serializer->deserialize(
-                $data,
-                UserDTO::class,
-                'json',
-                $context
+        $userDTO = $this->serializer->deserialize(
+            $data,
+            UserDTO::class,
+            'json',
+            $context
+        );
+
+        $errors = $this->validator->validate($userDTO, null, ['UserEdit']);
+
+        if (count($errors) > 0) {
+            return new JsonResponse(['message' => (string)$errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $userEdit = $this->transformer->editTransform($userDTO, $user);
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage(),
+                    'entity' => $exception->getEntity(),
+                    'id' => $exception->getId()
+                ],
+                Response::HTTP_NOT_FOUND
             );
-
-            $errors = $this->validator->validate($userDTO, null, ['UserEdit']);
-
-            if (count($errors) > 0) {
-                $errorsString = (string)$errors;
-
-                return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
-            }
-
-
-            try {
-                $userEdit = $this->transformer->editTransform($userDTO, $id);
-            } catch (EntityNotFound $exception) {
-                return new JsonResponse(
-                    [
-                        'message' => $exception->getMessage(),
-                        'entity' => $exception->getEntity(),
-                        'id' => $exception->getId()
-                    ],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
-
-
-            $userRepository->save($userEdit);
-            return new JsonResponse(['message' => 'User successfully edited!'], Response::HTTP_OK);
         }
-        return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
+
+        $userRepository->save($userEdit);
+        return new JsonResponse(['message' => 'User successfully edited!'], Response::HTTP_OK);
     }
 
     /**
@@ -157,28 +148,23 @@ class UserController extends AbstractController
     /**
      * Change password
      * @Rest\Post("/{id}/change_password")
-     * @param User $id
+     * @param User $user
      * @param UserRepository $userRepository
      * @param Request $request
-     * @param UserInterface $user
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
      */
     public function userChangePassword(
-        $id,
+        User $user,
         UserRepository $userRepository,
-        Request $request,
-        UserInterface $user
+        Request $request
     ): JsonResponse {
-        $userUsername = $user->getUsername();
-        $userPage = $userRepository->find($id);
-        if ($userPage === null) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_NOT_FOUND);
-        }
+        $authenticatedUser = $this->getUser();
 
-        $userPage = $userRepository->find($id)->getUsername();
-        if ($userUsername === $userPage) {
+        if ($authenticatedUser->getId() !== $user->getId()) {
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
+        }
             $data = $request->getContent();
             /** @var DeserializationContext $context */
             $context = DeserializationContext::create()->setGroups(array('PasswordEdit'));
@@ -190,33 +176,21 @@ class UserController extends AbstractController
                 $context
             );
             $errors = $this->validator->validate($userDTO, null, ['PasswordEdit']);
-            if (count($errors) > 0) {
-                $errorsString = (string)$errors;
-                return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
-            }
-            try {
-                $userChangePassword = $this->transformer->changePasswordTransform($userDTO, $id);
-            } catch (NotValidOldPassword $exception) {
-                return new JsonResponse(
-                    [
-                        'message' => $exception->getMessage()
-                    ],
-                    Response::HTTP_BAD_REQUEST
-                );
-            } catch (EntityNotFound $exception) {
-                return new JsonResponse(
-                    [
-                        'message' => $exception->getMessage(),
-                        'entity' => $exception->getEntity(),
-                        'id' => $exception->getId()
-                    ],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
+        if (count($errors) > 0) {
+            $errorsString = (string)$errors;
+            return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
+        }
+        try {
+            $userChangePassword = $this->transformer->changePasswordTransform($userDTO, $user);
+        } catch (NotValidOldPassword $exception) {
+            return new JsonResponse(
+                [
+                    'message' => $exception->getMessage()
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
             $userRepository->save($userChangePassword);
             return new JsonResponse(['message' => 'Password successfully changed!'], Response::HTTP_OK);
-        }
-
-        return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
     }
 }
