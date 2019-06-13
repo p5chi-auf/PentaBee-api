@@ -32,19 +32,24 @@ class RegisterController extends AbstractController
      * @var ValidatorInterface
      */
     private $validator;
+    /**
+     * @var SerializerInterface
+     */
+    private $serializer;
 
     public function __construct(
         UserTransformer $transformer,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        SerializerInterface $serializer
     ) {
         $this->transformer = $transformer;
         $this->validator = $validator;
+        $this->serializer = $serializer;
     }
 
     /**
      * Create an User.
      * @Rest\Post("/register")
-     * @param SerializerInterface $serializer
      * @param Request $request
      * @param UserRepository $userRepository
      * @return JsonResponse|Response
@@ -52,14 +57,14 @@ class RegisterController extends AbstractController
      * @throws OptimisticLockException
      * @throws EntityNotFound
      */
-    public function createUser(SerializerInterface $serializer, Request $request, UserRepository $userRepository)
+    public function createUser(Request $request, UserRepository $userRepository)
     {
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
         $context = DeserializationContext::create()->setGroups(array('UserCreate'));
 
-        $userDTO = $serializer->deserialize(
+        $userDTO = $this->serializer->deserialize(
             $data,
             UserDTO::class,
             'json',

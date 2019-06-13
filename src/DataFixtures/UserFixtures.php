@@ -58,7 +58,7 @@ class UserFixtures extends Fixture
         for ($i = 0; $i < 10; $i++) {
             $user = new User();
             $user->setUsername($faker->userName);
-            $user->setPassword($this->encoder->encodePassword($user, 'password'));
+            $user->setPassword($this->encoder->encodePassword($user, 'test_Password1'));
             $user->setPosition(self::POSITIONS[rand(0, 2)]);
             $user->setSeniority(mt_rand(0, 2));
             $user->setName($faker->firstName);

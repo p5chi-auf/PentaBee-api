@@ -65,9 +65,10 @@ class UserTransformer
      * @throws EntityNotFound
      */
     public function editTransform(
-        UserDTO $dto
+        UserDTO $dto,
+        $id
     ): User {
-        $entity = $this->userRepo->find($dto->id);
+        $entity = $this->userRepo->find($id);
         if (!$entity) {
             $entityNotFound = new EntityNotFound(
                 User::class,
@@ -112,9 +113,10 @@ class UserTransformer
      * @throws EntityNotFound
      */
     public function changePasswordTransform(
-        UserDTO $dto
+        UserDTO $dto,
+        $id
     ): User {
-        $entity = $this->userRepo->find($dto->id);
+        $entity = $this->userRepo->find($id);
         if (!$entity) {
             $entityNotFound = new EntityNotFound(
                 User::class,
@@ -123,14 +125,14 @@ class UserTransformer
             );
             throw $entityNotFound;
         }
-        $match = $this->encoder->isPasswordValid($entity, $dto->password);
+        $match = $this->encoder->isPasswordValid($entity, $dto->oldPassword);
         if (!$match) {
             $passwordDoNotMatch = new NotValidOldPassword(
                 'Old password not valid.'
             );
             throw $passwordDoNotMatch;
         }
-        $entity->setPassword($this->encoder->encodePassword($entity, $dto->newPassword));
+        $entity->setPassword($this->encoder->encodePassword($entity, $dto->password));
         return $entity;
     }
 }

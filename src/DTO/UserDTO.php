@@ -65,33 +65,20 @@ class UserDTO
      * @Serializer\Expose()
      * @Groups({"PasswordEdit"})
      */
-    public $newPassword;
+    public $oldPassword;
 
     /**
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"UserCreate"})
+     * @Assert\NotNull(groups={"UserCreate", "PasswordEdit"})
      * @Assert\EqualTo(propertyPath="password",
      *     message="Passwords do not match.",
-     *     groups={"UserCreate"}
+     *     groups={"UserCreate", "PasswordEdit"}
      *     )
      * @Serializer\Expose()
-     * @Groups({"UserCreate"})
+     * @Groups({"UserCreate", "PasswordEdit"})
      */
     public $confirmPassword;
-
-    /**
-     * @var string
-     * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"PasswordEdit"})
-     * @Assert\EqualTo(propertyPath="newPassword",
-     *     message="Passwords do not match.",
-     *     groups={"PasswordEdit"}
-     *     )
-     * @Serializer\Expose()
-     * @Groups({"PasswordEdit"})
-     */
-    public $confirmNewPassword;
 
     /**
      * @var string
