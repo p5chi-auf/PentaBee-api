@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\DTO\TechnologyDTO;
 use App\Entity\Technology;
+use App\Exceptions\EntityNotFound;
 
 class TechnologyTransformer
 {
