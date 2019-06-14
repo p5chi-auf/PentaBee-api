@@ -85,7 +85,7 @@ class UserController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
 
         $data = $request->getContent();
@@ -163,10 +163,11 @@ class UserController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
             $data = $request->getContent();
-            /** @var DeserializationContext $context */
+
+        /** @var DeserializationContext $context */
             $context = DeserializationContext::create()->setGroups(array('PasswordEdit'));
 
             $userDTO = $this->serializer->deserialize(
