@@ -10,6 +10,7 @@ use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -17,6 +18,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Swagger\Annotations as SWG;
 
 /**
  * Register controller.
@@ -48,14 +50,33 @@ class RegisterController extends AbstractController
     }
 
     /**
-     * Create an User.
+     * Register User.
      * @Rest\Post("/register")
+     * @SWG\Post(
+     *     summary="Register User.",
+     *     description="Register User.",
+     *     operationId="registerUser",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="Json body for the request",
+     *     name="requestBody",
+     *     required=true,
+     *     in="body",
+     *     @Model(type=UserDTO::class, groups={"UserCreate"}),
+     * )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User successfully created!"),
+     *     )
+     * )
      * @param Request $request
      * @param UserRepository $userRepository
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws EntityNotFound
      */
     public function createUser(Request $request, UserRepository $userRepository)
     {

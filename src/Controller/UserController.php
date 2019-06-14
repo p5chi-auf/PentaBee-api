@@ -13,6 +13,7 @@ use Doctrine\ORM\ORMException;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Nelmio\ApiDocBundle\Annotation\Model;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,6 +21,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Swagger\Annotations as SWG;
 
 /**
  * User controller.
@@ -51,8 +53,38 @@ class UserController extends AbstractController
     }
 
     /**
-     * Show details about an User.
+     * Get details about an User.
      * @Rest\Get("/{id}")
+     * @SWG\Get(
+     *     summary="Get details about an User.",
+     *     description="Get details about an User.",
+     *     operationId="getUserById",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to return",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @Model(type=User::class, groups={"UserDetail"}),
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="User not found.",
+     * )
      * @param User $user
      * @return Response
      */
@@ -73,6 +105,52 @@ class UserController extends AbstractController
     /**
      * Modify an User.
      * @Rest\Post("/{id}/edit")
+     * @SWG\Post(
+     *     summary="Edit an User.",
+     *     description="Edit an User.",
+     *     operationId="editUser",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to edit",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * ),
+     *     @SWG\Parameter(
+     *     description="Json body for the request",
+     *     name="requestBody",
+     *     required=true,
+     *     in="body",
+     *     @Model(type=UserDTO::class, groups={"UserEdit"}),
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="201",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User successfully edited!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="User not found.",
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
      * @param User $user
      * @param Request $request
      * @param UserRepository $userRepository
@@ -126,6 +204,41 @@ class UserController extends AbstractController
     /**
      * Delete an User.
      * @Rest\Delete("/{id}/delete")
+     * @SWG\Delete(
+     *     summary="Delete an User.",
+     *     description="Delete an User.",
+     *     operationId="deleteUserById",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to delete",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="The user was successfully deleted!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Activity not found.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="The user was not found!"),
+     * )
+     * )
      * @param int $id
      * @param UserRepository $userRepository
      * @return JsonResponse
@@ -146,8 +259,54 @@ class UserController extends AbstractController
     }
 
     /**
-     * Change password
+     * Change password of User.
      * @Rest\Post("/{id}/change_password")
+     * @SWG\Post(
+     *     summary="Change password of User.",
+     *     description="Change password of User.",
+     *     operationId="userChangePassword",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to change password",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Json body for the request",
+     *     name="requestBody",
+     *     required=true,
+     *     in="body",
+     *     @Model(type=UserDTO::class, groups={"PasswordEdit"}),
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Password successfully changed!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="User not found.",
+     * )
      * @param User $user
      * @param UserRepository $userRepository
      * @param Request $request
