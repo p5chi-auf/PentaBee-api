@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Swagger\Annotations as SWG;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
@@ -22,58 +23,74 @@ class User implements UserInterface
     public const SENIORITY_SENIOR = 2;
 
     /**
+     * User ID
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "ActivityDetails"})
+     * @Groups({"UserDetail", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     protected $id;
 
     /**
+     * The username of User
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     private $username;
 
     /**
+     * Password of User
      * @ORM\Column(type="string")
+     * @SWG\Property()
      */
     private $password;
 
     /**
+     * User email
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     protected $email;
 
     /**
+     * User position
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     private $position;
 
     /**
+     * User seniority (JUNIOR, MIDDLE, SENIOR int(0-2) )
      * @ORM\Column(type="integer", nullable=true)
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     private $seniority = self::SENIORITY_JUNIOR;
 
     /**
+     * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     private $name;
 
     /**
+     * The surname of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     private $surname;
 
@@ -92,10 +109,12 @@ class User implements UserInterface
     private $updatedAt;
 
     /**
+     * User Technologies (Technology Collection)
      * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      * @Serializer\Expose()
      * @Groups({"UserDetail"})
+     * @SWG\Property()
      */
     protected $technologies;
 

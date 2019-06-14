@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
+use Swagger\Annotations as SWG;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ActivityRepository")
@@ -21,84 +22,104 @@ class Activity
     public const STATUS_CLOSED = 2;
 
     /**
+     * Activity ID
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityEdit"})
+     * @SWG\Property()
      */
     protected $id;
 
     /**
+     * Activity name
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $name;
 
     /**
+     * Activity description
      * @ORM\Column(type="text")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $description;
 
     /**
+     * The deadline for applying ao Activity
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $applicationDeadline;
 
     /**
+     * The final deadline of Activity
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $finalDeadline;
 
     /**
+     * Activity status (NEW, FINISHED, CLOSED int(0-2))
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $status = self::STATUS_NEW;
 
     /**
+     * Activity owner (User)
      * @ORM\ManyToOne(targetEntity="User")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $owner;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     private $updatedAt;
 
     /**
+     * Activity technologies (Technology Collection)
      * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     protected $technologies;
 
     /**
+     * Activity types (Type Collection)
      * @var Collection|ActivityType[]
      * @ORM\ManyToMany(targetEntity="ActivityType")
      * @ORM\JoinTable(name="activity_to_activity_type")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails"})
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
      */
     protected $types;
 
