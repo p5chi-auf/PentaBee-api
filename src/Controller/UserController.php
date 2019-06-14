@@ -163,7 +163,7 @@ class UserController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
 
         $data = $request->getContent();
@@ -322,19 +322,20 @@ class UserController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
-            $data = $request->getContent();
-            /** @var DeserializationContext $context */
-            $context = DeserializationContext::create()->setGroups(array('PasswordEdit'));
+        $data = $request->getContent();
 
-            $userDTO = $this->serializer->deserialize(
-                $data,
-                UserDTO::class,
-                'json',
-                $context
-            );
-            $errors = $this->validator->validate($userDTO, null, ['PasswordEdit']);
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create()->setGroups(array('PasswordEdit'));
+
+        $userDTO = $this->serializer->deserialize(
+            $data,
+            UserDTO::class,
+            'json',
+            $context
+        );
+        $errors = $this->validator->validate($userDTO, null, ['PasswordEdit']);
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
             return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
@@ -349,7 +350,7 @@ class UserController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
-            $userRepository->save($userChangePassword);
-            return new JsonResponse(['message' => 'Password successfully changed!'], Response::HTTP_OK);
+        $userRepository->save($userChangePassword);
+        return new JsonResponse(['message' => 'Password successfully changed!'], Response::HTTP_OK);
     }
 }
