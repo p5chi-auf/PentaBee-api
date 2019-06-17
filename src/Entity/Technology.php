@@ -25,24 +25,28 @@ class Technology
 
     /**
      * @ORM\Column(type="string")
+     * @Serializer\Expose()
      * @Groups({"TechnologyDetail"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Serializer\Expose()
      * @Groups({"TechnologyDetail"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Serializer\Expose()
      * @Groups({"TechnologyDetail"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Serializer\Expose()
      * @Groups({"TechnologyDetail"})
      */
     private $updatedAt;
