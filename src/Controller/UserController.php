@@ -242,20 +242,19 @@ class UserController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="The user was not found!"),
      * )
      * )
-     * @param int $id
+     * @param User $user
      * @param UserRepository $userRepository
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function deleteUser($id, UserRepository $userRepository): JsonResponse
+    public function deleteUser(User $user, UserRepository $userRepository): JsonResponse
     {
-        $user = $userRepository->find($id);
+        $authenticatedUser = $this->getUser();
 
-        if (!$user) {
-            return new JsonResponse(['message' => 'The user was not found!'], Response::HTTP_NOT_FOUND);
+        if ($authenticatedUser->getId() !== $user->getId()) {
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
-
         $userRepository->delete($user);
 
         return new JsonResponse(['message' => 'The user was successfully deleted!'], Response::HTTP_OK);
