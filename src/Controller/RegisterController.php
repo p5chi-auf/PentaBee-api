@@ -53,6 +53,7 @@ class RegisterController extends AbstractController
      * Register User. (No Auth required!)
      * @Rest\Post("/register")
      * @SWG\Post(
+     *     tags={"Login\Register"},
      *     summary="Register User. (No Auth required!)",
      *     description="Register User. (No Auth required!)",
      *     operationId="registerUser",

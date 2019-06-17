@@ -42,8 +42,10 @@ nelmio_api_doc:
     paths:
       /api/login:
         post:
-          summary: Login
-          description: Login
+          tags:
+            - Login\Register
+          summary: Login (No Auth required!)
+          description: Login (No Auth required!)
           produces:
             - application/json
           parameters:

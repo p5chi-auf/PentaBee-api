@@ -52,6 +52,7 @@ class ActivityController extends AbstractController
      * @Rest\Get("/")
      * @return Response
      * @SWG\Get(
+     *     tags={"Activity"},
      *     summary="Get a list of all activities",
      *     description="Get a list of all activities",
      *     operationId="getActivities",
@@ -96,6 +97,7 @@ class ActivityController extends AbstractController
      * @Rest\Get("/{id}")
      * @return Response
      * @SWG\Get(
+     *     tags={"Activity"},
      *     summary="Get details about and Activity",
      *     description="Get details about and Activity",
      *     operationId="getActivitById",
@@ -153,6 +155,7 @@ class ActivityController extends AbstractController
      * Delete an Activity.
      * @Rest\Delete("/{id}/delete")
      * @SWG\Delete(
+     *     tags={"Activity"},
      *     summary="Delete an Activity.",
      *     description="Delete an Activity.",
      *     operationId="deleteActivityById",
@@ -210,6 +213,7 @@ class ActivityController extends AbstractController
      * Create an Activity.
      * @Rest\Post("/create")
      * @SWG\Post(
+     *     tags={"Activity"},
      *     summary="Create an Activity.",
      *     description="Create an Activity.",
      *     operationId="createActivity",
@@ -295,6 +299,7 @@ class ActivityController extends AbstractController
      * Edit an Activity.
      * @Rest\Post("/{id}/edit")
      * @SWG\Post(
+     *     tags={"Activity"},
      *     summary="Edit an Activity.",
      *     description="Edit an Activity.",
      *     operationId="editActivity",

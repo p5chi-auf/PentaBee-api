@@ -25,24 +25,28 @@ class ActivityType
 
     /**
      * @ORM\Column(type="string")
+     * @Serializer\Expose()
      * @Groups({"TypeDetails"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
+     * @Serializer\Expose()
      * @Groups({"TypeDetails"})
      */
     private $description;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Serializer\Expose()
      * @Groups({"TypeDetails"})
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
+     * @Serializer\Expose()
      * @Groups({"TypeDetails"})
      */
     private $updatedAt;

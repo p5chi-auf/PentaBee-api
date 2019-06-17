@@ -56,6 +56,7 @@ class UserController extends AbstractController
      * Get details about an User.
      * @Rest\Get("/{id}")
      * @SWG\Get(
+     *     tags={"User"},
      *     summary="Get details about an User.",
      *     description="Get details about an User.",
      *     operationId="getUserById",
@@ -106,6 +107,7 @@ class UserController extends AbstractController
      * Modify an User.
      * @Rest\Post("/{id}/edit")
      * @SWG\Post(
+     *     tags={"User"},
      *     summary="Edit an User.",
      *     description="Edit an User.",
      *     operationId="editUser",
@@ -205,6 +207,7 @@ class UserController extends AbstractController
      * Delete an User.
      * @Rest\Delete("/{id}/delete")
      * @SWG\Delete(
+     *     tags={"User"},
      *     summary="Delete an User.",
      *     description="Delete an User.",
      *     operationId="deleteUserById",
@@ -262,6 +265,7 @@ class UserController extends AbstractController
      * Change password of User.
      * @Rest\Post("/{id}/change_password")
      * @SWG\Post(
+     *     tags={"User"},
      *     summary="Change password of User.",
      *     description="Change password of User.",
      *     operationId="userChangePassword",
