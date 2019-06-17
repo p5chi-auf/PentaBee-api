@@ -14,6 +14,10 @@ security:
     api_doc:
       pattern: ^/api/doc
       security: false
+    register:
+      pattern:  ^/api/register
+      anonymous: true
+      security: false
     login:
       pattern:  ^/api/login
       stateless: true
@@ -33,6 +37,6 @@ security:
       security: false
 
   access_control:
-    - { path: ^/api/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/api/register$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+    - { path: ^/api/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
     - { path: ^/api,       roles: IS_AUTHENTICATED_FULLY }
