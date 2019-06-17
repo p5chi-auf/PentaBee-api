@@ -252,7 +252,6 @@ class UserController extends AbstractController
         if ($authenticatedUser->getId() !== $user->getId()) {
             return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
-        $user->getId();
         $userRepository->delete($user);
 
         return new JsonResponse(['message' => 'The user was successfully deleted!'], Response::HTTP_OK);
