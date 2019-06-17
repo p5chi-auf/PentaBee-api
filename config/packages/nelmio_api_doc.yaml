@@ -1,5 +1,30 @@
 #config/packages/nelmio_api_doc.yaml
 nelmio_api_doc:
+  models:
+    names:
+      - { alias: CompleteActivity, type: App\Entity\Activity }
+      - { alias: ActivityList, type: App\Entity\Activity, groups: [ActivityList] }
+      - { alias: ActivityDetails, type: App\Entity\Activity, groups: [ActivityDetails] }
+      - { alias: ActivityEdit, type: App\Entity\Activity, groups: [ActivityEdit] }
+      - { alias: ActivityCreate, type: App\Entity\Activity, groups: [ActivityCreate] }
+      - { alias: CompleteUser, type: App\Entity\User }
+      - { alias: UserDetail, type: App\Entity\User, groups: [UserDetail] }
+      - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
+      - { alias: UserForActivityCreate, type: App\Entity\User, groups: [ActivityCreate] }
+      - { alias: UserForActivityEdit, type: App\Entity\User, groups: [ActivityEdit] }
+      - { alias: UserCreate, type: App\DTO\UserDTO, groups: [UserCreate] }
+      - { alias: UserEdit, type: App\DTO\UserDTO, groups: [UserEdit] }
+      - { alias: UserPasswordEdit, type: App\DTO\UserDTO, groups: [PasswordEdit] }
+      - { alias: CompleteTechnology, type: App\Entity\Technology }
+      - { alias: TechnologyForActivityDetails, type: App\Entity\Technology, groups: [ActivityDetails] }
+      - { alias: TechnologyForActivityCreate, type: App\Entity\Technology, groups: [ActivityCreate] }
+      - { alias: TechnologyForActivityEdit, type: App\Entity\Technology, groups: [ActivityEdit] }
+      - { alias: TechnologyForUserDetail, type: App\Entity\Technology, groups: [UserDetail] }
+      - { alias: TechnologyForUserEdit, type: App\DTO\TechnologyDTO, groups: [UserEdit] }
+      - { alias: CompleteActivityType, type: App\Entity\ActivityType }
+      - { alias: ActivityTypeForActivityDetails, type: App\Entity\ActivityType, groups: [ActivityDetails] }
+      - { alias: ActivityTypeForActivityCreate, type: App\Entity\ActivityType, groups: [ActivityCreate] }
+      - { alias: ActivityTypeForActivityEdit, type: App\Entity\ActivityType, groups: [ActivityEdit] }
   documentation:
     #        schemes: [http, https]
     info:
