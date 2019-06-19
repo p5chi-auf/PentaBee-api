@@ -2,8 +2,12 @@
 
 namespace App\Repository;
 
+use App\Entity\Activity;
 use App\Entity\ActivityUser;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -17,5 +21,24 @@ class ActivityUserRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, ActivityUser::class);
+    }
+
+    /**
+     * Persist an Activity appliance.
+     * @param Activity $activity
+     * @param User $applier
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function apply(Activity $activity, User $applier): void
+    {
+        $activityUser = new ActivityUser();
+        $activityUser->setActivity($activity);
+        $activityUser->setUser($applier);
+        $activityUser->setType(1);
+        $manager = $this->getEntityManager();
+        $manager->persist($activityUser);
+        $manager->flush();
     }
 }
