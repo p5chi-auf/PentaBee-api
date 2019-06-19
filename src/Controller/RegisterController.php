@@ -8,6 +8,7 @@ use App\Repository\UserRepository;
 use App\Service\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Exception;
 use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -78,6 +79,7 @@ class RegisterController extends AbstractController
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws Exception
      */
     public function createUser(Request $request, UserRepository $userRepository)
     {

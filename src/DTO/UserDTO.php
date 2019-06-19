@@ -151,18 +151,16 @@ class UserDTO
     /**
      * @var DateTime
      * @Serializer\Type("DateTime")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotNull
      * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
      */
     public $createdAt;
 
     /**
      * @var DateTime
      * @Serializer\Type("DateTime")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotNull
      * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
      */
     public $updatedAt;
 

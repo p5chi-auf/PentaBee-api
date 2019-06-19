@@ -8,6 +8,8 @@ use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
 use App\Repository\TechnologyRepository;
+use DateTime;
+use Exception;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserTransformer
@@ -32,9 +34,11 @@ class UserTransformer
         $this->techRepo = $techRepo;
         $this->encoder = $encoder;
     }
+
     /**
      * @param UserDTO $dto
      * @return User
+     * @throws Exception
      */
     public function registerTransform(
         UserDTO $dto
@@ -44,8 +48,8 @@ class UserTransformer
         $entity->setPassword($this->encoder->encodePassword($entity, $dto->password));
         $entity->setSurname($dto->surname);
         $entity->setUsername($dto->username);
-        $entity->setCreatedAt($dto->createdAt);
-        $entity->setUpdatedAt($dto->updatedAt);
+        $entity->setCreatedAt(new DateTime('now'));
+        $entity->setUpdatedAt(new DateTime('now'));
         $entity->setEmail($dto->email);
         return $entity;
     }
@@ -69,8 +73,7 @@ class UserTransformer
         $user->setUsername($dto->username);
         $user->setPosition($dto->position);
         $user->setSeniority($dto->seniority);
-        $user->setCreatedAt($dto->createdAt);
-        $user->setUpdatedAt($dto->updatedAt);
+        $user->setUpdatedAt(new DateTime('now'));
         $user->setEmail($dto->email);
 
         if ($dto->technologies !== null) {
@@ -109,6 +112,7 @@ class UserTransformer
             throw $passwordDoNotMatch;
         }
         $user->setPassword($this->encoder->encodePassword($user, $dto->password));
+        $user->setUpdatedAt(new DateTime('now'));
         return $user;
     }
 }
