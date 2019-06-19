@@ -14,6 +14,7 @@ use Swagger\Annotations as SWG;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\HasLifecycleCallbacks
  * @Serializer\ExclusionPolicy("all")
  */
 class User implements UserInterface
@@ -261,5 +262,17 @@ class User implements UserInterface
 
     public function eraseCredentials(): void
     {
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new DateTime('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new DateTime('now'));
+        }
     }
 }
