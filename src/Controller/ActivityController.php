@@ -7,7 +7,6 @@ use App\Entity\Activity;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
 use App\Service\ActivityTransformer;
-use DateTime;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
