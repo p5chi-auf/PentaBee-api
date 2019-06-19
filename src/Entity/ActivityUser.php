@@ -9,10 +9,10 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class ActivityUser
 {
-    public const ROLE_INVITED = 0;
-    public const ROLE_WAITING_CONFIRM = 1;
-    public const ROLE_ASSIGNED = 2;
-    public const ROLE_FINISHED_JOB = 3;
+    public const TYPE_INVITED = 0;
+    public const TYPE_APPLIED = 1;
+    public const TYPE_ASSIGNED = 2;
+    public const TYPE_FINISHED_JOB = 3;
 
     /**
      * @ORM\Id()
