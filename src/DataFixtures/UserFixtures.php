@@ -38,8 +38,6 @@ class UserFixtures extends Fixture
         $user->setSeniority(1);
         $user->setName('Staci');
         $user->setSurname('Nicolae');
-        $user->setCreatedAt(new DateTime());
-        $user->setUpdatedAt(new DateTime());
         $user->setEmail('nstaci@pentalog.com');
         $manager->persist($user);
 
@@ -50,8 +48,6 @@ class UserFixtures extends Fixture
         $user->setSeniority(1);
         $user->setName('Druta');
         $user->setSurname('Mihai');
-        $user->setCreatedAt(new DateTime());
-        $user->setUpdatedAt(new DateTime());
         $user->setEmail('mdruta@pentalog.com');
         $manager->persist($user);
 
@@ -63,8 +59,6 @@ class UserFixtures extends Fixture
             $user->setSeniority(mt_rand(0, 2));
             $user->setName($faker->firstName);
             $user->setSurname($faker->lastName);
-            $user->setCreatedAt(new DateTime());
-            $user->setUpdatedAt(new DateTime());
             $user->setEmail($faker->email);
             $this->setReference('user_' . $i, $user);
 

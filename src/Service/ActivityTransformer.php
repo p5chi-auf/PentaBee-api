@@ -8,7 +8,6 @@ use App\Entity\Technology;
 use App\Entity\ActivityType;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
-use App\Repository\ActivityRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\TypeRepository;
 use App\Repository\UserRepository;
@@ -28,21 +27,15 @@ class ActivityTransformer
      * @var TypeRepository
      */
     private $typeRepo;
-    /**
-     * @var ActivityRepository
-     */
-    private $activityRepo;
 
     public function __construct(
         UserRepository $userRepo,
         TechnologyRepository $techRepo,
-        TypeRepository $typeRepo,
-        ActivityRepository $activityRepo
+        TypeRepository $typeRepo
     ) {
         $this->userRepo = $userRepo;
         $this->techRepo = $techRepo;
         $this->typeRepo = $typeRepo;
-        $this->activityRepo = $activityRepo;
     }
 
 
@@ -110,39 +103,68 @@ class ActivityTransformer
      * @return Activity
      * @throws EntityNotFound
      */
-    public function transform(
+    public function createTransform(
         ActivityDTO $dto
     ): Activity {
 
-        if ($dto->id !== null) {
-            $entity = $this->activityRepo->find($dto->id);
-            if (!$entity) {
-                $entityNotFound = new EntityNotFound(
-                    Activity::class,
-                    $dto->id,
-                    'No activity found.'
-                );
-                throw $entityNotFound;
-            }
-            $this->resetTechTypeCollections($entity);
-        } else {
-            $entity = new Activity();
-        }
+        $entity = new Activity();
         $entity->setName($dto->name);
         $entity->setDescription($dto->description);
         $entity->setApplicationDeadline($dto->applicationDeadline);
         $entity->setFinalDeadline($dto->finalDeadline);
-        $entity->setCreatedAt($dto->createdAt);
-        $entity->setUpdatedAt($dto->updatedAt);
         $entity->setStatus($dto->status);
 
         /** @var User $tempUser */
         $tempUser = $this->userRepo->find($dto->owner);
+        if (!$tempUser) {
+            $entityNotFound = new EntityNotFound(
+                User::class,
+                $dto->owner->getId(),
+                'No user found.'
+            );
+            throw $entityNotFound;
+        }
         $entity->setOwner($tempUser);
 
         $this->addTechnologies($dto, $entity);
         $this->addTypes($dto, $entity);
 
         return $entity;
+    }
+
+    /**
+     * @param ActivityDTO $dto
+     * @param Activity $activity
+     * @return Activity
+     * @throws EntityNotFound
+     */
+    public function editTransform(
+        ActivityDTO $dto,
+        Activity $activity
+    ): Activity {
+
+        $this->resetTechTypeCollections($activity);
+
+        $activity->setName($dto->name);
+        $activity->setDescription($dto->description);
+        $activity->setApplicationDeadline($dto->applicationDeadline);
+        $activity->setFinalDeadline($dto->finalDeadline);
+        $activity->setStatus($dto->status);
+
+        $tempUser = $this->userRepo->find($dto->owner);
+        if (!$tempUser) {
+            $entityNotFound = new EntityNotFound(
+                User::class,
+                $dto->owner->getId(),
+                'No user found.'
+            );
+            throw $entityNotFound;
+        }
+        $activity->setOwner($tempUser);
+
+        $this->addTechnologies($dto, $activity);
+        $this->addTypes($dto, $activity);
+
+        return $activity;
     }
 }

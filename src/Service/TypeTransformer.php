@@ -13,8 +13,6 @@ class TypeTransformer
         $entity = new ActivityType();
         $entity->setName($dto->name);
         $entity->setDescription($dto->description);
-        $entity->setCreatedAt($dto->createdAt);
-        $entity->setUpdatedAt($dto->updatedAt);
 
         return $entity;
     }
@@ -24,8 +22,6 @@ class TypeTransformer
         $dto = new ActivityTypeDTO();
         $dto->name = $entity->getName();
         $dto->description = $entity->getDescription();
-        $dto->createdAt = $entity->getCreatedAt();
-        $dto->updatedAt = $entity->getUpdatedAt();
 
         return $dto;
     }

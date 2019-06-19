@@ -149,24 +149,6 @@ class UserDTO
     public $surname;
 
     /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
-     * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
-     */
-    public $createdAt;
-
-    /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
-     * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
-     */
-    public $updatedAt;
-
-    /**
      * User Technologies (Technology Collection)
      * @var Collection|TechnologyDTO[]
      * @Serializer\Type("ArrayCollection<App\DTO\TechnologyDTO>")

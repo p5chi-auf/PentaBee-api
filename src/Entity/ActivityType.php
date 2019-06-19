@@ -9,6 +9,7 @@ use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation as Serializer;
 
 /**
+ * @ORM\HasLifecycleCallbacks
  * @ORM\Entity(repositoryClass="App\Repository\TypeRepository")
  * @Serializer\ExclusionPolicy("all")
  */
@@ -100,5 +101,17 @@ class ActivityType
     public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new DateTime('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new DateTime('now'));
+        }
     }
 }

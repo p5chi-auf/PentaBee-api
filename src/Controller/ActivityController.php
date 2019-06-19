@@ -95,6 +95,7 @@ class ActivityController extends AbstractController
     /**
      * Get details about and Activity
      * @Rest\Get("/{id}")
+     * @param Activity $activity
      * @return Response
      * @SWG\Get(
      *     tags={"Activity"},
@@ -131,14 +132,8 @@ class ActivityController extends AbstractController
      * )
      * )
      */
-    public function getActivityDetails($id): Response
+    public function getActivityDetails(Activity $activity): Response
     {
-        $activity = $this->getDoctrine()->getRepository(Activity::class)->find($id);
-
-        if (!$activity) {
-            return new JsonResponse(['message' => 'The activity was not found!'], Response::HTTP_NOT_FOUND);
-        }
-
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityDetails'));
 
@@ -184,24 +179,31 @@ class ActivityController extends AbstractController
      *     )
      * )
      * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
      *     response=404,
      *     description="Activity not found.",
      *     @SWG\Schema(
      *     @SWG\Property(property="message", type="string", example="The activity was not found!"),
      * )
      * )
-     * @param int $id
+     * @param Activity $activity
      * @param ActivityRepository $activityRepository
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function deleteActivity($id, ActivityRepository $activityRepository): JsonResponse
+    public function deleteActivity(Activity $activity, ActivityRepository $activityRepository): JsonResponse
     {
-        $activity = $activityRepository->find($id);
+        $authenticatedUser = $this->getUser();
 
-        if (!$activity) {
-            return new JsonResponse(['message' => 'The activity was not found!'], Response::HTTP_NOT_FOUND);
+        if ($authenticatedUser !== $activity->getOwner()) {
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
 
         $activityRepository->delete($activity);
@@ -223,7 +225,7 @@ class ActivityController extends AbstractController
      *     name="requestBody",
      *     required=true,
      *     in="body",
-     *     @Model(type=Activity::class, groups={"ActivityCreate"}),
+     *     @Model(type=ActivityDTO::class, groups={"ActivityCreate"}),
      * )
      * )
      * @SWG\Response(
@@ -261,7 +263,7 @@ class ActivityController extends AbstractController
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
-        $context = DeserializationContext::create();
+        $context = DeserializationContext::create()->setGroups(array('ActivityCreate'));
 
         $activityDTO = $this->serializer->deserialize(
             $data,
@@ -270,7 +272,7 @@ class ActivityController extends AbstractController
             $context
         );
 
-        $errors = $this->validator->validate($activityDTO);
+        $errors = $this->validator->validate($activityDTO, null, ['ActivityCreate']);
 
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
@@ -278,7 +280,7 @@ class ActivityController extends AbstractController
         }
 
         try {
-            $newActivity = $this->transformer->transform($activityDTO);
+            $newActivity = $this->transformer->createTransform($activityDTO);
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
@@ -316,7 +318,7 @@ class ActivityController extends AbstractController
      *     name="requestBody",
      *     required=true,
      *     in="body",
-     *     @Model(type=Activity::class, groups={"ActivityEdit"}),
+     *     @Model(type=ActivityDTO::class, groups={"ActivityEdit"}),
      * )
      * )
      * @SWG\Response(
@@ -335,6 +337,13 @@ class ActivityController extends AbstractController
      *     )
      * )
      * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
      *     response=404,
      *     description="Technoology not found.",
      *     @SWG\Schema(
@@ -343,26 +352,24 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="id", type="integer", example=999),
      * )
      * )
-     * @param $id
+     * @param Activity $activity
      * @param ActivityRepository $activityRepository
      * @param Request $request
      * @return Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function editAction($id, ActivityRepository $activityRepository, Request $request): Response
+    public function editAction(Activity $activity, ActivityRepository $activityRepository, Request $request): Response
     {
-        /** Verifying if the activity exists*/
-        $activity = $activityRepository->find($id);
+        $authenticatedUser = $this->getUser();
 
-        if (!$activity) {
-            return new JsonResponse(['message' => 'The activity was not found!'], Response::HTTP_NOT_FOUND);
+        if ($authenticatedUser !== $activity->getOwner()) {
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
         }
-
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
-        $context = DeserializationContext::create();
+        $context = DeserializationContext::create()->setGroups(array('ActivityEdit'));
 
         $activityDTO = $this->serializer->deserialize(
             $data,
@@ -371,7 +378,7 @@ class ActivityController extends AbstractController
             $context
         );
 
-        $errors = $this->validator->validate($activityDTO);
+        $errors = $this->validator->validate($activityDTO, null, ['ActivityEdit']);
 
         if (count($errors) > 0) {
             $errorsString = (string)$errors;
@@ -379,7 +386,7 @@ class ActivityController extends AbstractController
         }
 
         try {
-            $activityToEdit = $this->transformer->transform($activityDTO);
+            $activityToEdit = $this->transformer->editTransform($activityDTO, $activity);
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
@@ -390,7 +397,6 @@ class ActivityController extends AbstractController
                 Response::HTTP_NOT_FOUND
             );
         }
-
         $activityRepository->save($activityToEdit);
 
         return new JsonResponse(['message' => 'Activity successfully edited!'], Response::HTTP_OK);

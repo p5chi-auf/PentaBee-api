@@ -8,9 +8,13 @@ use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Groups;
 use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Validator\Constraints as Assert;
 
+/**
+ * @Serializer\ExclusionPolicy("all")
+ */
 class ActivityDTO
 {
     public const STATUS_NEW = 0;
@@ -20,6 +24,7 @@ class ActivityDTO
     /**
      * @var int
      * @Serializer\Type("int")
+     * @Serializer\Expose()
      */
     public $id;
 
@@ -27,8 +32,11 @@ class ActivityDTO
      * @var string
      * @Serializer\Type("string")
      * @Assert\NotBlank(
-     *     message = "Activity name cannot be blank!"
+     *     message = "Activity name cannot be blank!",
+     *     groups={"ActivityEdit", "ActivityCreate"}
      * )
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $name;
 
@@ -36,23 +44,31 @@ class ActivityDTO
      * @var string
      * @Serializer\Type("string")
      * @Assert\NotBlank(
-     *     message = "Activity description cannot be blank!"
+     *     message = "Activity description cannot be blank!",
+     *     groups={"ActivityEdit", "ActivityCreate"}
      * )
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $description;
 
     /**
      * @var DateTime
      * @Serializer\Type("DateTime")
-     * @Assert\GreaterThan("now")
+     * @Assert\GreaterThan("now", groups={"ActivityEdit", "ActivityCreate"})
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $applicationDeadline;
 
     /**
      * @var DateTime
      * @Serializer\Type("DateTime")
-     * @Assert\GreaterThan(propertyPath="applicationDeadline"
+     * @Assert\GreaterThan(propertyPath="applicationDeadline",
+     *     groups={"ActivityEdit", "ActivityCreate"}
      * )
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $finalDeadline;
 
@@ -63,8 +79,12 @@ class ActivityDTO
      *     min = 0,
      *     max = 2,
      *     minMessage="Status must be in range 0-2!",
-     *     maxMessage="Status must be in range 0-2!"
+     *     maxMessage="Status must be in range 0-2!",
+     *     groups={"ActivityEdit", "ActivityCreate"}
      * )
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
+     *
      */
     public $status = self::STATUS_NEW;
 
@@ -72,34 +92,27 @@ class ActivityDTO
      * @var User
      * @Serializer\Type(User::class)
      * @Assert\NotNull(
-     *     message="Activity must have an Owner!"
+     *     message="Activity must have an Owner!",
+     *     groups={"ActivityEdit", "ActivityCreate"}
      * )
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $owner;
 
     /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     * @Assert\LessThanOrEqual("now")
-     */
-    public $createdAt;
-
-    /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     * @Assert\GreaterThanOrEqual(propertyPath="createdAt")
-     */
-    public $updatedAt;
-
-    /**
      * @var Collection|TechnologyDTO[]
      * @Serializer\Type("ArrayCollection<App\DTO\TechnologyDTO>")
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $technologies;
 
     /**
      * @var Collection|ActivityTypeDTO[]
      * @Serializer\Type("ArrayCollection<App\DTO\ActivityTypeDTO>")
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $types;
 
