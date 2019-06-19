@@ -89,16 +89,6 @@ class ActivityDTO
     public $status = self::STATUS_NEW;
 
     /**
-     * @var User
-     * @Serializer\Type(User::class)
-     * @Assert\NotNull(
-     *     message="Activity must have an Owner!"
-     * )
-     * @Serializer\Expose()
-     */
-    public $owner;
-
-    /**
      * @var Collection|TechnologyDTO[]
      * @Serializer\Type("ArrayCollection<App\DTO\TechnologyDTO>")
      * @Serializer\Expose()
