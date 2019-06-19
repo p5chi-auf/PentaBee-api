@@ -12,6 +12,7 @@ use JMS\Serializer\Annotation\Groups;
 use Swagger\Annotations as SWG;
 
 /**
+ * @ORM\HasLifecycleCallbacks
  * @ORM\Entity(repositoryClass="App\Repository\ActivityRepository")
  * @Serializer\ExclusionPolicy("all")
  */
@@ -27,7 +28,7 @@ class Activity
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails", "ActivityEdit"})
+     * @Groups({"ActivityList", "ActivityDetails"})
      * @SWG\Property()
      */
     protected $id;
@@ -89,7 +90,7 @@ class Activity
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"ActivityDetails"})
      * @SWG\Property()
      */
     private $createdAt;
@@ -97,7 +98,7 @@ class Activity
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"ActivityDetails"})
      * @SWG\Property()
      */
     private $updatedAt;
@@ -284,5 +285,17 @@ class Activity
     public function setUpdatedAt(DateTimeInterface $updatedAt): void
     {
         $this->updatedAt = $updatedAt;
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new DateTime('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new DateTime('now'));
+        }
     }
 }

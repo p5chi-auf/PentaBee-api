@@ -24,8 +24,6 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
             $activity->setApplicationDeadline($faker->dateTimeInInterval('now', '+10 days'));
             $activity->setFinalDeadline($faker->dateTimeInInterval('+10 days', '+30 days'));
             $activity->setStatus($faker->randomElement(Activity::getAllStatuses()));
-            $activity->setCreatedAt(new DateTime());
-            $activity->setUpdatedAt(new DateTime());
 
             /** @var User $owner */
             $owner = $this->getReference('user_' . rand(3, 6));

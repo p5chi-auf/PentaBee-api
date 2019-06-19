@@ -5,8 +5,8 @@ nelmio_api_doc:
       - { alias: Activity, type: App\Entity\Activity }
       - { alias: ActivityList, type: App\Entity\Activity, groups: [ActivityList] }
       - { alias: ActivityDetails, type: App\Entity\Activity, groups: [ActivityDetails] }
-      - { alias: ActivityEdit, type: App\Entity\Activity, groups: [ActivityEdit] }
-      - { alias: ActivityCreate, type: App\Entity\Activity, groups: [ActivityCreate] }
+      - { alias: ActivityEdit, type: App\DTO\ActivityDTO, groups: [ActivityEdit] }
+      - { alias: ActivityCreate, type: App\DTO\ActivityDTO, groups: [ActivityCreate] }
       - { alias: User, type: App\Entity\User }
       - { alias: UserDetail, type: App\Entity\User, groups: [UserDetail] }
       - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
@@ -17,14 +17,14 @@ nelmio_api_doc:
       - { alias: UserPasswordEdit, type: App\DTO\UserDTO, groups: [PasswordEdit] }
       - { alias: Technology, type: App\Entity\Technology }
       - { alias: TechnologyForActivityDetails, type: App\Entity\Technology, groups: [ActivityDetails] }
-      - { alias: TechnologyForActivityCreate, type: App\Entity\Technology, groups: [ActivityCreate] }
-      - { alias: TechnologyForActivityEdit, type: App\Entity\Technology, groups: [ActivityEdit] }
+      - { alias: TechnologyForActivityCreate, type: App\DTO\TechnologyDTO, groups: [ActivityCreate] }
+      - { alias: TechnologyForActivityEdit, type: App\DTO\TechnologyDTO, groups: [ActivityEdit] }
       - { alias: TechnologyForUserDetail, type: App\Entity\Technology, groups: [UserDetail] }
       - { alias: TechnologyForUserEdit, type: App\DTO\TechnologyDTO, groups: [UserEdit] }
       - { alias: ActivityType, type: App\Entity\ActivityType }
       - { alias: ActivityTypeForActivityDetails, type: App\Entity\ActivityType, groups: [ActivityDetails] }
-      - { alias: ActivityTypeForActivityCreate, type: App\Entity\ActivityType, groups: [ActivityCreate] }
-      - { alias: ActivityTypeForActivityEdit, type: App\Entity\ActivityType, groups: [ActivityEdit] }
+      - { alias: ActivityTypeForActivityCreate, type: App\DTO\ActivityTypeDTO, groups: [ActivityCreate] }
+      - { alias: ActivityTypeForActivityEdit, type: App\DTO\ActivityTypeDTO, groups: [ActivityEdit] }
   documentation:
     #        schemes: [http, https]
     info:

@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Swagger\Annotations as SWG;
 
 /**
+ * @ORM\HasLifecycleCallbacks
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
  * @Serializer\ExclusionPolicy("all")
  */
@@ -261,5 +262,17 @@ class User implements UserInterface
 
     public function eraseCredentials(): void
     {
+    }
+
+    /**
+     * @ORM\PrePersist
+     * @ORM\PreUpdate
+     */
+    public function updatedTimestamps(): void
+    {
+        $this->setUpdatedAt(new DateTime('now'));
+        if ($this->getCreatedAt() === null) {
+            $this->setCreatedAt(new DateTime('now'));
+        }
     }
 }

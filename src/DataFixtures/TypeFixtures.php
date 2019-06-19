@@ -23,8 +23,6 @@ class TypeFixtures extends Fixture
             $type = new ActivityType();
             $type->setName($typeName);
             $type->setDescription($faker->sentence);
-            $type->setCreatedAt(new DateTime());
-            $type->setUpdatedAt(new DateTime());
             $manager->persist($type);
             $this->setReference('type_' . $typeName, $type);
         }

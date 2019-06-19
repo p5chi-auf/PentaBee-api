@@ -11,7 +11,7 @@ class TechnologyDTO
     /**
      * @var integer
      * @Serializer\Type("integer")
-     * @Groups({"UserEdit"})
+     * @Groups({"UserEdit", "ActivityEdit", "ActivityCreate"})
      */
     public $id;
 
@@ -26,18 +26,6 @@ class TechnologyDTO
      * @Serializer\Type("string")
      */
     public $description;
-
-    /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     */
-    public $createdAt;
-
-    /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     */
-    public $updatedAt;
 
     public function __construct()
     {

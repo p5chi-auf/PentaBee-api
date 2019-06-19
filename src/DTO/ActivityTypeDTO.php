@@ -4,12 +4,14 @@ namespace App\DTO;
 
 use DateTime;
 use JMS\Serializer\Annotation as Serializer;
+use JMS\Serializer\Annotation\Groups;
 
 class ActivityTypeDTO
 {
     /**
      * @var integer
      * @Serializer\Type("integer")
+     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $id;
 
@@ -24,18 +26,6 @@ class ActivityTypeDTO
      * @Serializer\Type("string")
      */
     public $description;
-
-    /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     */
-    public $createdAt;
-
-    /**
-     * @var DateTime
-     * @Serializer\Type("DateTime")
-     */
-    public $updatedAt;
 
     public function __construct()
     {

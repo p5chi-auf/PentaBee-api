@@ -236,6 +236,13 @@ class UserController extends AbstractController
      *     )
      * )
      * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
      *     response=404,
      *     description="Activity not found.",
      *     @SWG\Schema(

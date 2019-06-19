@@ -44,8 +44,6 @@ class UserTransformer
         $entity->setPassword($this->encoder->encodePassword($entity, $dto->password));
         $entity->setSurname($dto->surname);
         $entity->setUsername($dto->username);
-        $entity->setCreatedAt($dto->createdAt);
-        $entity->setUpdatedAt($dto->updatedAt);
         $entity->setEmail($dto->email);
         return $entity;
     }
@@ -69,8 +67,6 @@ class UserTransformer
         $user->setUsername($dto->username);
         $user->setPosition($dto->position);
         $user->setSeniority($dto->seniority);
-        $user->setCreatedAt($dto->createdAt);
-        $user->setUpdatedAt($dto->updatedAt);
         $user->setEmail($dto->email);
 
         if ($dto->technologies !== null) {
