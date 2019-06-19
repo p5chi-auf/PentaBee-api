@@ -34,7 +34,7 @@ class ActivityUser
     /**
      * @ORM\Column(type="integer")
      */
-    private $role;
+    private $type;
 
     public function getId(): ?int
     {
@@ -65,14 +65,14 @@ class ActivityUser
         return $this;
     }
 
-    public function getRole(): ?int
+    public function getType(): ?int
     {
-        return $this->role;
+        return $this->type;
     }
 
-    public function setRole(int $role): self
+    public function setType(int $type): self
     {
-        $this->role = $role;
+        $this->type = $type;
 
         return $this;
     }
