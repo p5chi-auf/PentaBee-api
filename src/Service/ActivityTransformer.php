@@ -100,11 +100,13 @@ class ActivityTransformer
 
     /**
      * @param ActivityDTO $dto
+     * @param User $owner
      * @return Activity
      * @throws EntityNotFound
      */
     public function createTransform(
-        ActivityDTO $dto
+        ActivityDTO $dto,
+        User $owner
     ): Activity {
 
         $entity = new Activity();
@@ -113,18 +115,7 @@ class ActivityTransformer
         $entity->setApplicationDeadline($dto->applicationDeadline);
         $entity->setFinalDeadline($dto->finalDeadline);
         $entity->setStatus($dto->status);
-
-        /** @var User $tempUser */
-        $tempUser = $this->userRepo->find($dto->owner);
-        if (!$tempUser) {
-            $entityNotFound = new EntityNotFound(
-                User::class,
-                $dto->owner->getId(),
-                'No user found.'
-            );
-            throw $entityNotFound;
-        }
-        $entity->setOwner($tempUser);
+        $entity->setOwner($owner);
 
         $this->addTechnologies($dto, $entity);
         $this->addTypes($dto, $entity);
@@ -150,17 +141,6 @@ class ActivityTransformer
         $activity->setApplicationDeadline($dto->applicationDeadline);
         $activity->setFinalDeadline($dto->finalDeadline);
         $activity->setStatus($dto->status);
-
-        $tempUser = $this->userRepo->find($dto->owner);
-        if (!$tempUser) {
-            $entityNotFound = new EntityNotFound(
-                User::class,
-                $dto->owner->getId(),
-                'No user found.'
-            );
-            throw $entityNotFound;
-        }
-        $activity->setOwner($tempUser);
 
         $this->addTechnologies($dto, $activity);
         $this->addTypes($dto, $activity);

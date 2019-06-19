@@ -260,6 +260,8 @@ class ActivityController extends AbstractController
      */
     public function createAction(ActivityRepository $activityRepository, Request $request): Response
     {
+        $owner = $this->getUser();
+
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
@@ -280,7 +282,7 @@ class ActivityController extends AbstractController
         }
 
         try {
-            $newActivity = $this->transformer->createTransform($activityDTO);
+            $newActivity = $this->transformer->createTransform($activityDTO, $owner);
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [

@@ -92,11 +92,9 @@ class ActivityDTO
      * @var User
      * @Serializer\Type(User::class)
      * @Assert\NotNull(
-     *     message="Activity must have an Owner!",
-     *     groups={"ActivityEdit", "ActivityCreate"}
+     *     message="Activity must have an Owner!"
      * )
      * @Serializer\Expose()
-     * @Groups({"ActivityEdit", "ActivityCreate"})
      */
     public $owner;
 
