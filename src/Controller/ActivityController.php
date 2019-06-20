@@ -445,6 +445,13 @@ class ActivityController extends AbstractController
      *     )
      * )
      * @SWG\Response(
+     *     response="400",
+     *     description="Already applied/ activity finnished/ deadline passed!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You already applied!"),
+     *     )
+     * )
+     * @SWG\Response(
      *     response=404,
      *     description="Activity not found.",
      * )
