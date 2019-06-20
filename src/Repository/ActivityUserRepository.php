@@ -24,6 +24,20 @@ class ActivityUserRepository extends ServiceEntityRepository
     }
 
     /**
+     * Persist an Activity.
+     * @param ActivityUser $activityUser
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function save(ActivityUser $activityUser): void
+    {
+        $manager = $this->getEntityManager();
+        $manager->persist($activityUser);
+        $manager->flush();
+    }
+
+    /**
      * Persist an Activity appliance.
      * @param Activity $activity
      * @param User $applier
@@ -36,9 +50,7 @@ class ActivityUserRepository extends ServiceEntityRepository
         $activityUser = new ActivityUser();
         $activityUser->setActivity($activity);
         $activityUser->setUser($applier);
-        $activityUser->setType(1);
-        $manager = $this->getEntityManager();
-        $manager->persist($activityUser);
-        $manager->flush();
+        $activityUser->setType(ActivityUser::TYPE_APPLIED);
+        $this->save($activityUser);
     }
 }

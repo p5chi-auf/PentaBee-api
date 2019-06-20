@@ -4,7 +4,6 @@ namespace App\DataFixtures;
 
 use App\Entity\Technology;
 use App\Entity\User;
-use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
