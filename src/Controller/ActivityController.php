@@ -458,16 +458,24 @@ class ActivityController extends AbstractController
     public function applyForActivity(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
     {
         $applierUser = $this->getUser();
-        if ($activityUserRepo->findBy(array('user' => $applierUser, 'activity' => $activity))) {
+
+        if ($activityUserRepo->hasUserApplied($applierUser, $activity)) {
             return new JsonResponse(['message' => 'You already applied!'], Response::HTTP_BAD_REQUEST);
         }
-        if ($activity->getStatus() != Activity::STATUS_NEW
-            || $activity->getApplicationDeadline() < new DateTime('now')) {
+
+        if ($activity->getOwner() === $this->getUser()) {
+            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($activity->getStatus() !== Activity::STATUS_NEW
+            || $activity->getApplicationDeadline() < new DateTime('now')
+        ) {
             return new JsonResponse(
                 ['message' => 'Activity is already finished or application deadline passed!'],
                 Response::HTTP_BAD_REQUEST
             );
         }
+
         $activityUserRepo->apply($activity, $applierUser);
         return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
     }

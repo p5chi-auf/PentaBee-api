@@ -237,22 +237,24 @@ class Activity
         $this->finalDeadline = $finalDeadline;
     }
 
-    public function getStatus(): ?string
+    public function getStatus(): ?int
     {
         return $this->status;
     }
 
+    /**
+     * @return int[]
+     */
     public static function getAllStatuses(): array
     {
-        $statuses = [
+        return [
             self::STATUS_NEW,
             self::STATUS_FINISHED,
             self::STATUS_CLOSED
         ];
-        return $statuses;
     }
 
-    public function setStatus(string $status): void
+    public function setStatus(int $status): void
     {
         $this->status = $status;
     }

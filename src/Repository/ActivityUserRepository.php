@@ -53,4 +53,23 @@ class ActivityUserRepository extends ServiceEntityRepository
         $activityUser->setType(ActivityUser::TYPE_APPLIED);
         $this->save($activityUser);
     }
+
+    public function hasUserApplied(User $applier, Activity $activity)
+    {
+        $queryBuilder = $this->createQueryBuilder('activity_user');
+        $queryBuilder
+            ->select('activity_user.id')
+            ->where(
+                $queryBuilder->expr()->andX(
+                    'activity_user.user = :applier',
+                    'activity_user.activity = :activity',
+                    'activity_user.type != :type'
+                )
+            )
+            ->setParameter('applier', $applier)
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_INVITED);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
 }

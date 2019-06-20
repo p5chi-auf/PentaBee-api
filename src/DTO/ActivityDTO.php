@@ -73,7 +73,7 @@ class ActivityDTO
     public $finalDeadline;
 
     /**
-     * @var integer
+     * @var int
      * @Serializer\Type("integer")
      * @Assert\Range(
      *     min = 0,
@@ -108,7 +108,5 @@ class ActivityDTO
     {
         $this->technologies = new ArrayCollection();
         $this->types = new ArrayCollection();
-        $this->createdAt = new DateTime();
-        $this->updatedAt = new DateTime();
     }
 }
