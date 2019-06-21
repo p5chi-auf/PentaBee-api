@@ -3,7 +3,6 @@
 namespace App\Controller;
 
 use App\DTO\UserDTO;
-use App\Exceptions\EntityNotFound;
 use App\Repository\UserRepository;
 use App\Service\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;

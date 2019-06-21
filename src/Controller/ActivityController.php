@@ -5,7 +5,9 @@ namespace App\Controller;
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
 use App\Exceptions\EntityNotFound;
+use App\Repository\ActivityUserRepository;
 use App\Service\ActivityTransformer;
+use DateTime;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -402,5 +404,79 @@ class ActivityController extends AbstractController
         $activityRepository->save($activityToEdit);
 
         return new JsonResponse(['message' => 'Activity successfully edited!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Apply for an Activity.
+     * @Rest\Post("/{id}/apply")
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Apply for an Activity.",
+     *     description="Apply for an Activity.",
+     *     operationId="applyForActivity",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity to apply",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Applied with succes!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Already applied/ activity finnished/ deadline passed!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You already applied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Activity not found.",
+     * )
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function applyForActivity(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
+    {
+        $applierUser = $this->getUser();
+
+        if ($activityUserRepo->hasUserApplied($applierUser, $activity)) {
+            return new JsonResponse(['message' => 'You already applied!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($activity->getOwner() === $this->getUser()) {
+            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($activity->getStatus() !== Activity::STATUS_NEW
+            || $activity->getApplicationDeadline() < new DateTime('now')
+        ) {
+            return new JsonResponse(
+                ['message' => 'Activity is already finished or application deadline passed!'],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $activityUserRepo->apply($activity, $applierUser);
+        return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
     }
 }
