@@ -21,13 +21,11 @@ class AccessRightsPolicy
 
     public function checkRightsToActivity(Activity $activity, User $user): bool
     {
-
-        if (($activity->isPublic() === false) && $user !== $activity->getOwner()) {
-            $userToActivity = $this->repository->findBy(array('activity' => $activity, 'user' => $user));
-            if (empty($userToActivity)) {
-                return false;
-            }
+        if (($activity->isPublic() === true) || $user === $activity->getOwner()) {
+            return true;
         }
-        return true;
+
+        $userToActivity = $this->repository->findBy(array('activity' => $activity, 'user' => $user));
+        return !empty($userToActivity);
     }
 }
