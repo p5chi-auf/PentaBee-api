@@ -4,9 +4,11 @@ namespace App\Controller;
 
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
+use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
 use App\Service\ActivityTransformer;
+use DateTime;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -97,7 +99,6 @@ class ActivityController extends AbstractController
      * Get details about and Activity
      * @Rest\Get("/{id}")
      * @param Activity $activity
-     * @param ActivityUserRepository $activityUserRepo
      * @return Response
      * @SWG\Get(
      *     tags={"Activity"},
@@ -446,13 +447,6 @@ class ActivityController extends AbstractController
      *     )
      * )
      * @SWG\Response(
-     *     response="400",
-     *     description="Already applied/ activity finnished/ deadline passed!",
-     *     @SWG\Schema(
-     *     @SWG\Property(property="message", type="string", example="You already applied!"),
-     *     )
-     * )
-     * @SWG\Response(
      *     response=404,
      *     description="Activity not found.",
      * )
@@ -488,8 +482,39 @@ class ActivityController extends AbstractController
     }
 
     /**
-     *Apply for an Activity.
+     *Get a list of all applicants.
      * @Rest\Get("/{id}/applicants")
+     * @SWG\Get(
+     *     tags={"Activity"},
+     *     summary="Get a list of all applicants",
+     *     description="Get a list of all applicants",
+     *     operationId="getApplicants",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     type="array",
+     *     @Model(type=User::class, groups={"UserDetail"}),
+     * )
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
      * @return JsonResponse
@@ -497,7 +522,9 @@ class ActivityController extends AbstractController
     public function listOfApplicants(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
     {
         $applicants = $activityUserRepo->getApplicantsForActivity($activity);
-        $context = SerializationContext::create();
+
+        /** @var SerializationContext $context */
+        $context = SerializationContext::create()->setGroups(array('UserDetail'));
 
         $json = $this->serializer->serialize(
             $applicants,

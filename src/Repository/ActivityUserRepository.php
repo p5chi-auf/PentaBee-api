@@ -90,6 +90,6 @@ class ActivityUserRepository extends ServiceEntityRepository
             ->setParameter('activity', $activity)
             ->setParameter('type', ActivityUser::TYPE_APPLIED);
 
-        return $queryBuilder->getQuery()->getArrayResult();
+        return $queryBuilder->getQuery()->getResult();
     }
 }
