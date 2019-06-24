@@ -91,13 +91,6 @@ class ActivityDTO
     /**
      * @var boolean
      * @Serializer\Type("boolean")
-     * @Assert\Range(
-     *     min = 0,
-     *     max = 1,
-     *     minMessage="Field Public must be 0 or 1 (0 = private, 1 = public)!",
-     *     maxMessage="Field Public be 0 or 1 (0 = private, 1 = public)!",
-     *     groups={"ActivityEdit", "ActivityCreate"}
-     * )
      * @Serializer\Expose()
      * @Groups({"ActivityEdit", "ActivityCreate"})
      */

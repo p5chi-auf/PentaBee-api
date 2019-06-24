@@ -148,7 +148,7 @@ class ActivityController extends AbstractController
     public function getActivityDetails(Activity $activity): Response
     {
         $user = $this->getUser();
-        $rights = $this->accessRightsPolicy->checkRightsToActivity($activity, $user);
+        $rights = $this->accessRightsPolicy->canAccessActivity($activity, $user);
 
         if ($rights === false) {
             return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);

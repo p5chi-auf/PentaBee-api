@@ -19,7 +19,7 @@ class AccessRightsPolicy
         $this->repository = $activityUserRepository;
     }
 
-    public function checkRightsToActivity(Activity $activity, User $user): bool
+    public function canAccessActivity(Activity $activity, User $user): bool
     {
         if (($activity->isPublic() === true) || $user === $activity->getOwner()) {
             return true;
