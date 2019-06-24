@@ -8,6 +8,7 @@ use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -71,5 +72,24 @@ class ActivityUserRepository extends ServiceEntityRepository
             ->setParameter('type', ActivityUser::TYPE_INVITED);
 
         return $queryBuilder->getQuery()->getResult();
+    }
+
+
+    public function getApplicantsForActivity(Activity $activity): array
+    {
+        $queryBuilder = $this->createQueryBuilder('activity_user');
+        $queryBuilder
+            ->select('user')
+            ->innerJoin(User::class, 'user', Join::WITH, 'activity_user.user = user.id')
+            ->where(
+                $queryBuilder->expr()->andX(
+                    'activity_user.activity = :activity',
+                    'activity_user.type = :type'
+                )
+            )
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_APPLIED);
+
+        return $queryBuilder->getQuery()->getArrayResult();
     }
 }

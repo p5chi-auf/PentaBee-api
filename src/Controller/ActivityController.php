@@ -97,6 +97,7 @@ class ActivityController extends AbstractController
      * Get details about and Activity
      * @Rest\Get("/{id}")
      * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
      * @return Response
      * @SWG\Get(
      *     tags={"Activity"},
@@ -484,5 +485,26 @@ class ActivityController extends AbstractController
 
         $activityUserRepo->apply($activity, $applierUser);
         return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     *Apply for an Activity.
+     * @Rest\Get("/{id}/applicants")
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     */
+    public function listOfApplicants(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
+    {
+        $applicants = $activityUserRepo->getApplicantsForActivity($activity);
+        $context = SerializationContext::create();
+
+        $json = $this->serializer->serialize(
+            $applicants,
+            'json',
+            $context
+        );
+
+        return new JsonResponse($json, 200, [], true);
     }
 }
