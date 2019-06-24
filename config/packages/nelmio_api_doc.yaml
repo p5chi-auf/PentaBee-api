@@ -9,6 +9,7 @@ nelmio_api_doc:
       - { alias: ActivityCreate, type: App\DTO\ActivityDTO, groups: [ActivityCreate] }
       - { alias: User, type: App\Entity\User }
       - { alias: UserDetail, type: App\Entity\User, groups: [UserDetail] }
+      - { alias: UserList, type: App\Entity\User, groups: [UserList] }
       - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
       - { alias: UserForActivityCreate, type: App\Entity\User, groups: [ActivityCreate] }
       - { alias: UserForActivityEdit, type: App\Entity\User, groups: [ActivityEdit] }
