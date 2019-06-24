@@ -3,7 +3,6 @@
 
 namespace App\DTO;
 
-use App\Entity\User;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -87,6 +86,15 @@ class ActivityDTO
      *
      */
     public $status = self::STATUS_NEW;
+
+
+    /**
+     * @var boolean
+     * @Serializer\Type("boolean")
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
+     */
+    public $public;
 
     /**
      * @var Collection|TechnologyDTO[]

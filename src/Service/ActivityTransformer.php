@@ -108,6 +108,7 @@ class ActivityTransformer
         $entity->setApplicationDeadline($dto->applicationDeadline);
         $entity->setFinalDeadline($dto->finalDeadline);
         $entity->setStatus($dto->status);
+        $entity->setPublic($dto->public);
         $entity->setOwner($owner);
 
         $this->addTechnologies($dto, $entity);
@@ -134,6 +135,7 @@ class ActivityTransformer
         $activity->setApplicationDeadline($dto->applicationDeadline);
         $activity->setFinalDeadline($dto->finalDeadline);
         $activity->setStatus($dto->status);
+        $activity->setPublic($dto->public);
 
         $this->addTechnologies($dto, $activity);
         $this->addTypes($dto, $activity);
