@@ -38,7 +38,7 @@ class User implements UserInterface
      * The username of User
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     private $username;
@@ -54,7 +54,7 @@ class User implements UserInterface
      * User email
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     protected $email;
@@ -63,7 +63,7 @@ class User implements UserInterface
      * User position
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     private $position;
@@ -72,7 +72,7 @@ class User implements UserInterface
      * User seniority (JUNIOR, MIDDLE, SENIOR int(0-2) )
      * @ORM\Column(type="integer", nullable=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     private $seniority = self::SENIORITY_JUNIOR;
@@ -81,7 +81,7 @@ class User implements UserInterface
      * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     private $name;
@@ -90,7 +90,7 @@ class User implements UserInterface
      * The surname of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     private $surname;

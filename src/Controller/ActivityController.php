@@ -503,7 +503,7 @@ class ActivityController extends AbstractController
      *     description="Successfull operation!",
      *     @SWG\Schema(
      *     type="array",
-     *     @Model(type=User::class, groups={"UserDetail"}),
+     *     @Model(type=User::class, groups={"UserList"}),
      * )
      * )
      * )
@@ -524,7 +524,7 @@ class ActivityController extends AbstractController
         $applicants = $activityUserRepo->getApplicantsForActivity($activity);
 
         /** @var SerializationContext $context */
-        $context = SerializationContext::create()->setGroups(array('UserDetail'));
+        $context = SerializationContext::create()->setGroups(array('UserList'));
 
         $json = $this->serializer->serialize(
             $applicants,
