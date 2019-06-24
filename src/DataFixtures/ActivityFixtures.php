@@ -6,7 +6,6 @@ use App\Entity\Activity;
 use App\Entity\Technology;
 use App\Entity\ActivityType;
 use App\Entity\User;
-use DateTime;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
@@ -24,7 +23,8 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
             $activity->setApplicationDeadline($faker->dateTimeInInterval('now', '+10 days'));
             $activity->setFinalDeadline($faker->dateTimeInInterval('+10 days', '+30 days'));
             $activity->setStatus($faker->randomElement(Activity::getAllStatuses()));
-            $activity->setPublic(true);
+            $activity->setPublic((bool)rand(0, 1));
+            $this->setReference('activity_' . $i, $activity);
 
             /** @var User $owner */
             $owner = $this->getReference('user_' . rand(3, 6));
@@ -46,6 +46,8 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
     {
         return array(
             UserFixtures::class,
+            TechnologyFixtures::class,
+            TypeFixtures::class,
         );
     }
 }
