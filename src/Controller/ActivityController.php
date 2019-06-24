@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
+use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
 use App\Service\ActivityTransformer;
@@ -478,5 +479,59 @@ class ActivityController extends AbstractController
 
         $activityUserRepo->apply($activity, $applierUser);
         return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     *Get a list of all applicants.
+     * @Rest\Get("/{id}/applicants")
+     * @SWG\Get(
+     *     tags={"Activity"},
+     *     summary="Get a list of all applicants",
+     *     description="Get a list of all applicants",
+     *     operationId="getApplicants",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     type="array",
+     *     @Model(type=User::class, groups={"UserList"}),
+     * )
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     */
+    public function listOfApplicants(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
+    {
+        $applicants = $activityUserRepo->getApplicantsForActivity($activity);
+
+        /** @var SerializationContext $context */
+        $context = SerializationContext::create()->setGroups(array('UserList'));
+
+        $json = $this->serializer->serialize(
+            $applicants,
+            'json',
+            $context
+        );
+
+        return new JsonResponse($json, 200, [], true);
     }
 }
