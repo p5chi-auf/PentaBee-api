@@ -14,17 +14,19 @@ class AccessRightsPolicy
      */
     private $repository;
 
-    public function __construct(ActivityUserRepository $repository)
+    public function __construct(ActivityUserRepository $activityUserRepository)
     {
-        $this->repository = $repository;
+        $this->repository = $activityUserRepository;
     }
 
     public function checkRightsToActivity(Activity $activity, User $user): bool
     {
-        $userToActivity = $this->repository->findBy(array('activity' => $activity, 'user' => $user));
 
-        if (empty($userToActivity) && ($activity->isPublic() === false) && $user !== $activity->getOwner()) {
-            return false;
+        if (($activity->isPublic() === false) && $user !== $activity->getOwner()) {
+            $userToActivity = $this->repository->findBy(array('activity' => $activity, 'user' => $user));
+            if (empty($userToActivity)) {
+                return false;
+            }
         }
         return true;
     }

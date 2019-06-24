@@ -321,7 +321,7 @@ class Activity
         return $this->public;
     }
 
-    public function setPublic($public): void
+    public function setPublic(bool $public): void
     {
         $this->public = $public;
     }

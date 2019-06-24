@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20190624071824 extends AbstractMigration
+final class Version20190624132535 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -23,7 +23,7 @@ final class Version20190624071824 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE activity CHANGE privacy public TINYINT(1) NOT NULL');
+        $this->addSql('ALTER TABLE activity ADD public TINYINT(1) NOT NULL');
     }
 
     public function down(Schema $schema): void
@@ -32,6 +32,6 @@ final class Version20190624071824 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE activity CHANGE public privacy TINYINT(1) NOT NULL');
+        $this->addSql('ALTER TABLE activity DROP public');
     }
 }

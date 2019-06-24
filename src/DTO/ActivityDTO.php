@@ -90,7 +90,7 @@ class ActivityDTO
 
     /**
      * @var boolean
-     * @Serializer\Type("integer")
+     * @Serializer\Type("boolean")
      * @Assert\Range(
      *     min = 0,
      *     max = 1,
