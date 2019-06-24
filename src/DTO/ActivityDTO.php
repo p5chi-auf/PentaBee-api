@@ -3,7 +3,6 @@
 
 namespace App\DTO;
 
-use App\Entity\User;
 use DateTime;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -87,6 +86,22 @@ class ActivityDTO
      *
      */
     public $status = self::STATUS_NEW;
+
+
+    /**
+     * @var boolean
+     * @Serializer\Type("integer")
+     * @Assert\Range(
+     *     min = 0,
+     *     max = 1,
+     *     minMessage="Field Public must be 0 or 1 (0 = private, 1 = public)!",
+     *     maxMessage="Field Public be 0 or 1 (0 = private, 1 = public)!",
+     *     groups={"ActivityEdit", "ActivityCreate"}
+     * )
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit", "ActivityCreate"})
+     */
+    public $public;
 
     /**
      * @var Collection|TechnologyDTO[]

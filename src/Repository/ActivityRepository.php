@@ -3,9 +3,12 @@
 namespace App\Repository;
 
 use App\Entity\Activity;
+use App\Entity\ActivityUser;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query\Expr\Join;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -46,5 +49,19 @@ class ActivityRepository extends ServiceEntityRepository
         $em = $this->getEntityManager();
         $em->persist($activity);
         $em->flush();
+    }
+
+    public function getAvailableActivities(User $user)
+    {
+        $queryBuilder = $this->createQueryBuilder('activity');
+        $queryBuilder
+            ->select('activity')
+            ->leftJoin('activity.activityUsers', 'activityUsers')
+            ->where('activity.public = 1')
+            ->orWhere('activity.owner = :user')
+            ->orWhere('activityUsers.user = :user')
+            ->setParameter('user', $user);
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }

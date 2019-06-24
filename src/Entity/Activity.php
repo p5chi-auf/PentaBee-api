@@ -124,12 +124,27 @@ class Activity
      */
     protected $types;
 
+    /**
+     * Activity privacy (true=public, false=private)
+     * @ORM\Column(type="boolean")
+     * @Serializer\Expose()
+     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @SWG\Property()
+     */
+    private $public;
+
+    /**
+     * @ORM\OneToMany(targetEntity="ActivityUser", mappedBy="activity")
+     */
+    private $activityUsers;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
         $this->types = new ArrayCollection();
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
+        $this->activityUsers = new ArrayCollection();
     }
 
     /**
@@ -299,5 +314,15 @@ class Activity
         if ($this->getCreatedAt() === null) {
             $this->setCreatedAt(new DateTime('now'));
         }
+    }
+
+    public function isPublic(): bool
+    {
+        return $this->public;
+    }
+
+    public function setPublic($public): void
+    {
+        $this->public = $public;
     }
 }

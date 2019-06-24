@@ -7,6 +7,7 @@ use App\Entity\Activity;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
+use App\Security\AccessRightsPolicy;
 use App\Service\ActivityTransformer;
 use DateTime;
 use JMS\Serializer\DeserializationContext;
@@ -16,6 +17,7 @@ use Doctrine\ORM\ORMException;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -39,20 +41,27 @@ class ActivityController extends AbstractController
 
     /** @var ValidatorInterface */
     private $validator;
+    /**
+     * @var AccessRightsPolicy
+     */
+    private $accessRightsPolicy;
 
     public function __construct(
         SerializerInterface $serializer,
         ActivityTransformer $transformer,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        AccessRightsPolicy $accessRightsPolicy
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
         $this->validator = $validator;
+        $this->accessRightsPolicy = $accessRightsPolicy;
     }
 
     /**
      * Get a list of all activities
      * @Rest\Get("/")
+     * @param ActivityRepository $repository
      * @return Response
      * @SWG\Get(
      *     tags={"Activity"},
@@ -79,9 +88,10 @@ class ActivityController extends AbstractController
      *     )
      * )
      */
-    public function getActivitiesList(): Response
+    public function getActivitiesList(ActivityRepository $repository): Response
     {
-        $activities = $this->getDoctrine()->getRepository(Activity::class)->findAll();
+        $user = $this->getUser();
+        $activities = $repository->getAvailableActivities($user);
 
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityList'));
@@ -137,6 +147,12 @@ class ActivityController extends AbstractController
      */
     public function getActivityDetails(Activity $activity): Response
     {
+        $user = $this->getUser();
+        $rights = $this->accessRightsPolicy->checkRightsToActivity($activity, $user);
+
+        if ($rights === false) {
+            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+        }
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityDetails'));
 
@@ -441,9 +457,25 @@ class ActivityController extends AbstractController
      * )
      * @SWG\Response(
      *     response="400",
-     *     description="Already applied/ activity finnished/ deadline passed!",
+     *     description="Already applied!",
      *     @SWG\Schema(
      *     @SWG\Property(property="message", type="string", example="You already applied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="You are the owner of the Job!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You are the owner of this Job!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="412",
+     *     description="Activity already finished or application deadline passed!",
+     *     @SWG\Schema(
+     *     @SWG\Property(
+     *     property="message",
+     *     type="string", example="Activity is already finished or application deadline passed!"),
      *     )
      * )
      * @SWG\Response(
@@ -465,7 +497,7 @@ class ActivityController extends AbstractController
         }
 
         if ($activity->getOwner() === $this->getUser()) {
-            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_FORBIDDEN);
         }
 
         if ($activity->getStatus() !== Activity::STATUS_NEW
@@ -473,12 +505,130 @@ class ActivityController extends AbstractController
         ) {
             return new JsonResponse(
                 ['message' => 'Activity is already finished or application deadline passed!'],
-                Response::HTTP_BAD_REQUEST
+                Response::HTTP_PRECONDITION_FAILED
             );
         }
 
         $activityUserRepo->apply($activity, $applierUser);
         return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Invite an User to an Activity.
+     * @Rest\Post("/{activityId}/invite/{userId}")
+     * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
+     * @ParamConverter("invitedUser", options={"mapping": {"userId" : "id"}})
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Invite user to an Activity.",
+     *     description="Invite user to an Activity.",
+     *     operationId="inviteToActivity",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity for invite",
+     *     in="path",
+     *     name="activityId",
+     *     required=true,
+     *     type="integer",
+     * ),
+     *     @SWG\Parameter(
+     *     description="ID of User to be invited",
+     *     in="path",
+     *     name="userId",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User invited with succes!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="This user already applied/is invited/is assigned!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="406",
+     *     description="You are the owner of the Job!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You are the owner of this Job!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="412",
+     *     description="Activity already finished or application deadline passed!",
+     *     @SWG\Schema(
+     *     @SWG\Property(
+     *     property="message",
+     *     type="string", example="Activity is already finished or application deadline passed!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param User $invitedUser
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function inviteUserToActivity(
+        Activity $activity,
+        User $invitedUser,
+        ActivityUserRepository $activityUserRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+
+        if ($activity->getOwner() !== $authenticatedUser) {
+            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        if ($activity->getOwner() === $invitedUser) {
+            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_NOT_ACCEPTABLE);
+        }
+
+        if ($activityUserRepo->isUserInvited($invitedUser, $activity)) {
+            return new JsonResponse(['message' => 'This user is already invited!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($activityUserRepo->isUserAssigned($invitedUser, $activity)) {
+            return new JsonResponse(['message' => 'This user is already assigned!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($activityUserRepo->hasUserApplied($invitedUser, $activity)) {
+            return new JsonResponse(['message' => 'This user already applied!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        if ($activity->getStatus() !== Activity::STATUS_NEW
+            || $activity->getApplicationDeadline() < new DateTime('now')
+        ) {
+            return new JsonResponse(
+                ['message' => 'Activity is already finished or application deadline passed!'],
+                Response::HTTP_PRECONDITION_FAILED
+            );
+        }
+
+        $activityUserRepo->invite($activity, $invitedUser);
+        return new JsonResponse(['message' => 'User invited with success!'], Response::HTTP_OK);
     }
 
     /**

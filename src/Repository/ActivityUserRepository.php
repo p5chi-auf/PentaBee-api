@@ -92,4 +92,59 @@ class ActivityUserRepository extends ServiceEntityRepository
 
         return $queryBuilder->getQuery()->getResult();
     }
+
+    public function isUserInvited(User $user, Activity $activity)
+    {
+        $queryBuilder = $this->createQueryBuilder('activity_user');
+        $queryBuilder
+            ->select('activity_user.id')
+            ->where(
+                $queryBuilder->expr()->andX(
+                    'activity_user.user = :user',
+                    'activity_user.activity = :activity',
+                    'activity_user.type = :type'
+                )
+            )
+            ->setParameter('user', $user)
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_INVITED);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    public function isUserAssigned(User $user, Activity $activity)
+    {
+        $queryBuilder = $this->createQueryBuilder('activity_user');
+        $queryBuilder
+            ->select('activity_user.id')
+            ->where(
+                $queryBuilder->expr()->andX(
+                    'activity_user.user = :user',
+                    'activity_user.activity = :activity',
+                    'activity_user.type = :type'
+                )
+            )
+            ->setParameter('user', $user)
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_ASSIGNED);
+
+        return $queryBuilder->getQuery()->getResult();
+    }
+
+    /**
+     * Persist an Activity invitation.
+     * @param Activity $activity
+     * @param User $invitedUser
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function invite(Activity $activity, User $invitedUser): void
+    {
+        $activityUser = new ActivityUser();
+        $activityUser->setActivity($activity);
+        $activityUser->setUser($invitedUser);
+        $activityUser->setType(ActivityUser::TYPE_INVITED);
+        $this->save($activityUser);
+    }
 }
