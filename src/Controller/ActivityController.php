@@ -723,7 +723,7 @@ class ActivityController extends AbstractController
      *     response="200",
      *     description="Successfull operation!",
      *     @SWG\Schema(
-     *     @SWG\Property(property="message", type="string", example="User invited with succes!"),
+     *     @SWG\Property(property="message", type="string", example="User assigned with success!"),
      *     )
      * )
      * @SWG\Response(
@@ -753,7 +753,7 @@ class ActivityController extends AbstractController
 
         $userApplier = $activityUserRepo->isUserApplier($user, $activity);
         if ($userApplier !== null) {
-            return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_OK);
+            return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
         }
         $activityUserRepo->assign($userApplier);
         return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
