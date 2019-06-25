@@ -6,6 +6,8 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query\Expr\Join;
@@ -133,6 +135,32 @@ class ActivityUserRepository extends ServiceEntityRepository
 
     /**
      * Persist an Activity invitation.
+     * @param User $user
+     * @param Activity $activity
+     * @return ActivityUser|null
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    public function isUserApplier(User $user, Activity $activity): ?ActivityUser
+    {
+        $queryBuilder = $this->createQueryBuilder('activity_user');
+        $queryBuilder
+            ->select('activity_user')
+            ->where(
+                $queryBuilder->expr()->andX(
+                    'activity_user.user = :user',
+                    'activity_user.activity = :activity',
+                    'activity_user.type = :type'
+                )
+            )
+            ->setParameter('user', $user)
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_APPLIED);
+
+        return $queryBuilder->getQuery()->getSingleResult();
+    }
+    /**
+     * Persist an Activity invitation.
      * @param Activity $activity
      * @param User $invitedUser
      * @return void
@@ -145,6 +173,19 @@ class ActivityUserRepository extends ServiceEntityRepository
         $activityUser->setActivity($activity);
         $activityUser->setUser($invitedUser);
         $activityUser->setType(ActivityUser::TYPE_INVITED);
+        $this->save($activityUser);
+    }
+
+    /**
+     * Persist an appliance validation.
+     * @param ActivityUser $activityUser
+     * @return void
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function assign(ActivityUser $activityUser): void
+    {
+        $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
         $this->save($activityUser);
     }
 }
