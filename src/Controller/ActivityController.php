@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
+use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
 use App\Service\ActivityTransformer;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -683,5 +686,84 @@ class ActivityController extends AbstractController
         );
 
         return new JsonResponse($json, 200, [], true);
+    }
+
+    /**
+     *Validate an applicant.
+     * @Rest\Post("/{activityId}/applicants/{userId}")
+     * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
+     * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Validate an applicant.",
+     *     description="Validate an applicant.",
+     *     operationId="validateApplicant",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity for validation",
+     *     in="path",
+     *     name="activityId",
+     *     required=true,
+     *     type="integer",
+     * ),
+     *     @SWG\Parameter(
+     *     description="ID of User to be validated",
+     *     in="path",
+     *     name="userId",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User assigned with success!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param User $user
+     * @param ActivityUserRepository $activityUserRepo
+     * @param ActivityUser $activityUser
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    public function assignAnUser(
+        Activity $activity,
+        User $user,
+        ActivityUserRepository $activityUserRepo,
+        ActivityUser $activityUser
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+
+        if ($activity->getOwner() !== $authenticatedUser) {
+            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $userApplier = $activityUserRepo->isUserApplier($user, $activity);
+        if ($userApplier === null) {
+            return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
+        }
+        $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
+        $activityUserRepo->save($activityUser);
+        return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
     }
 }
