@@ -175,17 +175,4 @@ class ActivityUserRepository extends ServiceEntityRepository
         $activityUser->setType(ActivityUser::TYPE_INVITED);
         $this->save($activityUser);
     }
-
-    /**
-     * Persist an appliance validation.
-     * @param ActivityUser $activityUser
-     * @return void
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function assign(ActivityUser $activityUser): void
-    {
-        $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
-        $this->save($activityUser);
-    }
 }

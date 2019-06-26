@@ -4,12 +4,15 @@ namespace App\Controller;
 
 use App\DTO\ActivityDTO;
 use App\Entity\Activity;
+use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
 use App\Service\ActivityTransformer;
 use DateTime;
+use Doctrine\ORM\NonUniqueResultException;
+use Doctrine\ORM\NoResultException;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -736,14 +739,18 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param User $user
      * @param ActivityUserRepository $activityUserRepo
+     * @param ActivityUser $activityUser
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws NoResultException
+     * @throws NonUniqueResultException
      */
     public function assignAnUser(
         Activity $activity,
         User $user,
-        ActivityUserRepository $activityUserRepo
+        ActivityUserRepository $activityUserRepo,
+        ActivityUser $activityUser
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
@@ -752,10 +759,11 @@ class ActivityController extends AbstractController
         }
 
         $userApplier = $activityUserRepo->isUserApplier($user, $activity);
-        if ($userApplier !== null) {
+        if ($userApplier === null) {
             return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
         }
-        $activityUserRepo->assign($userApplier);
+        $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
+        $activityUserRepo->save($activityUser);
         return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
     }
 }
