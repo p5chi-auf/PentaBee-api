@@ -95,11 +95,18 @@ class ActivityUserRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getResult();
     }
 
-    public function isUserInvited(User $user, Activity $activity)
+    /**
+     * @param User $user
+     * @param Activity $activity
+     * @return ActivityUser|null
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     */
+    public function isUserInvited(User $user, Activity $activity): ?ActivityUser
     {
         $queryBuilder = $this->createQueryBuilder('activity_user');
         $queryBuilder
-            ->select('activity_user.id')
+            ->select('activity_user')
             ->where(
                 $queryBuilder->expr()->andX(
                     'activity_user.user = :user',
@@ -111,7 +118,7 @@ class ActivityUserRepository extends ServiceEntityRepository
             ->setParameter('activity', $activity)
             ->setParameter('type', ActivityUser::TYPE_INVITED);
 
-        return $queryBuilder->getQuery()->getResult();
+        return $queryBuilder->getQuery()->getSingleResult();
     }
 
     public function isUserAssigned(User $user, Activity $activity)
@@ -129,7 +136,6 @@ class ActivityUserRepository extends ServiceEntityRepository
             ->setParameter('user', $user)
             ->setParameter('activity', $activity)
             ->setParameter('type', ActivityUser::TYPE_ASSIGNED);
-
         return $queryBuilder->getQuery()->getResult();
     }
 

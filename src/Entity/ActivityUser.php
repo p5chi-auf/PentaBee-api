@@ -13,6 +13,7 @@ class ActivityUser
     public const TYPE_APPLIED = 1;
     public const TYPE_ASSIGNED = 2;
     public const TYPE_FINISHED_JOB = 3;
+    public const TYPE_DECLINED = 4;
 
     /**
      * @ORM\Id()

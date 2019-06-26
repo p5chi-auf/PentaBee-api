@@ -739,7 +739,6 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param User $user
      * @param ActivityUserRepository $activityUserRepo
-     * @param ActivityUser $activityUser
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
@@ -749,8 +748,7 @@ class ActivityController extends AbstractController
     public function assignAnUser(
         Activity $activity,
         User $user,
-        ActivityUserRepository $activityUserRepo,
-        ActivityUser $activityUser
+        ActivityUserRepository $activityUserRepo
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
@@ -762,8 +760,132 @@ class ActivityController extends AbstractController
         if ($userApplier === null) {
             return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
         }
+        $userApplier->setType(ActivityUser::TYPE_ASSIGNED);
+        $activityUserRepo->save($userApplier);
+        return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     *Accept invitation for a job.
+     * @Rest\Post("/{id}/accept")
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Accept a invitation for a job.",
+     *     description="Accept a invitation for a job.",
+     *     operationId="acceptInvitation",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User assigned with success!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function acceptInvitation(
+        Activity $activity,
+        ActivityUserRepository $activityUserRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+        $activityUser = $activityUserRepo->isUserInvited($authenticatedUser, $activity);
+
+        if ($activityUser === null) {
+            return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
+        }
         $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
         $activityUserRepo->save($activityUser);
-        return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
+        return new JsonResponse(['message' => 'You are assign with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     *Decline invitation for a job.
+     * @Rest\Post("/{id}/decline")
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Decline a invitation for a job.",
+     *     description="Decline a invitation for a job.",
+     *     operationId="declineInvitation",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User assigned with success!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws NoResultException
+     * @throws NonUniqueResultException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function declineInvitation(
+        Activity $activity,
+        ActivityUserRepository $activityUserRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+        $activityUser = $activityUserRepo->isUserInvited($authenticatedUser, $activity);
+
+        if ($activityUser === null) {
+            return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
+        }
+        $activityUser->setType(ActivityUser::TYPE_DECLINED);
+        $activityUserRepo->save($activityUser);
+        return new JsonResponse(['message' => 'You are declined this invitation!'], Response::HTTP_OK);
     }
 }
