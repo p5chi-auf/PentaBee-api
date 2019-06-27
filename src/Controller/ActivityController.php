@@ -506,7 +506,7 @@ class ActivityController extends AbstractController
             return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
-        if ($activity->getOwner() === $this->getUser()) {
+        if ($activity->getOwner() === $applierUser) {
             return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_NOT_ACCEPTABLE);
         }
 
@@ -522,12 +522,7 @@ class ActivityController extends AbstractController
         $activityUser = $activityUserRepo->getActivityUser($applierUser, $activity);
 
         if ($activityUser !== null) {
-            if ($activityUser->getType() !== ActivityUser::TYPE_INVITED) {
-                return new JsonResponse(['message' => 'You already applied!'], Response::HTTP_BAD_REQUEST);
-            }
-            $activityUser->setType(ActivityUser::TYPE_APPLIED);
-            $activityUserRepo->save($activityUser);
-            return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
+            return new JsonResponse(['message' => 'You cannot apply!'], Response::HTTP_BAD_REQUEST);
         }
 
         $activityUserRepo->apply($activity, $applierUser);
