@@ -862,4 +862,124 @@ class ActivityController extends AbstractController
         $activityUserRepo->save($activityUser);
         return new JsonResponse(['message' => 'User rejected!'], Response::HTTP_OK);
     }
+
+    /**
+     * Accept invitation for a job.
+     * @Rest\Post("/{id}/accept")
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Accept a invitation for a job.",
+     *     description="Accept a invitation for a job.",
+     *     operationId="acceptInvitation",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You are assigned with success!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad request",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You are not invited!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function acceptInvitation(
+        Activity $activity,
+        ActivityUserRepository $activityUserRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+        $accept = $activityUserRepo->getActivityUser($authenticatedUser, $activity);
+
+        if ($accept === null || $accept->getType() !== ActivityUser::TYPE_INVITED) {
+            return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
+        }
+        $accept->setType(ActivityUser::TYPE_ASSIGNED);
+        $activityUserRepo->save($accept);
+        return new JsonResponse(['message' => 'You are assigned with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Decline invitation for a job.
+     * @Rest\Post("/{id}/decline")
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Decline a invitation for a job.",
+     *     description="Decline a invitation for a job.",
+     *     operationId="declineInvitation",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You declined the invitation!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad request",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="You are not invited!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function declineInvitation(
+        Activity $activity,
+        ActivityUserRepository $activityUserRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+        $accept = $activityUserRepo->getActivityUser($authenticatedUser, $activity);
+
+        if ($accept === null || $accept->getType() !== ActivityUser::TYPE_INVITED) {
+            return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
+        }
+        $accept->setType(ActivityUser::TYPE_DECLINED);
+        $activityUserRepo->save($accept);
+        return new JsonResponse(['message' => 'You declined the invitation!'], Response::HTTP_OK);
+    }
 }
