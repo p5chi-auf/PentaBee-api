@@ -3,16 +3,19 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ActivityUserRepository")
+ * @ORM\Table(uniqueConstraints={@UniqueConstraint(columns={"activity_id", "user_id"})})
  */
 class ActivityUser
 {
     public const TYPE_INVITED = 0;
     public const TYPE_APPLIED = 1;
     public const TYPE_ASSIGNED = 2;
-    public const TYPE_FINISHED_JOB = 3;
+    public const TYPE_DECLINED = 3;
+    public const TYPE_REJECTED = 4;
 
     /**
      * @ORM\Id()

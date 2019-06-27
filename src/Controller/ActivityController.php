@@ -469,6 +469,13 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="You are the owner of the Job!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="406",
+     *     description="You are the owner of the Job!",
+     *     @SWG\Schema(
      *     @SWG\Property(property="message", type="string", example="You are the owner of this Job!"),
      *     )
      * )
@@ -495,12 +502,12 @@ class ActivityController extends AbstractController
     {
         $applierUser = $this->getUser();
 
-        if ($activityUserRepo->hasUserApplied($applierUser, $activity)) {
-            return new JsonResponse(['message' => 'You already applied!'], Response::HTTP_BAD_REQUEST);
+        if ($activity->isPublic() === false) {
+            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
         if ($activity->getOwner() === $this->getUser()) {
-            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_NOT_ACCEPTABLE);
         }
 
         if ($activity->getStatus() !== Activity::STATUS_NEW
@@ -510,6 +517,17 @@ class ActivityController extends AbstractController
                 ['message' => 'Activity is already finished or application deadline passed!'],
                 Response::HTTP_PRECONDITION_FAILED
             );
+        }
+
+        $activityUser = $activityUserRepo->getActivityUser($applierUser, $activity);
+
+        if ($activityUser !== null) {
+            if ($activityUser->getType() !== ActivityUser::TYPE_INVITED) {
+                return new JsonResponse(['message' => 'You already applied!'], Response::HTTP_BAD_REQUEST);
+            }
+            $activityUser->setType(ActivityUser::TYPE_APPLIED);
+            $activityUserRepo->save($activityUser);
+            return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
         }
 
         $activityUserRepo->apply($activity, $applierUser);
@@ -609,18 +627,6 @@ class ActivityController extends AbstractController
             return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_NOT_ACCEPTABLE);
         }
 
-        if ($activityUserRepo->isUserInvited($invitedUser, $activity)) {
-            return new JsonResponse(['message' => 'This user is already invited!'], Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($activityUserRepo->isUserAssigned($invitedUser, $activity)) {
-            return new JsonResponse(['message' => 'This user is already assigned!'], Response::HTTP_BAD_REQUEST);
-        }
-
-        if ($activityUserRepo->hasUserApplied($invitedUser, $activity)) {
-            return new JsonResponse(['message' => 'This user already applied!'], Response::HTTP_BAD_REQUEST);
-        }
-
         if ($activity->getStatus() !== Activity::STATUS_NEW
             || $activity->getApplicationDeadline() < new DateTime('now')
         ) {
@@ -628,6 +634,12 @@ class ActivityController extends AbstractController
                 ['message' => 'Activity is already finished or application deadline passed!'],
                 Response::HTTP_PRECONDITION_FAILED
             );
+        }
+
+        $activityUser = $activityUserRepo->getActivityUser($invitedUser, $activity);
+
+        if ($activityUser !== null) {
+            return new JsonResponse(['message' => 'This user already applied!'], Response::HTTP_BAD_REQUEST);
         }
 
         $activityUserRepo->invite($activity, $invitedUser);
@@ -689,8 +701,8 @@ class ActivityController extends AbstractController
     }
 
     /**
-     *Validate an applicant.
-     * @Rest\Post("/{activityId}/applicants/{userId}")
+     * Validate an applicant.
+     * @Rest\Post("/{activityId}/applicants/{userId}/accept")
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
      * @SWG\Post(
@@ -736,21 +748,25 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad request.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User cannot be assigned!"),
+     *     )
+     * )
      * @param Activity $activity
      * @param User $user
      * @param ActivityUserRepository $activityUserRepo
-     * @param ActivityUser $activityUser
      * @return JsonResponse
+     * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
-     * @throws NoResultException
-     * @throws NonUniqueResultException
      */
-    public function assignAnUser(
+    public function acceptAnUserAppliance(
         Activity $activity,
         User $user,
-        ActivityUserRepository $activityUserRepo,
-        ActivityUser $activityUser
+        ActivityUserRepository $activityUserRepo
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
@@ -758,12 +774,97 @@ class ActivityController extends AbstractController
             return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
         }
 
-        $userApplier = $activityUserRepo->isUserApplier($user, $activity);
-        if ($userApplier === null) {
+        $activityUser = $activityUserRepo->getActivityUser($user, $activity);
+        if ($activityUser === null || $activityUser->getType() !== ActivityUser::TYPE_APPLIED) {
             return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
         }
+
         $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
         $activityUserRepo->save($activityUser);
         return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Reject an applicant.
+     * @Rest\Post("/{activityId}/applicants/{userId}/decline")
+     * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
+     * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Reject an applicant.",
+     *     description="Reject an applicant.",
+     *     operationId="rejectApplicant",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity for rejection",
+     *     in="path",
+     *     name="activityId",
+     *     required=true,
+     *     type="integer",
+     * ),
+     *     @SWG\Parameter(
+     *     description="ID of User to be rejected",
+     *     in="path",
+     *     name="userId",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User rejected!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad request.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="User cannot be rejected!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param User $user
+     * @param ActivityUserRepository $activityUserRepo
+     * @return JsonResponse
+     * @throws NonUniqueResultException
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function rejectAnUserAppliance(
+        Activity $activity,
+        User $user,
+        ActivityUserRepository $activityUserRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+
+        if ($activity->getOwner() !== $authenticatedUser) {
+            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+        }
+
+        $activityUser = $activityUserRepo->getActivityUser($user, $activity);
+        if ($activityUser === null || $activityUser->getType() !== ActivityUser::TYPE_APPLIED) {
+            return new JsonResponse(['message' => 'User cannot be rejected!'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $activityUser->setType(ActivityUser::TYPE_REJECTED);
+        $activityUserRepo->save($activityUser);
+        return new JsonResponse(['message' => 'User rejected!'], Response::HTTP_OK);
     }
 }
