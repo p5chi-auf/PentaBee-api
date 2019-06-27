@@ -16,10 +16,10 @@ class ActivityUserFixtures extends Fixture implements DependentFixtureInterface
         for ($i = 0; $i < 10; $i++) {
             $activityUser = new ActivityUser();
             /** @var User $user */
-            $user = $this->getReference('user_' . rand(3, 9));
+            $user = $this->getReference('user_' . $i);
             $activityUser->setUser($user);
             /** @var Activity $activity */
-            $activity = $this->getReference('activity_' . rand(3, 9));
+            $activity = $this->getReference('activity_' . $i);
             $activityUser->setActivity($activity);
             $activityUser->setType(rand(0, 3));
 
