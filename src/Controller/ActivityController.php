@@ -462,7 +462,7 @@ class ActivityController extends AbstractController
      *     response="400",
      *     description="Already applied!",
      *     @SWG\Schema(
-     *     @SWG\Property(property="message", type="string", example="You already applied!"),
+     *     @SWG\Property(property="message", type="string", example="You cannot apply!"),
      *     )
      * )
      * @SWG\Response(
