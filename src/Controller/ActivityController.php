@@ -9,6 +9,7 @@ use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
+use App\Serializer\ValidationErrorSerializer;
 use App\Service\ActivityTransformer;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
@@ -276,12 +277,16 @@ class ActivityController extends AbstractController
      * )
      * @param ActivityRepository $activityRepository
      * @param Request $request
+     * @param ValidationErrorSerializer $validationErrorSerializer
      * @return Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function createAction(ActivityRepository $activityRepository, Request $request): Response
-    {
+    public function createAction(
+        ActivityRepository $activityRepository,
+        Request $request,
+        ValidationErrorSerializer $validationErrorSerializer
+    ): Response {
         $owner = $this->getUser();
 
         $data = $request->getContent();
@@ -299,8 +304,10 @@ class ActivityController extends AbstractController
         $errors = $this->validator->validate($activityDTO, null, ['ActivityCreate']);
 
         if (count($errors) > 0) {
-            $errorsString = (string)$errors;
-            return new Response($errorsString);
+            return new JsonResponse(
+                ['errors' => $validationErrorSerializer->serialize($errors)],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         try {
@@ -379,12 +386,17 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param ActivityRepository $activityRepository
      * @param Request $request
+     * @param ValidationErrorSerializer $validationErrorSerializer
      * @return Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function editAction(Activity $activity, ActivityRepository $activityRepository, Request $request): Response
-    {
+    public function editAction(
+        Activity $activity,
+        ActivityRepository $activityRepository,
+        Request $request,
+        ValidationErrorSerializer $validationErrorSerializer
+    ): Response {
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser !== $activity->getOwner()) {
@@ -405,8 +417,10 @@ class ActivityController extends AbstractController
         $errors = $this->validator->validate($activityDTO, null, ['ActivityEdit']);
 
         if (count($errors) > 0) {
-            $errorsString = (string)$errors;
-            return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                ['errors' => $validationErrorSerializer->serialize($errors)],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         try {

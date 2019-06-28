@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\DTO\UserDTO;
 use App\Repository\UserRepository;
+use App\Serializer\ValidationErrorSerializer;
 use App\Service\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -72,14 +73,25 @@ class RegisterController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="User successfully created!"),
      *     )
      * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad request",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Bad Request!"),
+     *     )
+     * )
      * @param Request $request
      * @param UserRepository $userRepository
+     * @param ValidationErrorSerializer $validationErrorSerializer
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function createUser(Request $request, UserRepository $userRepository)
-    {
+    public function createUser(
+        Request $request,
+        UserRepository $userRepository,
+        ValidationErrorSerializer $validationErrorSerializer
+    ) {
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
@@ -95,9 +107,10 @@ class RegisterController extends AbstractController
         $errors = $this->validator->validate($userDTO, null, ['UserCreate']);
 
         if (count($errors) > 0) {
-            $errorsString = (string)$errors;
-
-            return new Response($errorsString);
+            return new JsonResponse(
+                ['errors' => $validationErrorSerializer->serialize($errors)],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $newUser = $this->transformer->registerTransform($userDTO);
