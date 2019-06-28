@@ -2,7 +2,6 @@
 
 namespace App\DTO;
 
-use DateTime;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
@@ -68,7 +67,7 @@ class UserDTO
      * @Groups({"UserCreate", "PasswordEdit"})
      * @Assert\NotNull(groups={"UserCreate", "PasswordEdit"})
      * @Assert\Regex("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[-_!@#$%^&*])\S*$/",
-     * message = "Password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 diUgit, 1 special",
+     * message = "Password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special",
      * groups={"UserCreate", "PasswordEdit"}
      * )
      * @SWG\Property()
@@ -99,7 +98,6 @@ class UserDTO
      * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     checkMX = true,
      *     groups={"UserCreate", "UserEdit"}
      * )
      * @Serializer\Expose()
