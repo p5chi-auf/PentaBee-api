@@ -51,7 +51,7 @@ class UserDTO
      * @Serializer\Type("string")
      * @Assert\NotNull(groups={"PasswordEdit"})
      * @Assert\Regex("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[-_!@#$%^&*])\S*$/",
-     * message = "password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special",
+     * message = "Password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special",
      * groups={"PasswordEdit"}
      * )
      * @Serializer\Expose()
@@ -68,7 +68,7 @@ class UserDTO
      * @Groups({"UserCreate", "PasswordEdit"})
      * @Assert\NotNull(groups={"UserCreate", "PasswordEdit"})
      * @Assert\Regex("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[-_!@#$%^&*])\S*$/",
-     * message = "password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special",
+     * message = "Password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 diUgit, 1 special",
      * groups={"UserCreate", "PasswordEdit"}
      * )
      * @SWG\Property()

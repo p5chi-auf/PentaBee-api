@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
 use App\Repository\UserRepository;
+use App\Serializer\ValidationErrorSerializer;
 use App\Service\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -156,12 +157,17 @@ class UserController extends AbstractController
      * @param User $user
      * @param Request $request
      * @param UserRepository $userRepository
+     * @param ValidationErrorSerializer $validationErrorSerializer
      * @return JsonResponse|Response
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function editUser(User $user, Request $request, UserRepository $userRepository)
-    {
+    public function editUser(
+        User $user,
+        Request $request,
+        UserRepository $userRepository,
+        ValidationErrorSerializer $validationErrorSerializer
+    ) {
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
@@ -183,7 +189,10 @@ class UserController extends AbstractController
         $errors = $this->validator->validate($userDTO, null, ['UserEdit']);
 
         if (count($errors) > 0) {
-            return new JsonResponse(['message' => (string)$errors], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                ['errors' => $validationErrorSerializer->serialize($errors)],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         try {
@@ -327,7 +336,8 @@ class UserController extends AbstractController
     public function userChangePassword(
         User $user,
         UserRepository $userRepository,
-        Request $request
+        Request $request,
+        ValidationErrorSerializer $validationErrorSerializer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
@@ -347,8 +357,10 @@ class UserController extends AbstractController
         );
         $errors = $this->validator->validate($userDTO, null, ['PasswordEdit']);
         if (count($errors) > 0) {
-            $errorsString = (string)$errors;
-            return new JsonResponse(['message' => $errorsString], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                ['errors' => $validationErrorSerializer->serialize($errors)],
+                Response::HTTP_BAD_REQUEST
+            );
         }
         try {
             $userChangePassword = $this->transformer->changePasswordTransform($userDTO, $user);
