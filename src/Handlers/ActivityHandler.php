@@ -2,17 +2,16 @@
 
 namespace App\Handlers;
 
-use App\Entity\Activity;
 use App\Entity\User;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
-use Symfony\Component\HttpFoundation\JsonResponse;
-use Symfony\Component\HttpFoundation\Response;
 
 class ActivityHandler
 {
+    public const NUM_ITEMS_PER_PAGE = 4;
+
     /**
      * @var SerializerInterface
      */
@@ -29,29 +28,27 @@ class ActivityHandler
         $this->activityRepository = $activityRepository;
     }
 
-    public function getActivitiesListPaginated(User $user, int $page): JsonResponse
+    public function getActivitiesListPaginated(User $user, int $page): array
     {
         $paginatedResults = $this->activityRepository->getPaginatedActivities($user, $page);
 
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
-        $paginatedResults = $paginatedResults->getResult();
-
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityList'));
 
         $json = $this->serializer->serialize(
-            $paginatedResults,
+            $paginatedResults->getResult(),
             'json',
             $context
         );
 
-        return new JsonResponse([
+        return array(
             'results' => json_decode($json, true),
             'numResults' => $numResults,
-            'perPage' => Activity::NUM_ITEMS_PER_PAGE,
-            'numPages' => (int)ceil($numResults / Activity::NUM_ITEMS_PER_PAGE),
-        ], Response::HTTP_OK);
+            'perPage' => $this::NUM_ITEMS_PER_PAGE,
+            'numPages' => (int)ceil($numResults / $this::NUM_ITEMS_PER_PAGE)
+        );
     }
 }

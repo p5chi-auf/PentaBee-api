@@ -122,7 +122,12 @@ class ActivityController extends AbstractController
     {
         $user = $this->getUser();
 
-        return $this->activityHandler->getActivitiesListPaginated($user, $page);
+        return new JsonResponse(
+            json_encode($this->activityHandler->getActivitiesListPaginated($user, $page)),
+            200,
+            [],
+            true
+        );
     }
 
     /**
@@ -187,7 +192,7 @@ class ActivityController extends AbstractController
 
     /**
      * Delete an Activity.
-     * @Rest\Delete("/{id}/delete")
+     * @Rest\Delete("/{id}/delete", requirements={"id"="\d+"})
      * @SWG\Delete(
      *     tags={"Activity"},
      *     summary="Delete an Activity.",
@@ -346,7 +351,7 @@ class ActivityController extends AbstractController
 
     /**
      * Edit an Activity.
-     * @Rest\Post("/{id}/edit")
+     * @Rest\Post("/{id}/edit", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"Activity"},
      *     summary="Edit an Activity.",
@@ -458,7 +463,7 @@ class ActivityController extends AbstractController
 
     /**
      * Apply for an Activity.
-     * @Rest\Post("/{id}/apply")
+     * @Rest\Post("/{id}/apply", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"Activity"},
      *     summary="Apply for an Activity.",
@@ -585,7 +590,7 @@ class ActivityController extends AbstractController
 
     /**
      * Invite an User to an Activity.
-     * @Rest\Post("/{activityId}/invite/{userId}")
+     * @Rest\Post("/{activityId}/invite/{userId}", requirements={"activityId"="\d+", "userId"="\d+"})
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @ParamConverter("invitedUser", options={"mapping": {"userId" : "id"}})
      * @SWG\Post(
@@ -697,7 +702,7 @@ class ActivityController extends AbstractController
 
     /**
      * Get a list of all applicants.
-     * @Rest\Get("/{activityId}/applicants/{page<\d+>}", defaults={"page" = 1})
+     * @Rest\Get("/{activityId}/applicants/{page<\d+>}", defaults={"page" = 1}, requirements={"activityId"="\d+"})
      * @param Activity $activity
      * @param int $page
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
@@ -746,7 +751,12 @@ class ActivityController extends AbstractController
      */
     public function listOfApplicants(Activity $activity, int $page): JsonResponse
     {
-        return $this->activityUserHandler->getApplicantsPaginated($activity, $page);
+        return new JsonResponse(
+            json_encode($this->activityUserHandler->getApplicantsPaginated($activity, $page)),
+            200,
+            [],
+            true
+        );
     }
 
     /**
@@ -835,7 +845,7 @@ class ActivityController extends AbstractController
 
     /**
      * Reject an applicant.
-     * @Rest\Post("/{activityId}/applicants/{userId}/decline")
+     * @Rest\Post("/{activityId}/applicants/{userId}/decline", requirements={"activityId"="\d+", "userId"="\d+"})
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
      * @SWG\Post(
@@ -919,7 +929,7 @@ class ActivityController extends AbstractController
 
     /**
      * Accept invitation for a job.
-     * @Rest\Post("/{id}/accept")
+     * @Rest\Post("/{id}/accept", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"Activity"},
      *     summary="Accept a invitation for a job.",
@@ -979,7 +989,7 @@ class ActivityController extends AbstractController
 
     /**
      * Decline invitation for a job.
-     * @Rest\Post("/{id}/decline")
+     * @Rest\Post("/{id}/decline", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"Activity"},
      *     summary="Decline a invitation for a job.",

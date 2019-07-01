@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
+use App\Handlers\ActivityUserHandler;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -89,7 +90,7 @@ class ActivityUserRepository extends ServiceEntityRepository
     public function getApplicantsForActivityPaginated(
         Activity $activity,
         int $currentPage = 1,
-        int $pageSize = ActivityUser::NUM_APPLICANTS_PER_PAGE
+        int $pageSize = ActivityUserHandler::NUM_APPLICANTS_PER_PAGE
     ): Query {
         $queryBuilder = $this->userRepository->getApplicantsForActivity($activity);
 

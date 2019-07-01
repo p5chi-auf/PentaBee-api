@@ -22,8 +22,6 @@ class Activity
     public const STATUS_FINISHED = 1;
     public const STATUS_CLOSED = 2;
 
-    public const NUM_ITEMS_PER_PAGE = 4;
-
     /**
      * Activity ID
      * @ORM\Id()

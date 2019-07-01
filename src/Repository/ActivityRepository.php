@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Activity;
 use App\Entity\User;
+use App\Handlers\ActivityHandler;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -68,7 +69,7 @@ class ActivityRepository extends ServiceEntityRepository
     public function getPaginatedActivities(
         User $user,
         int $currentPage = 1,
-        int $pageSize = Activity::NUM_ITEMS_PER_PAGE
+        int $pageSize = ActivityHandler::NUM_ITEMS_PER_PAGE
     ): Query {
         $queryBuilder = $this->getAvailableActivities($user);
 
