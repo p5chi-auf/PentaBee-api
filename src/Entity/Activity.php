@@ -22,6 +22,8 @@ class Activity
     public const STATUS_FINISHED = 1;
     public const STATUS_CLOSED = 2;
 
+    public const NUM_ITEMS_PER_PAGE = 4;
+
     /**
      * Activity ID
      * @ORM\Id()
@@ -46,7 +48,7 @@ class Activity
      * Activity description
      * @ORM\Column(type="text")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
      * @SWG\Property()
      */
     private $description;

@@ -7,10 +7,9 @@ use App\Entity\ActivityUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\Query;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -21,9 +20,15 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ActivityUserRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    public function __construct(RegistryInterface $registry, UserRepository $userRepository)
     {
         parent::__construct($registry, ActivityUser::class);
+        $this->userRepository = $userRepository;
     }
 
     /**
@@ -81,23 +86,22 @@ class ActivityUserRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
+    public function getApplicantsForActivityPaginated(
+        Activity $activity,
+        int $currentPage = 1,
+        int $pageSize = ActivityUser::NUM_APPLICANTS_PER_PAGE
+    ): Query {
+        $queryBuilder = $this->userRepository->getApplicantsForActivity($activity);
 
-    public function getApplicantsForActivity(Activity $activity): array
-    {
-        $queryBuilder = $this->createQueryBuilder('activity_user');
-        $queryBuilder
-            ->select('user')
-            ->innerJoin(User::class, 'user', Join::WITH, 'activity_user.user = user.id')
-            ->where(
-                $queryBuilder->expr()->andX(
-                    'activity_user.activity = :activity',
-                    'activity_user.type = :type'
-                )
-            )
-            ->setParameter('activity', $activity)
-            ->setParameter('type', ActivityUser::TYPE_APPLIED);
+        $currentPage = $currentPage < 1 ? 1 : $currentPage;
+        $firstResult = ($currentPage - 1) * $pageSize;
 
-        return $queryBuilder->getQuery()->getResult();
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($pageSize)
+            ->getQuery();
+
+        return $query;
     }
 
     /**

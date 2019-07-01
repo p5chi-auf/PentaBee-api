@@ -2,10 +2,13 @@
 
 namespace App\Repository;
 
+use App\Entity\Activity;
+use App\Entity\ActivityUser;
 use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -46,5 +49,19 @@ class UserRepository extends ServiceEntityRepository
         $em = $this->getEntityManager();
         $em->remove($user);
         $em->flush();
+    }
+
+    public function getApplicantsForActivity(Activity $activity): QueryBuilder
+    {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->select('user')
+            ->leftJoin('user.activityUsers', 'activityUsers')
+            ->where('activityUsers.activity = :activity')
+            ->andWhere('activityUsers.type = :type')
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_APPLIED);
+
+        return $queryBuilder;
     }
 }

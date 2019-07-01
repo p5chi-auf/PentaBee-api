@@ -7,6 +7,8 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Handlers\ActivityHandler;
+use App\Handlers\ActivityUserHandler;
 use App\Mailer\Mailer;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
@@ -14,7 +16,6 @@ use App\Serializer\ValidationErrorSerializer;
 use App\Service\ActivityTransformer;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use JMS\Serializer\DeserializationContext;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\OptimisticLockException;
@@ -52,38 +53,60 @@ class ActivityController extends AbstractController
      * @var AccessRightsPolicy
      */
     private $accessRightsPolicy;
+    /**
+     * @var ActivityHandler
+     */
+    private $activityHandler;
+    /**
+     * @var ActivityUserHandler
+     */
+    private $activityUserHandler;
 
     public function __construct(
         SerializerInterface $serializer,
         ActivityTransformer $transformer,
         ValidatorInterface $validator,
-        AccessRightsPolicy $accessRightsPolicy
+        AccessRightsPolicy $accessRightsPolicy,
+        ActivityHandler $activityHandler,
+        ActivityUserHandler $activityUserHandler
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
         $this->validator = $validator;
         $this->accessRightsPolicy = $accessRightsPolicy;
+        $this->activityHandler = $activityHandler;
+        $this->activityUserHandler = $activityUserHandler;
     }
 
     /**
      * Get a list of all activities
-     * @Rest\Get("/")
-     * @param ActivityRepository $repository
-     * @return Response
+     * @Rest\Get("/all/{page<\d+>}", defaults={"page" = 1})
+     * @param $page
+     * @return JsonResponse
      * @SWG\Get(
      *     tags={"Activity"},
      *     summary="Get a list of all activities",
      *     description="Get a list of all activities",
      *     operationId="getActivities",
      *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="Number of page",
+     *     in="path",
+     *     required=false,
+     *     name="page",
+     *     type="integer",
+     *     default="1",
+     * )
      * )
      * @SWG\Response(
      *     response=200,
      *     description="Successfull operation!",
      *     @SWG\Schema(
-     *     type="array",
-     *     @Model(type=Activity::class, groups={"ActivityList"}),
-     * )
+     *     @SWG\Property(property="numResults", type="integer"),
+     *     @SWG\Property(property="perPage", type="integer"),
+     *     @SWG\Property(property="numPages", type="integer"),
+     *     @SWG\Property(property="results", type="array", @Model(type=Activity::class, groups={"ActivityList"}),
+     *     )
      * )
      * )
      * @SWG\Response(
@@ -95,26 +118,16 @@ class ActivityController extends AbstractController
      *     )
      * )
      */
-    public function getActivitiesList(ActivityRepository $repository): Response
+    public function getActivitiesList(int $page): JsonResponse
     {
         $user = $this->getUser();
-        $activities = $repository->getAvailableActivities($user);
 
-        /** @var SerializationContext $context */
-        $context = SerializationContext::create()->setGroups(array('ActivityList'));
-
-        $json = $this->serializer->serialize(
-            $activities,
-            'json',
-            $context
-        );
-
-        return new JsonResponse($json, 200, [], true);
+        return $this->activityHandler->getActivitiesListPaginated($user, $page);
     }
 
     /**
      * Get details about and Activity
-     * @Rest\Get("/{id}")
+     * @Rest\Get("/{id}", requirements={"id"="\d+"})
      * @param Activity $activity
      * @return Response
      * @SWG\Get(
@@ -683,8 +696,11 @@ class ActivityController extends AbstractController
     }
 
     /**
-     *Get a list of all applicants.
-     * @Rest\Get("/{id}/applicants")
+     * Get a list of all applicants.
+     * @Rest\Get("/{activityId}/applicants/{page<\d+>}", defaults={"page" = 1})
+     * @param Activity $activity
+     * @param int $page
+     * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @SWG\Get(
      *     tags={"Activity"},
      *     summary="Get a list of all applicants",
@@ -694,18 +710,28 @@ class ActivityController extends AbstractController
      *     @SWG\Parameter(
      *     description="ID of Activity",
      *     in="path",
-     *     name="id",
+     *     name="activityId",
      *     required=true,
      *     type="integer",
+     * ),
+     *     @SWG\Parameter(
+     *     description="Number of page",
+     *     in="path",
+     *     name="page",
+     *     required=false,
+     *     type="integer",
+     *     default="1",
      * )
      * )
      * @SWG\Response(
      *     response=200,
      *     description="Successfull operation!",
      *     @SWG\Schema(
-     *     type="array",
-     *     @Model(type=User::class, groups={"UserList"}),
-     * )
+     *     @SWG\Property(property="numResults", type="integer"),
+     *     @SWG\Property(property="perPage", type="integer"),
+     *     @SWG\Property(property="numPages", type="integer"),
+     *     @SWG\Property(property="results", type="array", @Model(type=User::class, groups={"UserList"}),
+     *     )
      * )
      * )
      * @SWG\Response(
@@ -716,24 +742,11 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
      *     )
      * )
-     * @param Activity $activity
-     * @param ActivityUserRepository $activityUserRepo
      * @return JsonResponse
      */
-    public function listOfApplicants(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
+    public function listOfApplicants(Activity $activity, int $page): JsonResponse
     {
-        $applicants = $activityUserRepo->getApplicantsForActivity($activity);
-
-        /** @var SerializationContext $context */
-        $context = SerializationContext::create()->setGroups(array('UserList'));
-
-        $json = $this->serializer->serialize(
-            $applicants,
-            'json',
-            $context
-        );
-
-        return new JsonResponse($json, 200, [], true);
+        return $this->activityUserHandler->getApplicantsPaginated($activity, $page);
     }
 
     /**
