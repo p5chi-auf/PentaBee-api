@@ -547,7 +547,9 @@ class ActivityController extends AbstractController
         if ($activityUser !== null) {
             return new JsonResponse(['message' => 'You cannot apply!'], Response::HTTP_BAD_REQUEST);
         }
-        $message = (new Swift_Message('Info Pentabee'))
+        $message = (new Swift_Message(
+            'Someone applied your job: ' . $activity->getName()
+        ))
             ->setFrom('pentabee.mail@gmail.com')
             ->setTo($activity->getOwner()->getEmail())
             ->setBody(
