@@ -7,6 +7,7 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Mailer\Mailer;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
@@ -22,6 +23,8 @@ use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
+use Swift_Mailer;
+use Swift_Message;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -508,12 +511,18 @@ class ActivityController extends AbstractController
      * )
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
+     * @param Swift_Mailer $mailer
      * @return JsonResponse
+     * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function applyForActivity(Activity $activity, ActivityUserRepository $activityUserRepo): JsonResponse
-    {
+    public function applyForActivity(
+        Activity $activity,
+        ActivityUserRepository $activityUserRepo,
+        Swift_Mailer $mailer
+    ): JsonResponse {
+        /** @var User $applierUser */
         $applierUser = $this->getUser();
 
         if ($activity->isPublic() === false) {
@@ -538,6 +547,22 @@ class ActivityController extends AbstractController
         if ($activityUser !== null) {
             return new JsonResponse(['message' => 'You cannot apply!'], Response::HTTP_BAD_REQUEST);
         }
+        $message = (new Swift_Message('Info Pentabee'))
+            ->setFrom('pentabee.mail@gmail.com')
+            ->setTo($activity->getOwner()->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/apply.twig',
+                    [
+                        'owner' => $activity->getOwner(),
+                        'user' => $applierUser,
+                        'activity' => $activity
+                    ]
+                ),
+                'text/html'
+            );
+
+        $mailer->send($message);
 
         $activityUserRepo->apply($activity, $applierUser);
         return new JsonResponse(['message' => 'Applied with success!'], Response::HTTP_OK);
