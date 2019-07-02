@@ -10,7 +10,7 @@ use JMS\Serializer\SerializerInterface;
 
 class ActivityUserHandler
 {
-    public const NUM_APPLICANTS_PER_PAGE = 5;
+    public const NUM_APPLICANTS_PER_PAGE = 10;
 
     /**
      * @var SerializerInterface

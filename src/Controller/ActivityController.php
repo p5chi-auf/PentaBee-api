@@ -702,7 +702,7 @@ class ActivityController extends AbstractController
 
     /**
      * Get a list of all applicants.
-     * @Rest\Get("/{activityId}/applicants/{page<\d+>}", defaults={"page" = 1}, requirements={"activityId"="\d+"})
+     * @Rest\Get("/{activityId}/applicants/{page}", defaults={"page" = 1}, requirements={"activityId"="\d+"})
      * @param Activity $activity
      * @param int $page
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
