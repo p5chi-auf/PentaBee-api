@@ -55,7 +55,7 @@ class UserController extends AbstractController
 
     /**
      * Get details about an User.
-     * @Rest\Get("/{id}")
+     * @Rest\Get("/{id}", requirements={"id"="\d+"})
      * @SWG\Get(
      *     tags={"User"},
      *     summary="Get details about an User.",
@@ -106,7 +106,7 @@ class UserController extends AbstractController
 
     /**
      * Modify an User.
-     * @Rest\Post("/{id}/edit")
+     * @Rest\Post("/{id}/edit", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"User"},
      *     summary="Edit an User.",
@@ -214,7 +214,7 @@ class UserController extends AbstractController
 
     /**
      * Delete an User.
-     * @Rest\Delete("/{id}/delete")
+     * @Rest\Delete("/{id}/delete", requirements={"id"="\d+"})
      * @SWG\Delete(
      *     tags={"User"},
      *     summary="Delete an User.",
@@ -278,7 +278,7 @@ class UserController extends AbstractController
 
     /**
      * Change password of User.
-     * @Rest\Post("/{id}/change_password")
+     * @Rest\Post("/{id}/change_password", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"User"},
      *     summary="Change password of User.",
@@ -329,6 +329,7 @@ class UserController extends AbstractController
      * @param User $user
      * @param UserRepository $userRepository
      * @param Request $request
+     * @param ValidationErrorSerializer $validationErrorSerializer
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException

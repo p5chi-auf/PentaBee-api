@@ -46,7 +46,7 @@ class Activity
      * Activity description
      * @ORM\Column(type="text")
      * @Serializer\Expose()
-     * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
      * @SWG\Property()
      */
     private $description;

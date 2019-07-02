@@ -119,11 +119,17 @@ class User implements UserInterface
      */
     protected $technologies;
 
+    /**
+     * @ORM\OneToMany(targetEntity="ActivityUser", mappedBy="user")
+     */
+    private $activityUsers;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
+        $this->activityUsers = new ArrayCollection();
     }
 
     /**

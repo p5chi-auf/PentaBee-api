@@ -3,12 +3,13 @@
 namespace App\Repository;
 
 use App\Entity\Activity;
-use App\Entity\ActivityUser;
 use App\Entity\User;
+use App\Handlers\ActivityHandler;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query\Expr\Join;
+use Doctrine\ORM\Query;
+use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -51,7 +52,7 @@ class ActivityRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getAvailableActivities(User $user)
+    public function getAvailableActivities(User $user): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('activity');
         $queryBuilder
@@ -62,6 +63,24 @@ class ActivityRepository extends ServiceEntityRepository
             ->orWhere('activityUsers.user = :user')
             ->setParameter('user', $user);
 
-        return $queryBuilder->getQuery()->getResult();
+        return $queryBuilder;
+    }
+
+    public function getPaginatedActivities(
+        User $user,
+        int $currentPage = 1,
+        int $pageSize = ActivityHandler::NUM_ITEMS_PER_PAGE
+    ): Query {
+        $queryBuilder = $this->getAvailableActivities($user);
+
+        $currentPage = $currentPage < 1 ? 1 : $currentPage;
+        $firstResult = ($currentPage - 1) * $pageSize;
+
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($pageSize)
+            ->getQuery();
+
+        return $query;
     }
 }
