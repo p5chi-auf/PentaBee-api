@@ -705,7 +705,7 @@ class ActivityController extends AbstractController
             ' invited you for the job: ' . $activity->getName()
         ))
             ->setFrom('pentabee.mail@gmail.com')
-            ->setTo($authenticatedUser->getEmail())
+            ->setTo($invitedUser->getEmail())
             ->setBody(
                 $this->renderView(
                     'mail/invite.html.twig',
