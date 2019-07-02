@@ -572,7 +572,7 @@ class ActivityController extends AbstractController
             ->setTo($activity->getOwner()->getEmail())
             ->setBody(
                 $this->renderView(
-                    'mail/apply.twig',
+                    'mail/apply.html.twig',
                     [
                         'owner' => $activity->getOwner(),
                         'user' => $applierUser,
@@ -662,15 +662,19 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param User $invitedUser
      * @param ActivityUserRepository $activityUserRepo
+     * @param Swift_Mailer $mailer
      * @return JsonResponse
+     * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
      */
     public function inviteUserToActivity(
         Activity $activity,
         User $invitedUser,
-        ActivityUserRepository $activityUserRepo
+        ActivityUserRepository $activityUserRepo,
+        Swift_Mailer $mailer
     ): JsonResponse {
+        /** @var User $authenticatedUser */
         $authenticatedUser = $this->getUser();
 
         if ($activity->getOwner() !== $authenticatedUser) {
@@ -695,6 +699,26 @@ class ActivityController extends AbstractController
         if ($activityUser !== null) {
             return new JsonResponse(['message' => 'This user already applied!'], Response::HTTP_BAD_REQUEST);
         }
+
+        $message = (new Swift_Message(
+            $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
+            ' invited you for the job: ' . $activity->getName()
+        ))
+            ->setFrom('pentabee.mail@gmail.com')
+            ->setTo($authenticatedUser->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/invite.html.twig',
+                    [
+                        'owner' => $authenticatedUser,
+                        'user' => $invitedUser,
+                        'activity' => $activity
+                    ]
+                ),
+                'text/html'
+            );
+
+        $mailer->send($message);
 
         $activityUserRepo->invite($activity, $invitedUser);
         return new JsonResponse(['message' => 'User invited with success!'], Response::HTTP_OK);
