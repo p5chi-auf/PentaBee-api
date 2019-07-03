@@ -20,7 +20,7 @@ class ActivityType
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"TypeDetails", "ActivityCreate", "ActivityEdit", "ActivityDetails"})
      */
     protected $id;
 

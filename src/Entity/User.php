@@ -29,7 +29,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit", "ActivityDetails"})
      * @SWG\Property()
      */
     protected $id;
