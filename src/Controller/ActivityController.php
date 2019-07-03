@@ -569,7 +569,7 @@ class ActivityController extends AbstractController
             $applierUser->getName() . ' ' . $applierUser->getSurname() .
             ' applied your job: ' . $activity->getName()
         ))
-            ->setFrom($_ENV['MAIL_URL'])
+            ->setFrom($_ENV['EMAIL_FROM'])
             ->setTo($activity->getOwner()->getEmail())
             ->setBody(
                 $this->renderView(
@@ -705,7 +705,7 @@ class ActivityController extends AbstractController
             $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
             ' invited you for the job: ' . $activity->getName()
         ))
-            ->setFrom($_ENV['MAIL_URL'])
+            ->setFrom($_ENV['EMAIL_FROM'])
             ->setTo($invitedUser->getEmail())
             ->setBody(
                 $this->renderView(
@@ -1014,7 +1014,7 @@ class ActivityController extends AbstractController
             $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
             ' accepted your invitation on Job ' . $activity->getName()
         ))
-            ->setFrom($_ENV['MAIL_URL'])
+            ->setFrom($_ENV['EMAIL_FROM'])
             ->setTo($activity->getOwner()->getEmail())
             ->setBody(
                 $this->renderView(
@@ -1096,7 +1096,7 @@ class ActivityController extends AbstractController
             $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
             ' declined your invitation on Job ' . $activity->getName()
         ))
-            ->setFrom($_ENV['MAIL_URL'])
+            ->setFrom($_ENV['EMAIL_FROM'])
             ->setTo($activity->getOwner()->getEmail())
             ->setBody(
                 $this->renderView(
