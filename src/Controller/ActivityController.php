@@ -841,6 +841,7 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param User $user
      * @param ActivityUserRepository $activityUserRepo
+     * @param Swift_Mailer $mailer
      * @return JsonResponse
      * @throws NonUniqueResultException
      * @throws ORMException
@@ -849,7 +850,8 @@ class ActivityController extends AbstractController
     public function acceptAnUserAppliance(
         Activity $activity,
         User $user,
-        ActivityUserRepository $activityUserRepo
+        ActivityUserRepository $activityUserRepo,
+        Swift_Mailer $mailer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
@@ -861,7 +863,25 @@ class ActivityController extends AbstractController
         if ($activityUser === null || $activityUser->getType() !== ActivityUser::TYPE_APPLIED) {
             return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
         }
+        $message = (new Swift_Message(
+            $activity->getOwner()->getName() . ' ' . $activity->getOwner()->getSurname() .
+            ' accepted your application on Job ' . $activity->getName()
+        ))
+            ->setFrom($_ENV['EMAIL_FROM'])
+            ->setTo($authenticatedUser->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/accept_applicant.html.twig',
+                    [
+                        'owner' => $activity->getOwner(),
+                        'user' => $authenticatedUser,
+                        'activity' => $activity
+                    ]
+                ),
+                'text/html'
+            );
 
+        $mailer->send($message);
         $activityUser->setType(ActivityUser::TYPE_ASSIGNED);
         $activityUserRepo->save($activityUser);
         return new JsonResponse(['message' => 'User assigned with success!'], Response::HTTP_OK);
@@ -925,6 +945,7 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param User $user
      * @param ActivityUserRepository $activityUserRepo
+     * @param Swift_Mailer $mailer
      * @return JsonResponse
      * @throws NonUniqueResultException
      * @throws ORMException
@@ -933,7 +954,8 @@ class ActivityController extends AbstractController
     public function rejectAnUserAppliance(
         Activity $activity,
         User $user,
-        ActivityUserRepository $activityUserRepo
+        ActivityUserRepository $activityUserRepo,
+        Swift_Mailer $mailer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
@@ -946,6 +968,25 @@ class ActivityController extends AbstractController
             return new JsonResponse(['message' => 'User cannot be rejected!'], Response::HTTP_BAD_REQUEST);
         }
 
+        $message = (new Swift_Message(
+            $activity->getOwner()->getName() . ' ' . $activity->getOwner()->getSurname() .
+            ' rejected your application on Job ' . $activity->getName()
+        ))
+            ->setFrom($_ENV['EMAIL_FROM'])
+            ->setTo($authenticatedUser->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/reject_applicant.html.twig',
+                    [
+                        'owner' => $activity->getOwner(),
+                        'user' => $authenticatedUser,
+                        'activity' => $activity
+                    ]
+                ),
+                'text/html'
+            );
+
+        $mailer->send($message);
         $activityUser->setType(ActivityUser::TYPE_REJECTED);
         $activityUserRepo->save($activityUser);
         return new JsonResponse(['message' => 'User rejected!'], Response::HTTP_OK);
