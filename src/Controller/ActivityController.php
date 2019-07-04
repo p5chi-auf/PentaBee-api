@@ -96,19 +96,12 @@ class ActivityController extends AbstractController
      *     description="Get a list of all activities",
      *     operationId="getActivities",
      *     produces={"application/json"},
-     *     @SWG\Parameter(
-     *     description="Number of page",
-     *     in="path",
-     *     required=false,
-     *     name="page",
-     *     type="integer",
-     *     default="1",
-     * )
      * )
      * @SWG\Response(
      *     response=200,
      *     description="Successfull operation!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="currentPage", type="integer"),
      *     @SWG\Property(property="numResults", type="integer"),
      *     @SWG\Property(property="perPage", type="integer"),
      *     @SWG\Property(property="numPages", type="integer"),
@@ -773,19 +766,12 @@ class ActivityController extends AbstractController
      *     required=true,
      *     type="integer",
      * ),
-     *     @SWG\Parameter(
-     *     description="Number of page",
-     *     in="path",
-     *     name="page",
-     *     required=false,
-     *     type="integer",
-     *     default="1",
-     * )
      * )
      * @SWG\Response(
      *     response=200,
      *     description="Successfull operation!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="currentPage", type="integer"),
      *     @SWG\Property(property="numResults", type="integer"),
      *     @SWG\Property(property="perPage", type="integer"),
      *     @SWG\Property(property="numPages", type="integer"),
