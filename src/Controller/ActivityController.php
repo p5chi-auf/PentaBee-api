@@ -566,9 +566,10 @@ class ActivityController extends AbstractController
             return new JsonResponse(['message' => 'You cannot apply!'], Response::HTTP_BAD_REQUEST);
         }
         $message = (new Swift_Message(
-            'Someone applied your job: ' . $activity->getName()
+            $applierUser->getName() . ' ' . $applierUser->getSurname() .
+            ' applied your job: ' . $activity->getName()
         ))
-            ->setFrom('pentabee.mail@gmail.com')
+            ->setFrom($_ENV['EMAIL_FROM'])
             ->setTo($activity->getOwner()->getEmail())
             ->setBody(
                 $this->renderView(
@@ -704,7 +705,7 @@ class ActivityController extends AbstractController
             $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
             ' invited you for the job: ' . $activity->getName()
         ))
-            ->setFrom('pentabee.mail@gmail.com')
+            ->setFrom($_ENV['EMAIL_FROM'])
             ->setTo($invitedUser->getEmail())
             ->setBody(
                 $this->renderView(
@@ -992,13 +993,16 @@ class ActivityController extends AbstractController
      * )
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
+     * @param Swift_Mailer $mailer
      * @return JsonResponse
+     * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
      */
     public function acceptInvitation(
         Activity $activity,
-        ActivityUserRepository $activityUserRepo
+        ActivityUserRepository $activityUserRepo,
+        Swift_Mailer $mailer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
         $accept = $activityUserRepo->getActivityUser($authenticatedUser, $activity);
@@ -1006,6 +1010,25 @@ class ActivityController extends AbstractController
         if ($accept === null || $accept->getType() !== ActivityUser::TYPE_INVITED) {
             return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
         }
+        $message = (new Swift_Message(
+            $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
+            ' accepted your invitation on Job ' . $activity->getName()
+        ))
+            ->setFrom($_ENV['EMAIL_FROM'])
+            ->setTo($activity->getOwner()->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/accept_invitation.html.twig',
+                    [
+                        'owner' => $activity->getOwner(),
+                        'user' => $authenticatedUser,
+                        'activity' => $activity
+                    ]
+                ),
+                'text/html'
+            );
+
+        $mailer->send($message);
         $accept->setType(ActivityUser::TYPE_ASSIGNED);
         $activityUserRepo->save($accept);
         return new JsonResponse(['message' => 'You are assigned with success!'], Response::HTTP_OK);
@@ -1052,13 +1075,16 @@ class ActivityController extends AbstractController
      * )
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
+     * @param Swift_Mailer $mailer
      * @return JsonResponse
+     * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
      */
     public function declineInvitation(
         Activity $activity,
-        ActivityUserRepository $activityUserRepo
+        ActivityUserRepository $activityUserRepo,
+        Swift_Mailer $mailer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
         $accept = $activityUserRepo->getActivityUser($authenticatedUser, $activity);
@@ -1066,6 +1092,24 @@ class ActivityController extends AbstractController
         if ($accept === null || $accept->getType() !== ActivityUser::TYPE_INVITED) {
             return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
         }
+        $message = (new Swift_Message(
+            $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
+            ' declined your invitation on Job ' . $activity->getName()
+        ))
+            ->setFrom($_ENV['EMAIL_FROM'])
+            ->setTo($activity->getOwner()->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/decline_invitation.html.twig',
+                    [
+                        'owner' => $activity->getOwner(),
+                        'user' => $authenticatedUser,
+                        'activity' => $activity
+                    ]
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
         $accept->setType(ActivityUser::TYPE_DECLINED);
         $activityUserRepo->save($accept);
         return new JsonResponse(['message' => 'You declined the invitation!'], Response::HTTP_OK);
