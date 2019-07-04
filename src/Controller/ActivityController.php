@@ -7,9 +7,10 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
-use App\Mailer\Mailer;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
@@ -81,7 +82,10 @@ class ActivityController extends AbstractController
     /**
      * Get a list of all activities
      * @Rest\Get("/all/{page<\d+>}", defaults={"page" = 1})
-     * @param $page
+     * @param int $page
+     * @param Request $request
+     * @param ActivityListFilter $activityListFilter
+     * @param ActivityListSort $activityListSort
      * @return JsonResponse
      * @SWG\Get(
      *     tags={"Activity"},
@@ -118,12 +122,23 @@ class ActivityController extends AbstractController
      *     )
      * )
      */
-    public function getActivitiesList(int $page): JsonResponse
-    {
+    public function getActivitiesList(
+        int $page,
+        Request $request,
+        ActivityListFilter $activityListFilter,
+        ActivityListSort $activityListSort
+    ): JsonResponse {
         $user = $this->getUser();
 
+        $filter = $request->query->get('filter');
+        $activityListFilter->setFilterFields($filter);
+
+        $sorting = $request->query->get('sortBy');
+        $activityListSort->setSortingFields($sorting);
+
         return new JsonResponse(
-            json_encode($this->activityHandler->getActivitiesListPaginated($user, $page)),
+            json_encode($this->activityHandler
+                ->getActivitiesListPaginated($activityListSort, $activityListFilter, $user, $page)),
             200,
             [],
             true

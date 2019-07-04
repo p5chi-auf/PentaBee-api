@@ -3,6 +3,8 @@
 namespace App\Handlers;
 
 use App\Entity\User;
+use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListSort;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
@@ -28,9 +30,14 @@ class ActivityHandler
         $this->activityRepository = $activityRepository;
     }
 
-    public function getActivitiesListPaginated(User $user, int $page): array
-    {
-        $paginatedResults = $this->activityRepository->getPaginatedActivities($user, $page);
+    public function getActivitiesListPaginated(
+        ActivityListSort $activityListSort,
+        ActivityListFilter $activityListFilter,
+        User $user,
+        int $page
+    ): array {
+        $paginatedResults = $this->activityRepository
+            ->getPaginatedActivities($activityListSort, $activityListFilter, $user, $page);
 
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
