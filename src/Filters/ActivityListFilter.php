@@ -2,9 +2,6 @@
 
 namespace App\Filters;
 
-use App\Entity\User;
-use App\Repository\UserRepository;
-
 class ActivityListFilter
 {
     /**

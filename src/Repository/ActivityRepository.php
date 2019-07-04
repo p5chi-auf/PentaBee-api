@@ -6,8 +6,8 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
-use App\Handlers\ActivityHandler;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -116,20 +116,19 @@ class ActivityRepository extends ServiceEntityRepository
     }
 
     public function getPaginatedActivities(
+        ActivityListPagination $activityListPagination,
         ActivityListSort $activityListSort,
         ActivityListFilter $activityListFilter,
-        User $user,
-        int $currentPage = 1,
-        int $pageSize = ActivityHandler::NUM_ITEMS_PER_PAGE
+        User $user
     ): Query {
         $queryBuilder = $this->getAvailableActivities($activityListSort, $activityListFilter, $user);
 
-        $currentPage = $currentPage < 1 ? 1 : $currentPage;
-        $firstResult = ($currentPage - 1) * $pageSize;
+        $currentPage = $activityListPagination->currentPage < 1 ? 1 : $activityListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $activityListPagination->pageSize;
 
         $query = $queryBuilder
             ->setFirstResult($firstResult)
-            ->setMaxResults($pageSize)
+            ->setMaxResults($activityListPagination->pageSize)
             ->getQuery();
 
         return $query;

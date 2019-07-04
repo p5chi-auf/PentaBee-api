@@ -8,7 +8,10 @@ use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
+use App\Filters\ApplicantsListPagination;
+use App\Filters\ApplicantsListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
 use App\Repository\ActivityUserRepository;
@@ -81,11 +84,11 @@ class ActivityController extends AbstractController
 
     /**
      * Get a list of all activities
-     * @Rest\Get("/all/{page<\d+>}", defaults={"page" = 1})
-     * @param int $page
+     * @Rest\Get()
      * @param Request $request
      * @param ActivityListFilter $activityListFilter
      * @param ActivityListSort $activityListSort
+     * @param ActivityListPagination $activityListPagination
      * @return JsonResponse
      * @SWG\Get(
      *     tags={"Activity"},
@@ -123,10 +126,10 @@ class ActivityController extends AbstractController
      * )
      */
     public function getActivitiesList(
-        int $page,
         Request $request,
         ActivityListFilter $activityListFilter,
-        ActivityListSort $activityListSort
+        ActivityListSort $activityListSort,
+        ActivityListPagination $activityListPagination
     ): JsonResponse {
         $user = $this->getUser();
 
@@ -136,9 +139,17 @@ class ActivityController extends AbstractController
         $sorting = $request->query->get('sortBy');
         $activityListSort->setSortingFields((array)$sorting);
 
+        $pagination = $request->query->get('pagination');
+        $activityListPagination->setPaginationFields((array)$pagination);
+
         return new JsonResponse(
             json_encode($this->activityHandler
-                ->getActivitiesListPaginated($activityListSort, $activityListFilter, $user, $page)),
+                ->getActivitiesListPaginated(
+                    $activityListPagination,
+                    $activityListSort,
+                    $activityListFilter,
+                    $user
+                )),
             200,
             [],
             true
@@ -742,9 +753,12 @@ class ActivityController extends AbstractController
 
     /**
      * Get a list of all applicants.
-     * @Rest\Get("/{activityId}/applicants/{page}", defaults={"page" = 1}, requirements={"activityId"="\d+"})
+     * @Rest\Get("/{activityId}/applicants", requirements={"activityId"="\d+"})
+     * @param Request $request
+     * @param ApplicantsListSort $applicantsListSort
+     * @param ApplicantsListPagination $applicantsListPagination
      * @param Activity $activity
-     * @param int $page
+     * @return JsonResponse
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @SWG\Get(
      *     tags={"Activity"},
@@ -787,12 +801,29 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
      *     )
      * )
-     * @return JsonResponse
      */
-    public function listOfApplicants(Activity $activity, int $page): JsonResponse
-    {
+    public function listOfApplicants(
+        Request $request,
+        ApplicantsListSort $applicantsListSort,
+        ApplicantsListPagination $applicantsListPagination,
+        Activity $activity
+    ): JsonResponse {
+
+        $sorting = $request->query->get('sortBy');
+        $applicantsListSort->setSortingFields((array)$sorting);
+
+        $pagination = $request->query->get('pagination');
+        $applicantsListPagination->setPaginationFields((array)$pagination);
+
         return new JsonResponse(
-            json_encode($this->activityUserHandler->getApplicantsPaginated($activity, $page)),
+            json_encode(
+                $this->activityUserHandler->
+                getApplicantsPaginated(
+                    $applicantsListSort,
+                    $applicantsListPagination,
+                    $activity
+                )
+            ),
             200,
             [],
             true
