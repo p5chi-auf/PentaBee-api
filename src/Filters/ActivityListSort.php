@@ -6,24 +6,36 @@ use DateTime;
 
 class ActivityListSort
 {
-    /** @var DateTime */
+    /**
+     * @var DateTime
+     */
     public $createdAt;
 
-    /** @var DateTime */
+    /**
+     * @var DateTime
+     */
     public $finalDeadline;
 
-    /** @var string */
+    /**
+     * @var string
+     */
     public $name;
+
+    private function isSortingParamValid($sortingParameter): bool
+    {
+        strtolower($sortingParameter);
+        return $sortingParameter === 'desc' || $sortingParameter === 'asc';
+    }
 
     public function setSortingFields(array $sorting): self
     {
-        if (!empty($sorting['name'])) {
+        if (!empty($sorting['name']) && $this->isSortingParamValid($sorting['name'])) {
             $this->name = $sorting['name'];
         }
-        if (!empty($sorting['createdAt'])) {
+        if (!empty($sorting['createdAt']) && $this->isSortingParamValid($sorting['createdAt'])) {
             $this->createdAt = $sorting['createdAt'];
         }
-        if (!empty($sorting['finalDeadline'])) {
+        if (!empty($sorting['finalDeadline']) && $this->isSortingParamValid($sorting['finalDeadline'])) {
             $this->finalDeadline = $sorting['finalDeadline'];
         }
 

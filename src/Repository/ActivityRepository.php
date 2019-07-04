@@ -64,9 +64,11 @@ class ActivityRepository extends ServiceEntityRepository
         $queryBuilder
             ->select('DISTINCT activity')
             ->leftJoin('activity.activityUsers', 'activityUsers')
-            ->where('activity.public = 1')
-            ->orWhere('activity.owner = :user')
-            ->orWhere('activityUsers.user = :user')
+            ->where($queryBuilder->expr()->orX(
+                $queryBuilder->expr()->eq('activity.public', 1),
+                $queryBuilder->expr()->eq('activity.owner', ':user'),
+                $queryBuilder->expr()->eq('activityUsers.user', ':user')
+            ))
             ->setParameter('user', $user);
         if ($activityListFilter->name !== null) {
             $queryBuilder->andWhere('activity.name LIKE :nameFilter')
