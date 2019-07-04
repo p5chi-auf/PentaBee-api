@@ -18,7 +18,7 @@ class ActivityListFilter
     public $status;
 
     /**
-     * @var User $owner
+     * @var integer $owner
      */
     public $owner;
 
@@ -57,7 +57,7 @@ class ActivityListFilter
             $this->status = $filter['status'];
         }
         if (!empty($filter['owner'])) {
-            $this->owner = $this->userRepository->find($filter['owner']);
+            $this->owner = $filter['owner'];
         }
         if (!empty($filter['technology'])) {
             $this->technology = $filter['technology'];
@@ -66,7 +66,7 @@ class ActivityListFilter
             $this->activityType = $filter['activityType'];
         }
         if (!empty($filter['assignedUser'])) {
-            $this->assignedUser = $this->userRepository->find($filter['assignedUser']);
+            $this->assignedUser = $filter['assignedUser'];
         }
 
         return $this;

@@ -131,10 +131,10 @@ class ActivityController extends AbstractController
         $user = $this->getUser();
 
         $filter = $request->query->get('filter');
-        $activityListFilter->setFilterFields($filter);
+        $activityListFilter->setFilterFields((array)$filter);
 
         $sorting = $request->query->get('sortBy');
-        $activityListSort->setSortingFields($sorting);
+        $activityListSort->setSortingFields((array)$sorting);
 
         return new JsonResponse(
             json_encode($this->activityHandler
