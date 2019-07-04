@@ -70,7 +70,7 @@ class ActivityRepository extends ServiceEntityRepository
             ->setParameter('user', $user);
         if ($activityListFilter->name !== null) {
             $queryBuilder->andWhere('activity.name LIKE :nameFilter')
-                ->setParameter('nameFilter', '%' . $activityListFilter->name . '%');
+                ->setParameter('nameFilter', $activityListFilter->name . '%');
         }
 
         if ($activityListFilter->status !== null) {
