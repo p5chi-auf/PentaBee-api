@@ -17,16 +17,14 @@ class ActivityListSort
 
     public function setSortingFields($sorting)
     {
-        if ($sorting) {
-            if (array_key_exists('name', $sorting)) {
-                $this->name = $sorting['name'];
-            }
-            if (array_key_exists('createdAt', $sorting)) {
-                $this->createdAt = $sorting['createdAt'];
-            }
-            if (array_key_exists('finalDeadline', $sorting)) {
-                $this->finalDeadline = $sorting['finalDeadline'];
-            }
+        if (!empty($sorting['name'])) {
+            $this->name = $sorting['name'];
+        }
+        if (!empty($sorting['createdAt'])) {
+            $this->createdAt = $sorting['createdAt'];
+        }
+        if (!empty($sorting['finalDeadline'])) {
+            $this->finalDeadline = $sorting['finalDeadline'];
         }
 
         return $this;

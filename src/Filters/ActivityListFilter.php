@@ -50,25 +50,23 @@ class ActivityListFilter
 
     public function setFilterFields($filter)
     {
-        if ($filter) {
-            if (array_key_exists('name', $filter)) {
-                $this->name = $filter['name'];
-            }
-            if (array_key_exists('status', $filter)) {
-                $this->status = $filter['status'];
-            }
-            if (array_key_exists('owner', $filter)) {
-                $this->owner = $this->userRepository->find($filter['owner']);
-            }
-            if (array_key_exists('technology', $filter)) {
-                $this->technology = $filter['technology'];
-            }
-            if (array_key_exists('activityType', $filter)) {
-                $this->activityType = $filter['activityType'];
-            }
-            if (array_key_exists('assignedUser', $filter)) {
-                $this->assignedUser = $this->userRepository->find($filter['assignedUser']);
-            }
+        if (!empty($filter['name'])) {
+            $this->name = $filter['name'];
+        }
+        if (!empty($filter['status'])) {
+            $this->status = $filter['status'];
+        }
+        if (!empty($filter['owner'])) {
+            $this->owner = $this->userRepository->find($filter['owner']);
+        }
+        if (!empty($filter['technology'])) {
+            $this->technology = $filter['technology'];
+        }
+        if (!empty($filter['activityType'])) {
+            $this->activityType = $filter['activityType'];
+        }
+        if (!empty($filter['assignedUser'])) {
+            $this->assignedUser = $this->userRepository->find($filter['assignedUser']);
         }
 
         return $this;
