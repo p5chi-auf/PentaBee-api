@@ -20,14 +20,14 @@ class ActivityType
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"TypeDetails", "ActivityCreate", "ActivityEdit", "ActivityDetails"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails"})
+     * @Groups({"TypeDetails", "ActivityDetails"})
      */
     private $name;
 
