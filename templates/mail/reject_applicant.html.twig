@@ -1,0 +1,24 @@
+{% extends "mail/layout.html.twig" %}
+{% block message %}
+    <p>Hi {{ user.name }} {{ user.surname }},</p>
+    <p>{{ owner.name }} {{ owner.surname }} rejected your application onJ ob {{ activity.name }}
+        !</p>
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0"
+           class="btn btn-primary">
+    <tbody>
+    <tr>
+        <td align="left">
+            <table role="presentation" border="0" cellpadding="0"
+                   cellspacing="0">
+                <tbody>
+                <tr>
+                    <td><a href="api.pentabee/api/activities/{{ activity.id }}"
+                           target="_blank">Open Job</a></td>
+                </tr>
+                </tbody>
+            </table>
+        </td>
+    </tr>
+    </tbody>
+    </table>
+{% endblock %}
