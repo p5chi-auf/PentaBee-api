@@ -15,7 +15,7 @@ class ActivityListSort
     /** @var string */
     public $name;
 
-    public function setSortingFields($sorting)
+    public function setSortingFields(array $sorting): self
     {
         if (!empty($sorting['name'])) {
             $this->name = $sorting['name'];

@@ -48,7 +48,7 @@ class ActivityListFilter
         $this->userRepository = $userRepository;
     }
 
-    public function setFilterFields($filter)
+    public function setFilterFields(array $filter): self
     {
         if (!empty($filter['name'])) {
             $this->name = $filter['name'];
