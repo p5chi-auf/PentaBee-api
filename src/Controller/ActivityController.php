@@ -96,6 +96,83 @@ class ActivityController extends AbstractController
      *     description="Get a list of all activities",
      *     operationId="getActivities",
      *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="Number of the current page (1 by deafault)",
+     *     in="query",
+     *     name="pagination[page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by deafault)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by name",
+     *     in="query",
+     *     name="filter[name]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by status",
+     *     in="query",
+     *     name="filter[status]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by owner",
+     *     in="query",
+     *     name="filter[owner]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by assigned user",
+     *     in="query",
+     *     name="filter[assignedUser]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by technologies",
+     *     in="query",
+     *     name="filter[technology][]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by activity types",
+     *     in="query",
+     *     name="filter[activityType][]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by name (asc or desc)",
+     *     in="query",
+     *     name="sortBy[name]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by creation date (asc or desc)",
+     *     in="query",
+     *     name="sortBy[createdAt]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by final deadline (asc or desc)",
+     *     in="query",
+     *     name="sortBy[finalDeadline]",
+     *     required=false,
+     *     type="string",
+     *     )
      * )
      * @SWG\Response(
      *     response=200,
@@ -765,7 +842,28 @@ class ActivityController extends AbstractController
      *     name="activityId",
      *     required=true,
      *     type="integer",
-     * ),
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of the current page (1 by deafault)",
+     *     in="query",
+     *     name="pagination[page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by deafault)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by seniority (asc or desc)",
+     *     in="query",
+     *     name="sortBy[seniority]",
+     *     required=false,
+     *     type="integer",
+     *     )
      * )
      * @SWG\Response(
      *     response=200,
