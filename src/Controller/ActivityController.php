@@ -97,14 +97,14 @@ class ActivityController extends AbstractController
      *     operationId="getActivities",
      *     produces={"application/json"},
      *     @SWG\Parameter(
-     *     description="Number of the current page (1 by deafault)",
+     *     description="Number of the current page (1 by default)",
      *     in="query",
      *     name="pagination[page]",
      *     required=false,
      *     type="integer",
      *     ),
      *     @SWG\Parameter(
-     *     description="Number of items per page (10 by deafault)",
+     *     description="Number of items per page (10 by default)",
      *     in="query",
      *     name="pagination[per_page]",
      *     required=false,
@@ -844,14 +844,14 @@ class ActivityController extends AbstractController
      *     type="integer",
      *     ),
      *     @SWG\Parameter(
-     *     description="Number of the current page (1 by deafault)",
+     *     description="Number of the current page (1 by default)",
      *     in="query",
      *     name="pagination[page]",
      *     required=false,
      *     type="integer",
      *     ),
      *     @SWG\Parameter(
-     *     description="Number of items per page (10 by deafault)",
+     *     description="Number of items per page (10 by default)",
      *     in="query",
      *     name="pagination[per_page]",
      *     required=false,
