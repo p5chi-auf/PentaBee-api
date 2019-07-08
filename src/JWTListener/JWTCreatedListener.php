@@ -2,6 +2,7 @@
 
 namespace App\JWTListener;
 
+use App\Entity\User;
 use App\Repository\UserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -20,12 +21,10 @@ class JWTCreatedListener
     /**
      * JWTCreatedListener constructor.
      * @param RequestStack $requestStack
-     * @param UserRepository $userRepository
      */
-    public function __construct(RequestStack $requestStack, UserRepository $userRepository)
+    public function __construct(RequestStack $requestStack)
     {
         $this->requestStack = $requestStack;
-        $this->userRepository = $userRepository;
     }
 
     /**
@@ -36,8 +35,9 @@ class JWTCreatedListener
         $request = $this->requestStack->getCurrentRequest();
 
         $payload = $event->getData();
-        $user = $this->userRepository->findOneBy(array('username' => $event->getUser()->getUsername()));
         $payload['ip'] = $request->getClientIp();
+        /** @var User $user */
+        $user = $event->getUser();
         $payload['id'] = $user->getId();
 
         $event->setData($payload);
