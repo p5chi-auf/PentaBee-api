@@ -190,7 +190,11 @@ class UserController extends AbstractController
 
         if (count($errors) > 0) {
             return new JsonResponse(
-                ['errors' => $validationErrorSerializer->serialize($errors)],
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -200,9 +204,14 @@ class UserController extends AbstractController
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
+                    'code' => Response::HTTP_NOT_FOUND,
                     'message' => $exception->getMessage(),
-                    'entity' => $exception->getEntity(),
-                    'id' => $exception->getId()
+                    'errors' => [
+                        array(
+                            'entity' => $exception->getEntity(),
+                            'id' => $exception->getId()
+                        )
+                    ]
                 ],
                 Response::HTTP_NOT_FOUND
             );
@@ -269,7 +278,10 @@ class UserController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
         }
         $userRepository->delete($user);
 
@@ -343,7 +355,10 @@ class UserController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
         }
         $data = $request->getContent();
 
@@ -359,7 +374,11 @@ class UserController extends AbstractController
         $errors = $this->validator->validate($userDTO, null, ['PasswordEdit']);
         if (count($errors) > 0) {
             return new JsonResponse(
-                ['errors' => $validationErrorSerializer->serialize($errors)],
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -368,6 +387,7 @@ class UserController extends AbstractController
         } catch (NotValidOldPassword $exception) {
             return new JsonResponse(
                 [
+                    'code' => $exception->getCode(),
                     'message' => $exception->getMessage()
                 ],
                 Response::HTTP_BAD_REQUEST

@@ -19,6 +19,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Swagger\Annotations as SWG;
+use App\Exceptions\DuplicateUsernameEmail;
 
 /**
  * Register controller.
@@ -113,8 +114,17 @@ class RegisterController extends AbstractController
             );
         }
 
-        $newUser = $this->transformer->registerTransform($userDTO);
-
+        try {
+            $newUser = $this->transformer->registerTransform($userDTO);
+        } catch (DuplicateUsernameEmail $exception) {
+            return new JsonResponse(
+                [
+                    'code' => $exception->getCode(),
+                    'message' => $exception->getMessage()
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
         $userRepository->save($newUser);
         return new JsonResponse(['message' => 'User successfully created!'], Response::HTTP_OK);
     }

@@ -5,9 +5,11 @@ namespace App\Service;
 use App\DTO\UserDTO;
 use App\Entity\Technology;
 use App\Entity\User;
+use App\Exceptions\DuplicateUsernameEmail;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
 use App\Repository\TechnologyRepository;
+use App\Repository\UserRepository;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserTransformer
@@ -21,26 +23,45 @@ class UserTransformer
      */
     private $encoder;
     /**
+     * @var UserRepository
+     */
+    private $userRepository;
+
+    /**
      * UserTransformer constructor.
      * @param TechnologyRepository $techRepo
      * @param UserPasswordEncoderInterface $encoder
      */
     public function __construct(
         TechnologyRepository $techRepo,
-        UserPasswordEncoderInterface $encoder
+        UserPasswordEncoderInterface $encoder,
+        UserRepository $userRepository
     ) {
         $this->techRepo = $techRepo;
         $this->encoder = $encoder;
+        $this->userRepository = $userRepository;
     }
+
     /**
      * @param UserDTO $dto
      * @return User
+     * @throws DuplicateUsernameEmail
      */
     public function registerTransform(
         UserDTO $dto
     ): User {
         $entity = new User();
-        $entity->setName($dto->name);
+        if ($this->userRepository->findOneBy(array('username' => $dto->username)) ||
+            $this->userRepository->findOneBy(array('email' => $dto->email))) {
+            $duplicateUsernameEmail = new DuplicateUsernameEmail(
+                'Username or Email already exist',
+                400
+            );
+            throw $duplicateUsernameEmail;
+        }
+        {
+            $entity->setName($dto->name);
+        }
         $entity->setPassword($this->encoder->encodePassword($entity, $dto->password));
         $entity->setSurname($dto->surname);
         $entity->setUsername($dto->username);
@@ -100,7 +121,9 @@ class UserTransformer
         $match = $this->encoder->isPasswordValid($user, $dto->oldPassword);
         if (!$match) {
             $passwordDoNotMatch = new NotValidOldPassword(
-                'Old password not valid.'
+                'Old password not valid.',
+                400
+
             );
             throw $passwordDoNotMatch;
         }
