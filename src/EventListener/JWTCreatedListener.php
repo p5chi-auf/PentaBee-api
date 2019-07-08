@@ -1,6 +1,6 @@
 <?php
 
-namespace App\JWTListener;
+namespace App\EventListener;
 
 use App\Entity\User;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
