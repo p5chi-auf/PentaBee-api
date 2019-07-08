@@ -3,7 +3,6 @@
 namespace App\JWTListener;
 
 use App\Entity\User;
-use App\Repository\UserRepository;
 use Lexik\Bundle\JWTAuthenticationBundle\Event\JWTCreatedEvent;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -13,10 +12,6 @@ class JWTCreatedListener
      * @var RequestStack
      */
     private $requestStack;
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
 
     /**
      * JWTCreatedListener constructor.
