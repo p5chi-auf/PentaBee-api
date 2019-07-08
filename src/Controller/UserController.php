@@ -55,38 +55,8 @@ class UserController extends AbstractController
     }
 
     /**
-     * Get details about authenticated User.
-     * @Rest\Get()
-     * @SWG\Get(
-     *     tags={"User"},
-     *     summary="Get details about authenticated User.",
-     *     description="Get details about authenticated User.",
-     *     operationId="getAuthenticatedUser",
-     *     produces={"application/json"},
-     * )
-     * @SWG\Response(
-     *     response="200",
-     *     description="Successfull operation!",
-     *     @Model(type=User::class, groups={"UserDetail"}),
-     * )
-     * @SWG\Response(
-     *     response=401,
-     *     description="Unauthorized.",
-     *     @SWG\Schema(
-     *     @SWG\Property(property="code", type="integer", example=401),
-     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
-     *     )
-     * )
-     */
-    public function getAuthenticatedUserDetails(): RedirectResponse
-    {
-        $authenticatedUser = $this->getUser();
-        return $this->redirectToRoute('useruser_details', ['id' => $authenticatedUser->getId()]);
-    }
-
-    /**
      * Get details about an User.
-     * @Rest\Get("/{id}", requirements={"id"="\d+"}, name="user_details")
+     * @Rest\Get("/{id}", requirements={"id"="\d+"})
      * @SWG\Get(
      *     tags={"User"},
      *     summary="Get details about an User.",
