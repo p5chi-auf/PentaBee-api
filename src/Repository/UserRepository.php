@@ -5,6 +5,7 @@ namespace App\Repository;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
+use App\Filters\ApplicantsListSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -51,7 +52,7 @@ class UserRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getApplicantsForActivity(Activity $activity): QueryBuilder
+    public function getApplicantsForActivity(ApplicantsListSort $applicantsListSort, Activity $activity): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('user');
         $queryBuilder
@@ -61,6 +62,9 @@ class UserRepository extends ServiceEntityRepository
             ->andWhere('activityUsers.type = :type')
             ->setParameter('activity', $activity)
             ->setParameter('type', ActivityUser::TYPE_APPLIED);
+        if ($applicantsListSort->seniority !== null) {
+            $queryBuilder->orderBy('user.seniority', $applicantsListSort->seniority);
+        }
 
         return $queryBuilder;
     }

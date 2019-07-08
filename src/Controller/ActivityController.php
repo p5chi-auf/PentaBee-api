@@ -7,9 +7,13 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListPagination;
+use App\Filters\ActivityListSort;
+use App\Filters\ApplicantsListPagination;
+use App\Filters\ApplicantsListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
-use App\Mailer\Mailer;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
@@ -80,8 +84,11 @@ class ActivityController extends AbstractController
 
     /**
      * Get a list of all activities
-     * @Rest\Get("/all/{page<\d+>}", defaults={"page" = 1})
-     * @param $page
+     * @Rest\Get()
+     * @param Request $request
+     * @param ActivityListFilter $activityListFilter
+     * @param ActivityListSort $activityListSort
+     * @param ActivityListPagination $activityListPagination
      * @return JsonResponse
      * @SWG\Get(
      *     tags={"Activity"},
@@ -90,18 +97,88 @@ class ActivityController extends AbstractController
      *     operationId="getActivities",
      *     produces={"application/json"},
      *     @SWG\Parameter(
-     *     description="Number of page",
-     *     in="path",
+     *     description="Number of the current page (1 by default)",
+     *     in="query",
+     *     name="pagination[page]",
      *     required=false,
-     *     name="page",
      *     type="integer",
-     *     default="1",
-     * )
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by default)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by name",
+     *     in="query",
+     *     name="filter[name]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by status",
+     *     in="query",
+     *     name="filter[status]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by owner",
+     *     in="query",
+     *     name="filter[owner]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by assigned user",
+     *     in="query",
+     *     name="filter[assignedUser]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by technologies",
+     *     in="query",
+     *     name="filter[technology][]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Filtration by activity types",
+     *     in="query",
+     *     name="filter[activityType][]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by name (asc or desc)",
+     *     in="query",
+     *     name="sortBy[name]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by creation date (asc or desc)",
+     *     in="query",
+     *     name="sortBy[createdAt]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by final deadline (asc or desc)",
+     *     in="query",
+     *     name="sortBy[finalDeadline]",
+     *     required=false,
+     *     type="string",
+     *     )
      * )
      * @SWG\Response(
      *     response=200,
      *     description="Successfull operation!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="currentPage", type="integer"),
      *     @SWG\Property(property="numResults", type="integer"),
      *     @SWG\Property(property="perPage", type="integer"),
      *     @SWG\Property(property="numPages", type="integer"),
@@ -118,12 +195,31 @@ class ActivityController extends AbstractController
      *     )
      * )
      */
-    public function getActivitiesList(int $page): JsonResponse
-    {
+    public function getActivitiesList(
+        Request $request,
+        ActivityListFilter $activityListFilter,
+        ActivityListSort $activityListSort,
+        ActivityListPagination $activityListPagination
+    ): JsonResponse {
         $user = $this->getUser();
 
+        $filter = $request->query->get('filter');
+        $activityListFilter->setFilterFields((array)$filter);
+
+        $sorting = $request->query->get('sortBy');
+        $activityListSort->setSortingFields((array)$sorting);
+
+        $pagination = $request->query->get('pagination');
+        $activityListPagination->setPaginationFields((array)$pagination);
+
         return new JsonResponse(
-            json_encode($this->activityHandler->getActivitiesListPaginated($user, $page)),
+            json_encode($this->activityHandler
+                ->getActivitiesListPaginated(
+                    $activityListPagination,
+                    $activityListSort,
+                    $activityListFilter,
+                    $user
+                )),
             200,
             [],
             true
@@ -727,9 +823,12 @@ class ActivityController extends AbstractController
 
     /**
      * Get a list of all applicants.
-     * @Rest\Get("/{activityId}/applicants/{page}", defaults={"page" = 1}, requirements={"activityId"="\d+"})
+     * @Rest\Get("/{activityId}/applicants", requirements={"activityId"="\d+"})
+     * @param Request $request
+     * @param ApplicantsListSort $applicantsListSort
+     * @param ApplicantsListPagination $applicantsListPagination
      * @param Activity $activity
-     * @param int $page
+     * @return JsonResponse
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @SWG\Get(
      *     tags={"Activity"},
@@ -743,20 +842,34 @@ class ActivityController extends AbstractController
      *     name="activityId",
      *     required=true,
      *     type="integer",
-     * ),
+     *     ),
      *     @SWG\Parameter(
-     *     description="Number of page",
-     *     in="path",
-     *     name="page",
+     *     description="Number of the current page (1 by default)",
+     *     in="query",
+     *     name="pagination[page]",
      *     required=false,
      *     type="integer",
-     *     default="1",
-     * )
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by default)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by seniority (asc or desc)",
+     *     in="query",
+     *     name="sortBy[seniority]",
+     *     required=false,
+     *     type="integer",
+     *     )
      * )
      * @SWG\Response(
      *     response=200,
      *     description="Successfull operation!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="currentPage", type="integer"),
      *     @SWG\Property(property="numResults", type="integer"),
      *     @SWG\Property(property="perPage", type="integer"),
      *     @SWG\Property(property="numPages", type="integer"),
@@ -772,12 +885,29 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
      *     )
      * )
-     * @return JsonResponse
      */
-    public function listOfApplicants(Activity $activity, int $page): JsonResponse
-    {
+    public function listOfApplicants(
+        Request $request,
+        ApplicantsListSort $applicantsListSort,
+        ApplicantsListPagination $applicantsListPagination,
+        Activity $activity
+    ): JsonResponse {
+
+        $sorting = $request->query->get('sortBy');
+        $applicantsListSort->setSortingFields((array)$sorting);
+
+        $pagination = $request->query->get('pagination');
+        $applicantsListPagination->setPaginationFields((array)$pagination);
+
         return new JsonResponse(
-            json_encode($this->activityUserHandler->getApplicantsPaginated($activity, $page)),
+            json_encode(
+                $this->activityUserHandler->
+                getApplicantsPaginated(
+                    $applicantsListSort,
+                    $applicantsListPagination,
+                    $activity
+                )
+            ),
             200,
             [],
             true

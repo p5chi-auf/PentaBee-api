@@ -3,8 +3,11 @@
 namespace App\Repository;
 
 use App\Entity\Activity;
+use App\Entity\ActivityUser;
 use App\Entity\User;
-use App\Handlers\ActivityHandler;
+use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListPagination;
+use App\Filters\ActivityListSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -52,33 +55,80 @@ class ActivityRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getAvailableActivities(User $user): QueryBuilder
-    {
+    public function getAvailableActivities(
+        ActivityListSort $activityListSort,
+        ActivityListFilter $activityListFilter,
+        User $user
+    ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('activity');
         $queryBuilder
-            ->select('activity')
+            ->select('DISTINCT activity')
             ->leftJoin('activity.activityUsers', 'activityUsers')
-            ->where('activity.public = 1')
-            ->orWhere('activity.owner = :user')
-            ->orWhere('activityUsers.user = :user')
+            ->where($queryBuilder->expr()->orX(
+                $queryBuilder->expr()->eq('activity.public', 1),
+                $queryBuilder->expr()->eq('activity.owner', ':user'),
+                $queryBuilder->expr()->eq('activityUsers.user', ':user')
+            ))
             ->setParameter('user', $user);
+        if ($activityListFilter->name !== null) {
+            $queryBuilder->andWhere('activity.name LIKE :nameFilter')
+                ->setParameter('nameFilter', $activityListFilter->name . '%');
+        }
+
+        if ($activityListFilter->status !== null) {
+            $queryBuilder->andWhere('activity.status = :statusFilter')
+                ->setParameter('statusFilter', $activityListFilter->status);
+        }
+
+        if ($activityListFilter->owner !== null) {
+            $queryBuilder->andWhere('activity.owner = :ownerFilter')
+                ->setParameter('ownerFilter', $activityListFilter->owner);
+        }
+
+        if ($activityListFilter->technology !== null) {
+            $queryBuilder->join('activity.technologies', 'technology')
+                ->andWhere('technology IN (:technologyFilter)')
+                ->setParameter('technologyFilter', $activityListFilter->technology);
+        }
+        if ($activityListFilter->activityType !== null) {
+            $queryBuilder->join('activity.types', 'activityType')
+                ->andWhere('activityType IN (:activityTypeFilter)')
+                ->setParameter('activityTypeFilter', $activityListFilter->activityType);
+        }
+        if ($activityListFilter->assignedUser !== null) {
+            $queryBuilder->leftJoin('activity.activityUsers', 'activityUsersAssigned')
+                ->andWhere('activityUsersAssigned.user = :assignedUser')
+                ->andWhere('activityUsersAssigned.type = :type')
+                ->setParameter('assignedUser', $activityListFilter->assignedUser)
+                ->setParameter('type', ActivityUser::TYPE_ASSIGNED);
+        }
+        if ($activityListSort->name !== null) {
+            $queryBuilder->orderBy('activity.name', $activityListSort->name);
+        }
+        if ($activityListSort->createdAt !== null) {
+            $queryBuilder->orderBy('activity.createdAt', $activityListSort->createdAt);
+        }
+        if ($activityListSort->finalDeadline !== null) {
+            $queryBuilder->orderBy('activity.finalDeadline', $activityListSort->finalDeadline);
+        }
 
         return $queryBuilder;
     }
 
     public function getPaginatedActivities(
-        User $user,
-        int $currentPage = 1,
-        int $pageSize = ActivityHandler::NUM_ITEMS_PER_PAGE
+        ActivityListPagination $activityListPagination,
+        ActivityListSort $activityListSort,
+        ActivityListFilter $activityListFilter,
+        User $user
     ): Query {
-        $queryBuilder = $this->getAvailableActivities($user);
+        $queryBuilder = $this->getAvailableActivities($activityListSort, $activityListFilter, $user);
 
-        $currentPage = $currentPage < 1 ? 1 : $currentPage;
-        $firstResult = ($currentPage - 1) * $pageSize;
+        $currentPage = $activityListPagination->currentPage < 1 ? 1 : $activityListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $activityListPagination->pageSize;
 
         $query = $queryBuilder
             ->setFirstResult($firstResult)
-            ->setMaxResults($pageSize)
+            ->setMaxResults($activityListPagination->pageSize)
             ->getQuery();
 
         return $query;

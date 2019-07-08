@@ -3,6 +3,9 @@
 namespace App\Handlers;
 
 use App\Entity\User;
+use App\Filters\ActivityListFilter;
+use App\Filters\ActivityListPagination;
+use App\Filters\ActivityListSort;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
@@ -10,8 +13,6 @@ use JMS\Serializer\SerializerInterface;
 
 class ActivityHandler
 {
-    public const NUM_ITEMS_PER_PAGE = 10;
-
     /**
      * @var SerializerInterface
      */
@@ -28,9 +29,14 @@ class ActivityHandler
         $this->activityRepository = $activityRepository;
     }
 
-    public function getActivitiesListPaginated(User $user, int $page): array
-    {
-        $paginatedResults = $this->activityRepository->getPaginatedActivities($user, $page);
+    public function getActivitiesListPaginated(
+        ActivityListPagination $activityListPagination,
+        ActivityListSort $activityListSort,
+        ActivityListFilter $activityListFilter,
+        User $user
+    ): array {
+        $paginatedResults = $this->activityRepository
+            ->getPaginatedActivities($activityListPagination, $activityListSort, $activityListFilter, $user);
 
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
@@ -46,9 +52,10 @@ class ActivityHandler
 
         return array(
             'results' => json_decode($json, true),
+            'currentPage' => $activityListPagination->currentPage,
             'numResults' => $numResults,
-            'perPage' => $this::NUM_ITEMS_PER_PAGE,
-            'numPages' => (int)ceil($numResults / $this::NUM_ITEMS_PER_PAGE)
+            'perPage' => $activityListPagination->pageSize,
+            'numPages' => (int)ceil($numResults / $activityListPagination->pageSize)
         );
     }
 }

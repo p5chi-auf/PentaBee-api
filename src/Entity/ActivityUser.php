@@ -17,8 +17,6 @@ class ActivityUser
     public const TYPE_DECLINED = 3;
     public const TYPE_REJECTED = 4;
 
-    public const NUM_APPLICANTS_PER_PAGE = 5;
-
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()

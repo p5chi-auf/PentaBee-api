@@ -3,6 +3,8 @@
 namespace App\Handlers;
 
 use App\Entity\Activity;
+use App\Filters\ApplicantsListPagination;
+use App\Filters\ApplicantsListSort;
 use App\Repository\ActivityUserRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
@@ -10,7 +12,6 @@ use JMS\Serializer\SerializerInterface;
 
 class ActivityUserHandler
 {
-    public const NUM_APPLICANTS_PER_PAGE = 10;
 
     /**
      * @var SerializerInterface
@@ -28,9 +29,13 @@ class ActivityUserHandler
         $this->activityUserRepository = $activityUserRepository;
     }
 
-    public function getApplicantsPaginated(Activity $activity, int $page): array
-    {
-        $paginatedResults = $this->activityUserRepository->getApplicantsForActivityPaginated($activity, $page);
+    public function getApplicantsPaginated(
+        ApplicantsListSort $applicantsListSort,
+        ApplicantsListPagination $applicantsListPagination,
+        Activity $activity
+    ): array {
+        $paginatedResults = $this->activityUserRepository
+            ->getApplicantsForActivityPaginated($applicantsListSort, $applicantsListPagination, $activity);
 
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
@@ -46,9 +51,10 @@ class ActivityUserHandler
 
         return array(
             'results' => json_decode($json, true),
+            'currentPage' => $applicantsListPagination->currentPage,
             'numResults' => $numResults,
-            'perPage' => $this::NUM_APPLICANTS_PER_PAGE,
-            'numPages' => (int)ceil($numResults / $this::NUM_APPLICANTS_PER_PAGE)
+            'perPage' => $applicantsListPagination->pageSize,
+            'numPages' => (int)ceil($numResults / $applicantsListPagination->pageSize)
         );
     }
 }
