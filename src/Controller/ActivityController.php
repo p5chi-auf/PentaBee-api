@@ -272,7 +272,10 @@ class ActivityController extends AbstractController
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $user);
 
         if ($rights === false) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
         }
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityDetails'));
@@ -343,7 +346,13 @@ class ActivityController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser !== $activity->getOwner()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied!'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
         }
 
         $activityRepository->delete($activity);
@@ -422,7 +431,11 @@ class ActivityController extends AbstractController
 
         if (count($errors) > 0) {
             return new JsonResponse(
-                ['errors' => $validationErrorSerializer->serialize($errors)],
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -432,9 +445,14 @@ class ActivityController extends AbstractController
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
+                    'code' => Response::HTTP_NOT_FOUND,
                     'message' => $exception->getMessage(),
-                    'entity' => $exception->getEntity(),
-                    'id' => $exception->getId()
+                    'errors' => [
+                        array(
+                            'entity' => $exception->getEntity(),
+                            'id' => $exception->getId()
+                        )
+                    ]
                 ],
                 Response::HTTP_NOT_FOUND
             );
@@ -517,7 +535,13 @@ class ActivityController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($authenticatedUser !== $activity->getOwner()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied!'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
         }
         $data = $request->getContent();
 
@@ -535,7 +559,11 @@ class ActivityController extends AbstractController
 
         if (count($errors) > 0) {
             return new JsonResponse(
-                ['errors' => $validationErrorSerializer->serialize($errors)],
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
                 Response::HTTP_BAD_REQUEST
             );
         }
@@ -545,6 +573,7 @@ class ActivityController extends AbstractController
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
+                    'code' => Response::HTTP_NOT_FOUND,
                     'message' => $exception->getMessage(),
                     'entity' => $exception->getEntity(),
                     'id' => $exception->getId()
@@ -640,18 +669,33 @@ class ActivityController extends AbstractController
         $applierUser = $this->getUser();
 
         if ($activity->isPublic() === false) {
-            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
         }
 
         if ($activity->getOwner() === $applierUser) {
-            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_NOT_ACCEPTABLE);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_NOT_ACCEPTABLE,
+                    'message' => 'You are the owner of this Job!'
+                ],
+                Response::HTTP_NOT_ACCEPTABLE
+            );
         }
 
         if ($activity->getStatus() !== Activity::STATUS_NEW
             || $activity->getApplicationDeadline() < new DateTime('now')
         ) {
             return new JsonResponse(
-                ['message' => 'Activity is already finished or application deadline passed!'],
+                [
+                    'code' => Response::HTTP_PRECONDITION_FAILED,
+                    'message' => 'Activity is already finished or application deadline passed!'
+                ],
                 Response::HTTP_PRECONDITION_FAILED
             );
         }
@@ -659,7 +703,13 @@ class ActivityController extends AbstractController
         $activityUser = $activityUserRepo->getActivityUser($applierUser, $activity);
 
         if ($activityUser !== null) {
-            return new JsonResponse(['message' => 'You cannot apply!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'You cannot apply!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
         $message = (new Swift_Message(
             $applierUser->getName() . ' ' . $applierUser->getSurname() .
@@ -775,18 +825,33 @@ class ActivityController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($activity->getOwner() !== $authenticatedUser) {
-            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
         }
 
         if ($activity->getOwner() === $invitedUser) {
-            return new JsonResponse(['message' => 'You are the owner of this Job!'], Response::HTTP_NOT_ACCEPTABLE);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_NOT_ACCEPTABLE,
+                    'message' => 'You are the owner of this Job!'
+                ],
+                Response::HTTP_NOT_ACCEPTABLE
+            );
         }
 
         if ($activity->getStatus() !== Activity::STATUS_NEW
             || $activity->getApplicationDeadline() < new DateTime('now')
         ) {
             return new JsonResponse(
-                ['message' => 'Activity is already finished or application deadline passed!'],
+                [
+                    'code' => Response::HTTP_PRECONDITION_FAILED,
+                    'message' => 'Activity is already finished or application deadline passed!'
+                ],
                 Response::HTTP_PRECONDITION_FAILED
             );
         }
@@ -794,7 +859,13 @@ class ActivityController extends AbstractController
         $activityUser = $activityUserRepo->getActivityUser($invitedUser, $activity);
 
         if ($activityUser !== null) {
-            return new JsonResponse(['message' => 'This user already applied!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'This user already applied!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $message = (new Swift_Message(
@@ -987,12 +1058,24 @@ class ActivityController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($activity->getOwner() !== $authenticatedUser) {
-            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
         }
 
         $activityUser = $activityUserRepo->getActivityUser($user, $activity);
         if ($activityUser === null || $activityUser->getType() !== ActivityUser::TYPE_APPLIED) {
-            return new JsonResponse(['message' => 'User cannot be assigned!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'User cannot be assigned!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
         $message = (new Swift_Message(
             $activity->getOwner()->getName() . ' ' . $activity->getOwner()->getSurname() .
@@ -1091,12 +1174,24 @@ class ActivityController extends AbstractController
         $authenticatedUser = $this->getUser();
 
         if ($activity->getOwner() !== $authenticatedUser) {
-            return new JsonResponse(['message' => 'Access denied'], Response::HTTP_FORBIDDEN);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
         }
 
         $activityUser = $activityUserRepo->getActivityUser($user, $activity);
         if ($activityUser === null || $activityUser->getType() !== ActivityUser::TYPE_APPLIED) {
-            return new JsonResponse(['message' => 'User cannot be rejected!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'User cannot be rejected!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
 
         $message = (new Swift_Message(
@@ -1179,7 +1274,13 @@ class ActivityController extends AbstractController
         $accept = $activityUserRepo->getActivityUser($authenticatedUser, $activity);
 
         if ($accept === null || $accept->getType() !== ActivityUser::TYPE_INVITED) {
-            return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'You are not invited!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
         $message = (new Swift_Message(
             $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
@@ -1261,7 +1362,13 @@ class ActivityController extends AbstractController
         $accept = $activityUserRepo->getActivityUser($authenticatedUser, $activity);
 
         if ($accept === null || $accept->getType() !== ActivityUser::TYPE_INVITED) {
-            return new JsonResponse(['message' => 'You are not invited!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'You are not invited!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
         $message = (new Swift_Message(
             $authenticatedUser->getName() . ' ' . $authenticatedUser->getSurname() .
