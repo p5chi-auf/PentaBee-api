@@ -6,6 +6,8 @@ use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
+use App\Filters\UserListFilter;
+use App\Filters\UserListSort;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
 use App\Service\UserTransformer;
@@ -395,5 +397,82 @@ class UserController extends AbstractController
         }
         $userRepository->save($userChangePassword);
         return new JsonResponse(['message' => 'Password successfully changed!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Change password of User.
+     * @Rest\Get("/list")
+     * @SWG\Get(
+     *     tags={"User"},
+     *     summary="Get a list of all users",
+     *     description="Get a list of all users",
+     *     operationId="getUsers",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="Filtration by technologies",
+     *     in="query",
+     *     name="filter[technology][]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by seniority (asc or desc). Desc by default.",
+     *     in="query",
+     *     name="sortBy[seniority]",
+     *     required=false,
+     *     type="integer",
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     type="array",
+     *     @Model(type=User::class, groups={"UserList"})
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @param Request $request
+     * @param UserListFilter $userListFilter
+     * @param UserListSort $userListSort
+     * @param UserRepository $userRepository
+     * @return JsonResponse
+     */
+
+    public function getUserList(
+        Request $request,
+        UserListFilter $userListFilter,
+        UserListSort $userListSort,
+        UserRepository $userRepository
+    ): JsonResponse {
+
+        $filter = $request->query->get('filter');
+        $userListFilter->setFilterFields((array)$filter);
+
+        $sorting = $request->query->get('sortBy');
+        $userListSort->setSortingFields((array)$sorting);
+
+        /** @var SerializationContext $context */
+        $context = SerializationContext::create()->setGroups(array('UserList'));
+
+        $json = $this->serializer->serialize(
+            $userRepository->getUserList($userListFilter, $userListSort)->getQuery()->getResult(),
+            'json',
+            $context
+        );
+
+        return new JsonResponse(
+            $json,
+            200,
+            [],
+            true
+        );
     }
 }

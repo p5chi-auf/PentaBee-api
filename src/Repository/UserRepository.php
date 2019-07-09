@@ -6,6 +6,8 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Filters\ApplicantsListSort;
+use App\Filters\UserListFilter;
+use App\Filters\UserListSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -66,6 +68,29 @@ class UserRepository extends ServiceEntityRepository
             $queryBuilder->orderBy('user.seniority', $applicantsListSort->seniority);
         }
 
+        return $queryBuilder;
+    }
+
+    /**
+     * @param UserListFilter $userListFilter
+     * @param UserListSort $userListSort
+     * @return QueryBuilder
+     */
+    public function getUserList(
+        UserListFilter $userListFilter,
+        UserListSort $userListSort
+    ): QueryBuilder {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->select('user');
+        if ($userListFilter->technology !== null) {
+            $queryBuilder->join('user.technologies', 'technology')
+                ->andWhere('technology IN (:technologyFilter)')
+                ->setParameter('technologyFilter', $userListFilter->technology);
+        }
+        if ($userListSort->seniority !== null) {
+            $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
+        }
         return $queryBuilder;
     }
 }

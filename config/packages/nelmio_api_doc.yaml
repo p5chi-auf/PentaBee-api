@@ -23,6 +23,7 @@ nelmio_api_doc:
       - { alias: TechnologyForActivityEdit, type: App\DTO\TechnologyDTO, groups: [ActivityEdit] }
       - { alias: TechnologyForUserDetail, type: App\Entity\Technology, groups: [UserDetail] }
       - { alias: TechnologyForUserEdit, type: App\DTO\TechnologyDTO, groups: [UserEdit] }
+      - { alias: TechnologyForUserList, type: App\Entity\Technology, groups: [UserList] }
       - { alias: ActivityType, type: App\Entity\ActivityType }
       - { alias: ActivityTypeForActivityDetails, type: App\Entity\ActivityType, groups: [ActivityDetails] }
       - { alias: ActivityTypeForActivityCreate, type: App\DTO\ActivityTypeDTO, groups: [ActivityCreate] }
