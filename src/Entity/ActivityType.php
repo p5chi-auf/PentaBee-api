@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\HasLifecycleCallbacks
- * @ORM\Entity(repositoryClass="App\Repository\TypeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ActivityTypeRepository")
  * @Serializer\ExclusionPolicy("all")
  */
 class ActivityType
@@ -20,21 +20,21 @@ class ActivityType
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails", "ActivityCreate", "ActivityEdit", "ActivityDetails"})
+     * @Groups({"TypeDetails", "ActivityCreate", "ActivityEdit", "ActivityDetails", "ActivityTypeList"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails", "ActivityDetails"})
+     * @Groups({"TypeDetails", "ActivityDetails", "ActivityTypeList"})
      */
     private $name;
 
     /**
      * @ORM\Column(type="text")
      * @Serializer\Expose()
-     * @Groups({"TypeDetails"})
+     * @Groups({"TypeDetails", "ActivityTypeList"})
      */
     private $description;
 

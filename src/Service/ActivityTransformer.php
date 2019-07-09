@@ -9,7 +9,7 @@ use App\Entity\ActivityType;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Repository\TechnologyRepository;
-use App\Repository\TypeRepository;
+use App\Repository\ActivityTypeRepository;
 
 class ActivityTransformer
 {
@@ -19,13 +19,13 @@ class ActivityTransformer
      */
     private $techRepo;
     /**
-     * @var TypeRepository
+     * @var ActivityTypeRepository
      */
     private $typeRepo;
 
     public function __construct(
         TechnologyRepository $techRepo,
-        TypeRepository $typeRepo
+        ActivityTypeRepository $typeRepo
     ) {
         $this->techRepo = $techRepo;
         $this->typeRepo = $typeRepo;
