@@ -2,7 +2,7 @@
 
 namespace App\EventListener;
 
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Doctrine\DBAL\DBALException;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpKernel\Event\GetResponseForExceptionEvent;
@@ -17,7 +17,7 @@ class ExceptionListener implements EventSubscriberInterface
         $exception = $event->getException();
 
         $message = $exception->getMessage();
-        if ($exception instanceof UniqueConstraintViolationException) {
+        if ($exception instanceof DBALException) {
             $statusCode = 500;
             $response = new JsonResponse(
                 [

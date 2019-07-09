@@ -26,11 +26,13 @@ class ActivityUser
 
     /**
      * @ORM\ManyToOne(targetEntity="Activity")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $activity;
 
     /**
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      */
     private $user;
 
