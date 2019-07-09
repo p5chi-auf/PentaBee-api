@@ -98,10 +98,10 @@ class UserRepository extends ServiceEntityRepository
 
     public function getPaginatedUserList(
         UserListPagination $userListPagination,
-        UserListSort $activityListSort,
-        UserListFilter $activityListFilter
+        UserListSort $userListSort,
+        UserListFilter $userListFilter
     ): Query {
-        $queryBuilder = $this->getUserList($activityListFilter, $activityListSort);
+        $queryBuilder = $this->getUserList($userListFilter, $userListSort);
 
         $currentPage = $userListPagination->currentPage < 1 ? 1 : $userListPagination->currentPage;
         $firstResult = ($currentPage - 1) * $userListPagination->pageSize;
