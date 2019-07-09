@@ -7,7 +7,9 @@ use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
 use App\Filters\UserListFilter;
+use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
+use App\Handlers\UserHandler;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
 use App\Service\UserTransformer;
@@ -45,14 +47,21 @@ class UserController extends AbstractController
      */
     private $validator;
 
+    /**
+     * @var UserHandler
+     */
+    private $userHandler;
+
     public function __construct(
         SerializerInterface $serializer,
         UserTransformer $transformer,
-        ValidatorInterface $validator
+        ValidatorInterface $validator,
+        UserHandler $userHandler
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
         $this->validator = $validator;
+        $this->userHandler = $userHandler;
     }
 
     /**
@@ -442,7 +451,7 @@ class UserController extends AbstractController
      * @param Request $request
      * @param UserListFilter $userListFilter
      * @param UserListSort $userListSort
-     * @param UserRepository $userRepository
+     * @param UserListPagination $userListPagination
      * @return JsonResponse
      */
 
@@ -450,7 +459,7 @@ class UserController extends AbstractController
         Request $request,
         UserListFilter $userListFilter,
         UserListSort $userListSort,
-        UserRepository $userRepository
+        UserListPagination $userListPagination
     ): JsonResponse {
 
         $filter = $request->query->get('filter');
@@ -459,17 +468,16 @@ class UserController extends AbstractController
         $sorting = $request->query->get('sortBy');
         $userListSort->setSortingFields((array)$sorting);
 
-        /** @var SerializationContext $context */
-        $context = SerializationContext::create()->setGroups(array('UserList'));
-
-        $json = $this->serializer->serialize(
-            $userRepository->getUserList($userListFilter, $userListSort)->getQuery()->getResult(),
-            'json',
-            $context
-        );
+        $pagination = $request->query->get('pagination');
+        $userListPagination->setPaginationFields((array)$pagination);
 
         return new JsonResponse(
-            $json,
+            json_encode($this->userHandler
+                ->getUserListPaginated(
+                    $userListPagination,
+                    $userListSort,
+                    $userListFilter
+                )),
             200,
             [],
             true

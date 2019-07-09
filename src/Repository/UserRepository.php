@@ -7,10 +7,12 @@ use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Filters\ApplicantsListSort;
 use App\Filters\UserListFilter;
+use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -83,7 +85,7 @@ class UserRepository extends ServiceEntityRepository
         $queryBuilder = $this->createQueryBuilder('user');
         $queryBuilder
             ->select('user');
-        if ($userListFilter->technology !== null) {
+        if (!empty($userListFilter->technology)) {
             $queryBuilder->join('user.technologies', 'technology')
                 ->andWhere('technology IN (:technologyFilter)')
                 ->setParameter('technologyFilter', $userListFilter->technology);
@@ -92,5 +94,23 @@ class UserRepository extends ServiceEntityRepository
             $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
         }
         return $queryBuilder;
+    }
+
+    public function getPaginatedUserList(
+        UserListPagination $userListPagination,
+        UserListSort $activityListSort,
+        UserListFilter $activityListFilter
+    ): Query {
+        $queryBuilder = $this->getUserList($activityListFilter, $activityListSort);
+
+        $currentPage = $userListPagination->currentPage < 1 ? 1 : $userListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $userListPagination->pageSize;
+
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($userListPagination->pageSize)
+            ->getQuery();
+
+        return $query;
     }
 }
