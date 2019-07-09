@@ -81,6 +81,7 @@ class Activity
     /**
      * Activity owner (User)
      * @ORM\ManyToOne(targetEntity="User")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @Serializer\Expose()
      * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
      * @SWG\Property()
