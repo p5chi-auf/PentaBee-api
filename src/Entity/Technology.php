@@ -26,7 +26,7 @@ class Technology
      *      "ActivityDetails",
      *      "UserDetail",
      *      "TechnologyList",
-     *     "UserList"})
+     *      "UserList"})
      */
     protected $id;
 
