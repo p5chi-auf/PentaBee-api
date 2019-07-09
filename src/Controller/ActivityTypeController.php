@@ -3,7 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\ActivityType;
-use App\Repository\TypeRepository;
+use App\Repository\ActivityTypeRepository;
 use FOS\RestBundle\Controller\Annotations\Route;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
@@ -15,22 +15,22 @@ use Swagger\Annotations as SWG;
 
 /**
  * ActivityType controller.
- * @Route("/api/types", name="activityTypes")
+ * @Route("/api/activity-types", name="activityTypes")
  */
 class ActivityTypeController extends AbstractController
 {
     /**
-     * @var TypeRepository
+     * @var ActivityTypeRepository
      */
-    private $typeRepository;
+    private $activityTypeRepository;
     /**
      * @var SerializerInterface
      */
     private $serializer;
 
-    public function __construct(TypeRepository $typeRepository, SerializerInterface $serializer)
+    public function __construct(ActivityTypeRepository $activityTypeRepository, SerializerInterface $serializer)
     {
-        $this->typeRepository = $typeRepository;
+        $this->activityTypeRepository = $activityTypeRepository;
         $this->serializer = $serializer;
     }
 
@@ -63,7 +63,7 @@ class ActivityTypeController extends AbstractController
      */
     public function getActivityTypeList(): JsonResponse
     {
-        $queryBuilder = $this->typeRepository->getActivityTypes();
+        $queryBuilder = $this->activityTypeRepository->getActivityTypes();
 
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityTypeList'));

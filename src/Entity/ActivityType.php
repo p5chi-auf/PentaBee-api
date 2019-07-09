@@ -10,7 +10,7 @@ use JMS\Serializer\Annotation as Serializer;
 
 /**
  * @ORM\HasLifecycleCallbacks
- * @ORM\Entity(repositoryClass="App\Repository\TypeRepository")
+ * @ORM\Entity(repositoryClass="App\Repository\ActivityTypeRepository")
  * @Serializer\ExclusionPolicy("all")
  */
 class ActivityType
