@@ -400,7 +400,7 @@ class UserController extends AbstractController
     }
 
     /**
-     * Change password of User.
+     * Get User List.
      * @Rest\Get("/list")
      * @SWG\Get(
      *     tags={"User"},
