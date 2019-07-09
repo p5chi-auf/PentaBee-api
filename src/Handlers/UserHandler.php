@@ -35,18 +35,6 @@ class UserHandler
         UserListFilter $userListFilter
     ): array {
 
-        if ($userListPagination->pageSize === -1) {
-            /** @var SerializationContext $context */
-            $context = SerializationContext::create()->setGroups(array('UserList'));
-
-            $json = $this->serializer->serialize(
-                $this->userRepository->getUserList($userListFilter, $userListSort)->getQuery()->getResult(),
-                'json',
-                $context
-            );
-            return json_decode($json, true);
-        }
-
         $paginatedResults = $this->userRepository
             ->getPaginatedUserList($userListPagination, $userListSort, $userListFilter);
 
@@ -61,6 +49,10 @@ class UserHandler
             'json',
             $context
         );
+
+        if ($userListPagination->pageSize === -1) {
+            $userListPagination->pageSize = $numResults;
+        }
 
         return array(
             'results' => json_decode($json, true),

@@ -102,7 +102,9 @@ class UserRepository extends ServiceEntityRepository
         UserListFilter $userListFilter
     ): Query {
         $queryBuilder = $this->getUserList($userListFilter, $userListSort);
-
+        if ($userListPagination->pageSize === -1) {
+            return $queryBuilder->getQuery();
+        }
         $currentPage = $userListPagination->currentPage < 1 ? 1 : $userListPagination->currentPage;
         $firstResult = ($currentPage - 1) * $userListPagination->pageSize;
 
