@@ -124,11 +124,17 @@ class User implements UserInterface
      */
     private $activityUsers;
 
+    /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $passwordChangedAt;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
+        $this->passwordChangedAt = new DateTime();
         $this->activityUsers = new ArrayCollection();
     }
 
@@ -270,6 +276,16 @@ class User implements UserInterface
     {
     }
 
+    public function getPasswordChangedAt(): ?DateTimeInterface
+    {
+        return $this->passwordChangedAt;
+    }
+
+    public function setPasswordChangedAt(DateTimeInterface $passwordChangedAt): void
+    {
+        $this->passwordChangedAt = $passwordChangedAt;
+    }
+
     /**
      * @ORM\PrePersist
      * @ORM\PreUpdate
@@ -279,6 +295,8 @@ class User implements UserInterface
         $this->setUpdatedAt(new DateTime('now'));
         if ($this->getCreatedAt() === null) {
             $this->setCreatedAt(new DateTime('now'));
+            $this->setPasswordChangedAt(new DateTime('now'));
         }
     }
+
 }
