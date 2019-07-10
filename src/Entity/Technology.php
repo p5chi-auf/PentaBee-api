@@ -25,14 +25,15 @@ class Technology
      *      "ActivityEdit",
      *      "ActivityDetails",
      *      "UserDetail",
-     *      "TechnologyList"})
+     *      "TechnologyList",
+     *      "UserList"})
      */
     protected $id;
 
     /**
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"TechnologyDetail", "ActivityDetails", "UserDetail","TechnologyList"})
+     * @Groups({"TechnologyDetail", "ActivityDetails", "UserDetail","TechnologyList", "UserList"})
      */
     private $name;
 

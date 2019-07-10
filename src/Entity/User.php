@@ -29,7 +29,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit", "ActivityDetails"})
+     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit", "ActivityDetails", "UserList"})
      * @SWG\Property()
      */
     protected $id;
@@ -114,7 +114,7 @@ class User implements UserInterface
      * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     protected $technologies;

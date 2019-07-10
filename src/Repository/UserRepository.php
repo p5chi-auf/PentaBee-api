@@ -6,9 +6,13 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Filters\ApplicantsListSort;
+use App\Filters\UserListFilter;
+use App\Filters\UserListPagination;
+use App\Filters\UserListSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -67,5 +71,48 @@ class UserRepository extends ServiceEntityRepository
         }
 
         return $queryBuilder;
+    }
+
+    /**
+     * @param UserListFilter $userListFilter
+     * @param UserListSort $userListSort
+     * @return QueryBuilder
+     */
+    public function getUserList(
+        UserListFilter $userListFilter,
+        UserListSort $userListSort
+    ): QueryBuilder {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->select('user');
+        if (!empty($userListFilter->technology)) {
+            $queryBuilder->join('user.technologies', 'technology')
+                ->andWhere('technology IN (:technologyFilter)')
+                ->setParameter('technologyFilter', $userListFilter->technology);
+        }
+        if ($userListSort->seniority !== null) {
+            $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
+        }
+        return $queryBuilder;
+    }
+
+    public function getPaginatedUserList(
+        UserListPagination $userListPagination,
+        UserListSort $userListSort,
+        UserListFilter $userListFilter
+    ): Query {
+        $queryBuilder = $this->getUserList($userListFilter, $userListSort);
+        if ($userListPagination->pageSize === -1) {
+            return $queryBuilder->getQuery();
+        }
+        $currentPage = $userListPagination->currentPage < 1 ? 1 : $userListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $userListPagination->pageSize;
+
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($userListPagination->pageSize)
+            ->getQuery();
+
+        return $query;
     }
 }
