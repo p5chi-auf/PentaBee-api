@@ -125,7 +125,7 @@ class User implements UserInterface
     private $activityUsers;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="datetime")
      */
     private $passwordChangedAt;
 
@@ -201,6 +201,7 @@ class User implements UserInterface
     public function setPassword(string $password): void
     {
         $this->password = $password;
+        $this->passwordChangedAt = new DateTime();
     }
 
     public function getPosition(): ?string
@@ -292,11 +293,6 @@ class User implements UserInterface
      */
     public function updatedTimestamps(): void
     {
-        $this->setUpdatedAt(new DateTime('now'));
-        if ($this->getCreatedAt() === null) {
-            $this->setCreatedAt(new DateTime('now'));
-            $this->setPasswordChangedAt(new DateTime('now'));
-        }
+        $this->setUpdatedAt(new DateTime());
     }
-
 }

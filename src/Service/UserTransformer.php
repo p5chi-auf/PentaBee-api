@@ -10,7 +10,6 @@ use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
-use DateTime;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserTransformer
@@ -68,7 +67,6 @@ class UserTransformer
         $entity->setSurname($dto->surname);
         $entity->setUsername($dto->username);
         $entity->setEmail($dto->email);
-        $entity->setPasswordChangedAt(new DateTime('now'));
         return $entity;
     }
 
@@ -126,12 +124,10 @@ class UserTransformer
             $passwordDoNotMatch = new NotValidOldPassword(
                 'Old password not valid.',
                 400
-
             );
             throw $passwordDoNotMatch;
         }
         $user->setPassword($this->encoder->encodePassword($user, $dto->password));
-        $user->setPasswordChangedAt(new DateTime('now'));
         return $user;
     }
 }

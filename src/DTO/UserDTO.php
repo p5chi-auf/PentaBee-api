@@ -30,7 +30,7 @@ class UserDTO
      * The username of User
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
      * @Assert\Length(
      *      min = 4,
      *      max = 50,
@@ -95,7 +95,7 @@ class UserDTO
      * User email
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
      *     groups={"UserCreate", "UserEdit"}
@@ -128,7 +128,7 @@ class UserDTO
      * The name of User
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
      * @Serializer\Expose()
      * @Groups({"UserCreate", "UserEdit"})
      * @SWG\Property()
@@ -139,7 +139,7 @@ class UserDTO
      * The surname of User
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
      * @Serializer\Expose()
      * @Groups({"UserCreate", "UserEdit"})
      * @SWG\Property()
