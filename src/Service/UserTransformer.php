@@ -31,6 +31,7 @@ class UserTransformer
      * UserTransformer constructor.
      * @param TechnologyRepository $techRepo
      * @param UserPasswordEncoderInterface $encoder
+     * @param UserRepository $userRepository
      */
     public function __construct(
         TechnologyRepository $techRepo,
@@ -123,7 +124,6 @@ class UserTransformer
             $passwordDoNotMatch = new NotValidOldPassword(
                 'Old password not valid.',
                 400
-
             );
             throw $passwordDoNotMatch;
         }
