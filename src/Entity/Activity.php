@@ -55,8 +55,9 @@ class Activity
      * The deadline for applying ao Activity
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
-     * @SWG\Property()
+     * @SWG\Property(example="1555555599")
      */
     private $applicationDeadline;
 
@@ -64,8 +65,9 @@ class Activity
      * The final deadline of Activity
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"ActivityDetails", "ActivityCreate", "ActivityEdit"})
-     * @SWG\Property()
+     * @SWG\Property(example="15555555599")
      */
     private $finalDeadline;
 
@@ -91,16 +93,18 @@ class Activity
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"ActivityDetails"})
-     * @SWG\Property()
+     * @SWG\Property(example="15555555599")
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"ActivityDetails"})
-     * @SWG\Property()
+     * @SWG\Property(example="15555555599")
      */
     private $updatedAt;
 

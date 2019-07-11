@@ -8,8 +8,8 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
-use phpDocumentor\Reflection\Types\Integer;
 use Symfony\Component\Validator\Constraints as Assert;
+use Swagger\Annotations as SWG;
 
 /**
  * @Serializer\ExclusionPolicy("all")
@@ -53,21 +53,23 @@ class ActivityDTO
 
     /**
      * @var DateTime
-     * @Serializer\Type("DateTime")
+     * @Serializer\Type("DateTime<'U'>")
      * @Assert\GreaterThan("now", groups={"ActivityEdit", "ActivityCreate"})
      * @Serializer\Expose()
      * @Groups({"ActivityEdit", "ActivityCreate"})
+     * @SWG\Property(example="15555555599")
      */
     public $applicationDeadline;
 
     /**
      * @var DateTime
-     * @Serializer\Type("DateTime")
+     * @Serializer\Type("DateTime<'U'>")
      * @Assert\GreaterThan(propertyPath="applicationDeadline",
      *     groups={"ActivityEdit", "ActivityCreate"}
      * )
      * @Serializer\Expose()
      * @Groups({"ActivityEdit", "ActivityCreate"})
+     * @SWG\Property(example="15555555599")
      */
     public $finalDeadline;
 

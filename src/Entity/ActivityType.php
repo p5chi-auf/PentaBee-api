@@ -41,6 +41,7 @@ class ActivityType
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"TypeDetails"})
      */
     private $createdAt;
@@ -48,6 +49,7 @@ class ActivityType
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"TypeDetails"})
      */
     private $updatedAt;
