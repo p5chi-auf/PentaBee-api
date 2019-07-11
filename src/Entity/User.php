@@ -98,14 +98,18 @@ class User implements UserInterface
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"UserDetail"})
+     * @SWG\Property(example="15555555599")
      */
     private $createdAt;
 
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"UserDetail"})
+     * @SWG\Property(example="15555555599")
      */
     private $updatedAt;
 

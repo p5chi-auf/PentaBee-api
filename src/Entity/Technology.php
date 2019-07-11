@@ -47,6 +47,7 @@ class Technology
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"TechnologyDetail"})
      */
     private $createdAt;
@@ -54,6 +55,7 @@ class Technology
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
+     * @Serializer\Type("DateTime<'U'>")
      * @Groups({"TechnologyDetail"})
      */
     private $updatedAt;
