@@ -73,7 +73,7 @@ class Activity
      * Activity status (NEW, FINISHED, CLOSED int(0-2))
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityEdit"})
      * @SWG\Property()
      */
     private $status = self::STATUS_NEW;
