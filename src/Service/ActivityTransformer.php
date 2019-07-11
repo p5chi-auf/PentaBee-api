@@ -107,7 +107,6 @@ class ActivityTransformer
         $entity->setDescription($dto->description);
         $entity->setApplicationDeadline($dto->applicationDeadline);
         $entity->setFinalDeadline($dto->finalDeadline);
-        $entity->setStatus($dto->status);
         $entity->setPublic($dto->public);
         $entity->setOwner($owner);
 

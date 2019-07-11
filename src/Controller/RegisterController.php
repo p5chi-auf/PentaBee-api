@@ -78,6 +78,7 @@ class RegisterController extends AbstractController
      *     response="400",
      *     description="Bad request",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
      *     @SWG\Property(property="message", type="string", example="Bad Request!"),
      *     )
      * )
@@ -109,7 +110,11 @@ class RegisterController extends AbstractController
 
         if (count($errors) > 0) {
             return new JsonResponse(
-                ['errors' => $validationErrorSerializer->serialize($errors)],
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
                 Response::HTTP_BAD_REQUEST
             );
         }

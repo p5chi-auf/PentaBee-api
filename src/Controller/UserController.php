@@ -96,7 +96,11 @@ class UserController extends AbstractController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="User not found.",
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
      * )
      * @param User $user
      * @return Response
@@ -155,14 +159,19 @@ class UserController extends AbstractController
      *     )
      * )
      * @SWG\Response(
-     *     response=404,
-     *     description="User not found.",
-     * )
-     * @SWG\Response(
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
      *     )
      * )
      * @param User $user
@@ -268,14 +277,16 @@ class UserController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Activity not found.",
+     *     description="Not Found",
      *     @SWG\Schema(
-     *     @SWG\Property(property="message", type="string", example="The user was not found!"),
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not Found"),
      * )
      * )
      * @param User $user
@@ -342,12 +353,17 @@ class UserController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="User not found.",
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
      * )
      * @param User $user
      * @param UserRepository $userRepository

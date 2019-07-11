@@ -82,7 +82,7 @@ class ActivityDTO
      *     groups={"ActivityEdit", "ActivityCreate"}
      * )
      * @Serializer\Expose()
-     * @Groups({"ActivityEdit", "ActivityCreate"})
+     * @Groups({"ActivityEdit"})
      *
      */
     public $status = self::STATUS_NEW;

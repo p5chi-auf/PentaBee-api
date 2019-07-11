@@ -260,10 +260,11 @@ class ActivityController extends AbstractController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Activity not found.",
+     *     description="Not found",
      *     @SWG\Schema(
-     *     @SWG\Property(property="message", type="string", example="The activity was not found!"),
-     * )
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
      * )
      */
     public function getActivityDetails(Activity $activity): Response
@@ -325,15 +326,17 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Activity not found.",
+     *     description="Not found",
      *     @SWG\Schema(
-     *     @SWG\Property(property="message", type="string", example="The activity was not found!"),
-     * )
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
      * )
      * @param Activity $activity
      * @param ActivityRepository $activityRepository
@@ -396,6 +399,7 @@ class ActivityController extends AbstractController
      *     response=404,
      *     description="Activity not found.",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
      *     @SWG\Property(property="message", type="string", example="No technology found."),
      *     @SWG\Property(property="entity", type="integer", example="App\\Entity\\Technology"),
      *     @SWG\Property(property="id", type="integer", example=999),
@@ -506,6 +510,7 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
@@ -513,6 +518,7 @@ class ActivityController extends AbstractController
      *     response=404,
      *     description="Technoology not found.",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
      *     @SWG\Property(property="message", type="string", example="No technology found."),
      *     @SWG\Property(property="entity", type="integer", example="App\\Entity\\Technology"),
      *     @SWG\Property(property="id", type="integer", example=999),
@@ -622,6 +628,7 @@ class ActivityController extends AbstractController
      *     response="400",
      *     description="Already applied!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
      *     @SWG\Property(property="message", type="string", example="You cannot apply!"),
      *     )
      * )
@@ -629,6 +636,7 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="You are the owner of the Job!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
@@ -636,6 +644,7 @@ class ActivityController extends AbstractController
      *     response="406",
      *     description="You are the owner of the Job!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=406),
      *     @SWG\Property(property="message", type="string", example="You are the owner of this Job!"),
      *     )
      * )
@@ -643,6 +652,7 @@ class ActivityController extends AbstractController
      *     response="412",
      *     description="Activity already finished or application deadline passed!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=412),
      *     @SWG\Property(
      *     property="message",
      *     type="string", example="Activity is already finished or application deadline passed!"),
@@ -650,7 +660,11 @@ class ActivityController extends AbstractController
      * )
      * @SWG\Response(
      *     response=404,
-     *     description="Activity not found.",
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
      * )
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
@@ -780,6 +794,7 @@ class ActivityController extends AbstractController
      *     response="400",
      *     description="This user already applied/is invited/is assigned!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
      *     @SWG\Property(property="message", type="string"),
      *     )
      * )
@@ -787,6 +802,7 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
@@ -794,6 +810,7 @@ class ActivityController extends AbstractController
      *     response="406",
      *     description="You are the owner of the Job!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=406),
      *     @SWG\Property(property="message", type="string", example="You are the owner of this Job!"),
      *     )
      * )
@@ -801,9 +818,18 @@ class ActivityController extends AbstractController
      *     response="412",
      *     description="Activity already finished or application deadline passed!",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=412),
      *     @SWG\Property(
      *     property="message",
      *     type="string", example="Activity is already finished or application deadline passed!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
      *     )
      * )
      * @param Activity $activity
@@ -956,6 +982,14 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
      *     )
      * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
      */
     public function listOfApplicants(
         Request $request,
@@ -1030,6 +1064,7 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
@@ -1037,7 +1072,16 @@ class ActivityController extends AbstractController
      *     response="400",
      *     description="Bad request.",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
      *     @SWG\Property(property="message", type="string", example="User cannot be assigned!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
      *     )
      * )
      * @param Activity $activity
@@ -1146,6 +1190,7 @@ class ActivityController extends AbstractController
      *     response="403",
      *     description="Forbidden",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
      *     @SWG\Property(property="message", type="string", example="Access denied!"),
      *     )
      * )
@@ -1153,7 +1198,16 @@ class ActivityController extends AbstractController
      *     response="400",
      *     description="Bad request.",
      *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
      *     @SWG\Property(property="message", type="string", example="User cannot be rejected!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
      *     )
      * )
      * @param Activity $activity
