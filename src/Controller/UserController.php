@@ -445,6 +445,20 @@ class UserController extends AbstractController
      *     in="query",
      *     name="sortBy[seniority]",
      *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of the current page (1 by default)",
+     *     in="query",
+     *     name="pagination[page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by default)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
      *     type="integer",
      *     )
      * )
