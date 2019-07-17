@@ -165,4 +165,15 @@ class UserDTO
      * @SWG\Property()
      */
     public $technologies;
+
+    /**
+     * The avatar of User encoded in Base64
+     * @var string
+     * @Serializer\Type("string")
+     * @Assert\File(mimeTypes={ "image/png", "image/jpeg", "image/jpg" })
+     * @Serializer\Expose()
+     * @Groups({"UserEdit"})
+     * @SWG\Property()
+     */
+    public $avatar;
 }

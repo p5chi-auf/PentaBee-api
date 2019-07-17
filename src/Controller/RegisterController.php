@@ -5,7 +5,7 @@ namespace App\Controller;
 use App\DTO\UserDTO;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
-use App\Service\UserTransformer;
+use App\Transformer\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use JMS\Serializer\DeserializationContext;

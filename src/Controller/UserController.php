@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Base64EncodedFileTransformers\Base64EncodedFile;
+use App\Base64EncodedFileTransformers\UploadedBase64EncodedFile;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
@@ -10,9 +12,10 @@ use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
 use App\Handlers\UserHandler;
+use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
-use App\Service\UserTransformer;
+use App\Transformer\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use JMS\Serializer\DeserializationContext;
@@ -152,7 +155,7 @@ class UserController extends AbstractController
      *     )
      * )
      * @SWG\Response(
-     *     response="201",
+     *     response="200",
      *     description="Successfull operation!",
      *     @SWG\Schema(
      *     @SWG\Property(property="message", type="string", example="User successfully edited!"),
@@ -195,6 +198,17 @@ class UserController extends AbstractController
         }
 
         $data = $request->getContent();
+
+        $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($request->get('avatar')));
+        $uploadedAvatarExtension = $userAvatar->guessExtension();
+        if ($uploadedAvatarExtension !== 'jpg' &&
+            $uploadedAvatarExtension !== 'jpeg' &&
+            $uploadedAvatarExtension !== 'png') {
+            return new JsonResponse([
+                'code' => Response::HTTP_NOT_ACCEPTABLE,
+                'message' => 'File type must be png, jpg or jpeg!'
+            ], Response::HTTP_NOT_ACCEPTABLE);
+        }
 
         /** @var DeserializationContext $context */
         $context = DeserializationContext::create()->setGroups(array('UserEdit'));
@@ -512,5 +526,88 @@ class UserController extends AbstractController
             [],
             true
         );
+    }
+
+    /**
+     * Remove User avatar.
+     * @Rest\Post("/{id}/remove_avatar")
+     * * @SWG\Post(
+     *     tags={"User"},
+     *     summary="Remove User avatar.",
+     *     description="Remove User avatar.",
+     *     operationId="removeAvatar",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to edit",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * ),
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Avatar successfully deleted!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=412,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=412),
+     *     @SWG\Property(property="message", type="string", example="You dont have an avatar to delete!"),
+     *     )
+     * )
+     * @param User $user
+     * @param ImageRepository $imageRepository
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function removeAvatar(User $user, ImageRepository $imageRepository): JsonResponse
+    {
+        $authenticatedUser = $this->getUser();
+        if ($authenticatedUser !== $user) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        if (!$user->getAvatar()) {
+            return new JsonResponse([
+                'code' => Response::HTTP_PRECONDITION_FAILED,
+                'message' => 'You dont have an avatar to delete!'
+            ], Response::HTTP_PRECONDITION_FAILED);
+        }
+
+        $imageRepository->removeUserAvatar($authenticatedUser);
+        return new JsonResponse(['message' => 'Avatar successfully deleted!'], Response::HTTP_OK);
     }
 }

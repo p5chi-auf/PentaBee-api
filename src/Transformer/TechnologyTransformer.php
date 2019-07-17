@@ -1,11 +1,10 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Transformer;
 
 use App\DTO\TechnologyDTO;
 use App\Entity\Technology;
-use App\Exceptions\EntityNotFound;
 
 class TechnologyTransformer
 {

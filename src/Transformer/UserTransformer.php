@@ -1,15 +1,21 @@
 <?php
 
-namespace App\Service;
+namespace App\Transformer;
 
+use App\Base64EncodedFileTransformers\Base64EncodedFile;
+use App\Base64EncodedFileTransformers\UploadedBase64EncodedFile;
 use App\DTO\UserDTO;
 use App\Entity\Technology;
 use App\Entity\User;
 use App\Exceptions\DuplicateUsernameEmail;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidOldPassword;
+use App\Repository\ImageRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
+use App\Service\ImageCropperResizer;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserTransformer
@@ -26,21 +32,35 @@ class UserTransformer
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var ImageRepository
+     */
+    private $imageRepository;
+    /**
+     * @var ImageCropperResizer
+     */
+    private $cropperResizer;
 
     /**
      * UserTransformer constructor.
      * @param TechnologyRepository $techRepo
      * @param UserPasswordEncoderInterface $encoder
      * @param UserRepository $userRepository
+     * @param ImageRepository $imageRepository
+     * @param ImageCropperResizer $cropperResizer
      */
     public function __construct(
         TechnologyRepository $techRepo,
         UserPasswordEncoderInterface $encoder,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        ImageRepository $imageRepository,
+        ImageCropperResizer $cropperResizer
     ) {
         $this->techRepo = $techRepo;
         $this->encoder = $encoder;
         $this->userRepository = $userRepository;
+        $this->imageRepository = $imageRepository;
+        $this->cropperResizer = $cropperResizer;
     }
 
     /**
@@ -75,6 +95,8 @@ class UserTransformer
      * @param User $user
      * @return User
      * @throws EntityNotFound
+     * @throws ORMException
+     * @throws OptimisticLockException
      */
     public function editTransform(
         UserDTO $dto,
@@ -104,6 +126,16 @@ class UserTransformer
                 $user->addTechnology($techToAdd);
             }
         }
+
+        $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
+        $croppedImage = $this->cropperResizer->avatarCropResize($userAvatar);
+
+        if ($user->getAvatar()) {
+            $this->imageRepository->removeUserAvatar($user);
+        }
+
+        $this->imageRepository->uploadUserAvatar($croppedImage, $user);
+
         return $user;
     }
 
