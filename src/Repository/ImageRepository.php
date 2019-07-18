@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Image;
 use App\Entity\User;
+use App\Service\ImageCropperResizer;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -24,12 +25,21 @@ class ImageRepository extends ServiceEntityRepository
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var ImageCropperResizer
+     */
+    private $cropperResizer;
 
-    public function __construct($userTargetDirectory, RegistryInterface $registry, UserRepository $userRepository)
-    {
+    public function __construct(
+        $userTargetDirectory,
+        RegistryInterface $registry,
+        UserRepository $userRepository,
+        ImageCropperResizer $cropperResizer
+    ) {
         parent::__construct($registry, Image::class);
         $this->userTargetDirectory = $userTargetDirectory;
         $this->userRepository = $userRepository;
+        $this->cropperResizer = $cropperResizer;
     }
 
     /**
@@ -45,7 +55,13 @@ class ImageRepository extends ServiceEntityRepository
         $image = new Image();
         $filename = $user->getId() . '.' . $uploadedFile->guessExtension();
 
-        $uploadedFile->move($this->userTargetDirectory, $filename);
+        $resizedImage256 = $this->cropperResizer->avatarCropResize($uploadedFile, 256);
+        $resizedImage256->move($this->userTargetDirectory . '256x256/', $filename);
+
+        $resizedImage40 = $this->cropperResizer->avatarCropResize($uploadedFile, 40);
+        $resizedImage40->move($this->userTargetDirectory . '40x40/', $filename);
+
+        $uploadedFile->move($this->userTargetDirectory . 'Original/', $filename);
 
         $image->setFile($filename);
         $image->setAlt('User avatar');
@@ -66,7 +82,13 @@ class ImageRepository extends ServiceEntityRepository
         $image = $user->getAvatar();
 
         $filename = $image->getFile();
-        $filepath = $this->userTargetDirectory . $filename;
+        $filepaths = array(
+            [
+                'original' => $this->userTargetDirectory . 'Original/' . $filename,
+                '256x256' => $this->userTargetDirectory . '256x256/' . $filename,
+                '40x40' => $this->userTargetDirectory . '40x40/' . $filename
+            ]
+        );
 
         $user->setAvatar(null);
 
@@ -75,6 +97,8 @@ class ImageRepository extends ServiceEntityRepository
         $entityManager->flush();
 
         $filesystem = new Filesystem();
-        $filesystem->remove($filepath);
+        foreach ($filepaths as $filepath) {
+            $filesystem->remove($filepath);
+        }
     }
 }

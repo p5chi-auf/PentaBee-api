@@ -6,10 +6,11 @@ use App\Base64EncodedFileTransformers\Base64EncodedFile;
 use App\Base64EncodedFileTransformers\UploadedBase64EncodedFile;
 use Imagick;
 use ImagickException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageCropperResizer
 {
-    public function avatarCropResize(UploadedBase64EncodedFile $userAvatar): UploadedBase64EncodedFile
+    public function avatarCropResize(UploadedFile $userAvatar, int $size): UploadedBase64EncodedFile
     {
         $filepath = $userAvatar->getPathname();
 
@@ -25,7 +26,7 @@ class ImageCropperResizer
             $image->cropImage($width, $width, 0, ($height - $width) / 2);
         }
 
-        $image->resizeImage(256, 256, 0, 1);
+        $image->resizeImage($size, $size, 0, 1);
 
         return new UploadedBase64EncodedFile(new Base64EncodedFile(base64_encode($image)));
     }

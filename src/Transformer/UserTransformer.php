@@ -13,7 +13,6 @@ use App\Exceptions\NotValidOldPassword;
 use App\Repository\ImageRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
-use App\Service\ImageCropperResizer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -36,10 +35,6 @@ class UserTransformer
      * @var ImageRepository
      */
     private $imageRepository;
-    /**
-     * @var ImageCropperResizer
-     */
-    private $cropperResizer;
 
     /**
      * UserTransformer constructor.
@@ -47,20 +42,17 @@ class UserTransformer
      * @param UserPasswordEncoderInterface $encoder
      * @param UserRepository $userRepository
      * @param ImageRepository $imageRepository
-     * @param ImageCropperResizer $cropperResizer
      */
     public function __construct(
         TechnologyRepository $techRepo,
         UserPasswordEncoderInterface $encoder,
         UserRepository $userRepository,
-        ImageRepository $imageRepository,
-        ImageCropperResizer $cropperResizer
+        ImageRepository $imageRepository
     ) {
         $this->techRepo = $techRepo;
         $this->encoder = $encoder;
         $this->userRepository = $userRepository;
         $this->imageRepository = $imageRepository;
-        $this->cropperResizer = $cropperResizer;
     }
 
     /**
@@ -128,13 +120,12 @@ class UserTransformer
         }
 
         $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
-        $croppedImage = $this->cropperResizer->avatarCropResize($userAvatar);
 
         if ($user->getAvatar()) {
             $this->imageRepository->removeUserAvatar($user);
         }
 
-        $this->imageRepository->uploadUserAvatar($croppedImage, $user);
+        $this->imageRepository->uploadUserAvatar($userAvatar, $user);
 
         return $user;
     }
