@@ -96,6 +96,15 @@ class User implements UserInterface
     private $surname;
 
     /**
+     * User biography
+     * @ORM\Column(type="text", nullable=true)
+     * @Serializer\Expose()
+     * @Groups({"UserDetail"})
+     * @SWG\Property()
+     */
+    private $biography;
+
+    /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'U'>")
@@ -246,6 +255,16 @@ class User implements UserInterface
     public function setSurname(string $surname): void
     {
         $this->surname = $surname;
+    }
+
+    public function getBiography(): ?string
+    {
+        return $this->biography;
+    }
+
+    public function setBiography(string $biography): void
+    {
+        $this->biography = $biography;
     }
 
     public function getCreatedAt(): ?DateTimeInterface

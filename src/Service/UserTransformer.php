@@ -86,11 +86,9 @@ class UserTransformer
 
         $user->setName($dto->name);
         $user->setSurname($dto->surname);
-        $user->setUsername($dto->username);
         $user->setPosition($dto->position);
         $user->setSeniority($dto->seniority);
-        $user->setEmail($dto->email);
-
+        $user->setBiography($dto->biography);
         if ($dto->technologies !== null) {
             foreach ($dto->technologies as $tech) {
                 $techID = $tech->id;

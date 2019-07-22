@@ -30,7 +30,7 @@ class UserDTO
      * The username of User
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate"})
      * @Assert\Length(
      *      min = 4,
      *      max = 50,
@@ -39,7 +39,7 @@ class UserDTO
      *     groups={"UserCreate", "UserEdit"}
      * )
      * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
+     * @Groups({"UserCreate"})
      * @SWG\Property()
      */
     public $username;
@@ -95,13 +95,13 @@ class UserDTO
      * User email
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"UserCreate", "UserEdit"}
+     *     groups={"UserCreate"}
      * )
      * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
+     * @Groups({"UserCreate"})
      * @SWG\Property()
      */
     public $email;
@@ -145,6 +145,16 @@ class UserDTO
      * @SWG\Property()
      */
     public $surname;
+
+    /**
+     * User biography
+     * @var string
+     * @Serializer\Type("string")
+     * @Serializer\Expose()
+     * @Groups({"UserEdit"})
+     * @SWG\Property()
+     */
+    public $biography;
 
     /**
      * User Technologies (Technology Collection)
