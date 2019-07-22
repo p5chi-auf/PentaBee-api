@@ -30,7 +30,7 @@ class UserDTO
      * The username of User
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate"})
      * @Assert\Length(
      *      min = 4,
      *      max = 50,
@@ -39,7 +39,7 @@ class UserDTO
      *     groups={"UserCreate", "UserEdit"}
      * )
      * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
+     * @Groups({"UserCreate"})
      * @SWG\Property()
      */
     public $username;
@@ -145,6 +145,17 @@ class UserDTO
      * @SWG\Property()
      */
     public $surname;
+
+    /**
+     * User biography
+     * @var string
+     * @Serializer\Type("string")
+     * @Assert\NotBlank(groups={"UserEdit"})
+     * @Serializer\Expose()
+     * @Groups({"UserEdit"})
+     * @SWG\Property()
+     */
+    public $biography;
 
     /**
      * User Technologies (Technology Collection)
