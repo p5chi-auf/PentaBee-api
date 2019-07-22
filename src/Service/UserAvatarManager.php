@@ -42,12 +42,12 @@ class UserAvatarManager
         $filename = $user->getId() . '.' . $uploadedFile->guessExtension();
 
         $croppedImage = $this->cropperResizer->centerSquareCrop($uploadedFile);
-        $resizedImage256 = $this->cropperResizer->resize($croppedImage, $this->avatarSize, $this->avatarSize);
-        $resizedImage256
+        $normalUserAvatar = $this->cropperResizer->resize($croppedImage, $this->avatarSize, $this->avatarSize);
+        $normalUserAvatar
             ->move($this->targetDirectory . $this->avatarSize . 'x' . $this->avatarSize . '/', $filename);
 
-        $resizedImage40 = $this->cropperResizer->resize($croppedImage, $this->thumbnailSize, $this->thumbnailSize);
-        $resizedImage40
+        $thumbnailUserAvatar = $this->cropperResizer->resize($croppedImage, $this->thumbnailSize, $this->thumbnailSize);
+        $thumbnailUserAvatar
             ->move($this->targetDirectory . $this->thumbnailSize . 'x' . $this->thumbnailSize . '/', $filename);
 
         $uploadedFile->move($this->targetDirectory . 'Original/', $filename);
