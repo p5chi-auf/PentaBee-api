@@ -150,7 +150,6 @@ class UserDTO
      * User biography
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotBlank(groups={"UserEdit"})
      * @Serializer\Expose()
      * @Groups({"UserEdit"})
      * @SWG\Property()
