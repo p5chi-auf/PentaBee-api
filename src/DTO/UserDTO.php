@@ -95,13 +95,13 @@ class UserDTO
      * User email
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotBlank(groups={"UserCreate", "UserEdit"})
+     * @Assert\NotBlank(groups={"UserCreate"})
      * @Assert\Email(
      *     message = "The email '{{ value }}' is not a valid email.",
-     *     groups={"UserCreate", "UserEdit"}
+     *     groups={"UserCreate"}
      * )
      * @Serializer\Expose()
-     * @Groups({"UserCreate", "UserEdit"})
+     * @Groups({"UserCreate"})
      * @SWG\Property()
      */
     public $email;
