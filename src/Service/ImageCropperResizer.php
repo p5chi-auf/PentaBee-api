@@ -10,9 +10,9 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 
 class ImageCropperResizer
 {
-    public function avatarCropResize(UploadedFile $userAvatar, int $size): UploadedBase64EncodedFile
+    public function centerSquareCrop(UploadedFile $uploadedFile): UploadedBase64EncodedFile
     {
-        $filepath = $userAvatar->getPathname();
+        $filepath = $uploadedFile->getPathname();
 
         try {
             $image = new Imagick(realpath($filepath));
@@ -26,7 +26,19 @@ class ImageCropperResizer
             $image->cropImage($width, $width, 0, ($height - $width) / 2);
         }
 
-        $image->resizeImage($size, $size, 0, 1);
+        return new UploadedBase64EncodedFile(new Base64EncodedFile(base64_encode($image)));
+    }
+
+    public function resize(UploadedFile $uploadedFile, int $width, int $height): UploadedBase64EncodedFile
+    {
+        $filepath = $uploadedFile->getPathname();
+
+        try {
+            $image = new Imagick(realpath($filepath));
+        } catch (ImagickException $e) {
+        }
+
+        $image->resizeImage($width, $height, 0, 1);
 
         return new UploadedBase64EncodedFile(new Base64EncodedFile(base64_encode($image)));
     }

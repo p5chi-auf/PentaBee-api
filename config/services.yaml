@@ -5,7 +5,9 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
   locale: 'en'
-  user_image_directory: '%kernel.project_dir%/src/Images/User/'
+  user_image_directory: '%kernel.project_dir%/public/Images/User/'
+  user_avatar_size: 200
+  user_avatar_thumbnail_size: 40
 
 services:
   # default configuration for services in *this* file
@@ -35,6 +37,8 @@ services:
     class: App\EventListener\JWTDecodedListener
     tags:
       - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
-  App\Repository\ImageRepository:
+  App\Service\UserAvatarManager:
     arguments:
-      $userTargetDirectory: '%user_image_directory%'
+      $targetDirectory: '%user_image_directory%'
+      $avatarSize: '%user_avatar_size%'
+      $thumbnailSize: '%user_avatar_thumbnail_size%'

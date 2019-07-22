@@ -119,13 +119,15 @@ class UserTransformer
             }
         }
 
-        $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
+        if (!empty($dto->avatar)) {
+            $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
 
-        if ($user->getAvatar()) {
-            $this->imageRepository->removeUserAvatar($user);
+            if ($user->getAvatar()) {
+                $this->imageRepository->removeUserAvatar($user);
+            }
+
+            $this->imageRepository->uploadUserAvatar($userAvatar, $user);
         }
-
-        $this->imageRepository->uploadUserAvatar($userAvatar, $user);
 
         return $user;
     }

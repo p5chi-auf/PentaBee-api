@@ -199,15 +199,17 @@ class UserController extends AbstractController
 
         $data = $request->getContent();
 
-        $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($request->get('avatar')));
-        $uploadedAvatarExtension = $userAvatar->guessExtension();
-        if ($uploadedAvatarExtension !== 'jpg' &&
-            $uploadedAvatarExtension !== 'jpeg' &&
-            $uploadedAvatarExtension !== 'png') {
-            return new JsonResponse([
-                'code' => Response::HTTP_NOT_ACCEPTABLE,
-                'message' => 'File type must be png, jpg or jpeg!'
-            ], Response::HTTP_NOT_ACCEPTABLE);
+        if (!empty($request->get('avatar'))) {
+            $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($request->get('avatar')));
+            $uploadedAvatarExtension = $userAvatar->guessExtension();
+            if ($uploadedAvatarExtension !== 'jpg' &&
+                $uploadedAvatarExtension !== 'jpeg' &&
+                $uploadedAvatarExtension !== 'png') {
+                return new JsonResponse([
+                    'code' => Response::HTTP_NOT_ACCEPTABLE,
+                    'message' => 'File type must be png, jpg or jpeg!'
+                ], Response::HTTP_NOT_ACCEPTABLE);
+            }
         }
 
         /** @var DeserializationContext $context */
@@ -576,14 +578,6 @@ class UserController extends AbstractController
      *     @SWG\Property(property="message", type="string", example="Not found!"),
      *     )
      * )
-     * @SWG\Response(
-     *     response=412,
-     *     description="Not found",
-     *     @SWG\Schema(
-     *     @SWG\Property(property="code", type="integer", example=412),
-     *     @SWG\Property(property="message", type="string", example="You dont have an avatar to delete!"),
-     *     )
-     * )
      * @param User $user
      * @param ImageRepository $imageRepository
      * @return JsonResponse
@@ -598,13 +592,6 @@ class UserController extends AbstractController
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
-        }
-
-        if (!$user->getAvatar()) {
-            return new JsonResponse([
-                'code' => Response::HTTP_PRECONDITION_FAILED,
-                'message' => 'You dont have an avatar to delete!'
-            ], Response::HTTP_PRECONDITION_FAILED);
         }
 
         $imageRepository->removeUserAvatar($authenticatedUser);
