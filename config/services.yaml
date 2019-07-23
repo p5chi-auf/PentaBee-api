@@ -6,8 +6,13 @@
 parameters:
   locale: 'en'
   user_image_directory: '%kernel.project_dir%/public/Images/User/'
-  user_avatar_size: 200
-  user_avatar_thumbnail_size: 40
+  user_avatar_size:
+    profile:
+      width: 200
+      height: 200
+    thumbnail:
+      width: 40
+      height: 40
 
 services:
   # default configuration for services in *this* file
@@ -41,4 +46,3 @@ services:
     arguments:
       $targetDirectory: '%user_image_directory%'
       $avatarSize: '%user_avatar_size%'
-      $thumbnailSize: '%user_avatar_thumbnail_size%'

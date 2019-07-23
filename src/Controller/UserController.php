@@ -201,10 +201,7 @@ class UserController extends AbstractController
 
         if (!empty($request->get('avatar'))) {
             $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($request->get('avatar')));
-            $uploadedAvatarExtension = $userAvatar->guessExtension();
-            if ($uploadedAvatarExtension !== 'jpg' &&
-                $uploadedAvatarExtension !== 'jpeg' &&
-                $uploadedAvatarExtension !== 'png') {
+            if (!UserDTO::checkFileType($userAvatar)) {
                 return new JsonResponse([
                     'code' => Response::HTTP_NOT_ACCEPTABLE,
                     'message' => 'File type must be png, jpg or jpeg!'

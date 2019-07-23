@@ -26,16 +26,16 @@ class ImageRepository extends ServiceEntityRepository
     /**
      * @var UserAvatarManager
      */
-    private $directoryManager;
+    private $userAvatarManager;
 
     public function __construct(
         RegistryInterface $registry,
         UserRepository $userRepository,
-        UserAvatarManager $directoryManager
+        UserAvatarManager $userAvatarManager
     ) {
         parent::__construct($registry, Image::class);
         $this->userRepository = $userRepository;
-        $this->directoryManager = $directoryManager;
+        $this->userAvatarManager = $userAvatarManager;
     }
 
     /**
@@ -48,17 +48,15 @@ class ImageRepository extends ServiceEntityRepository
         UploadedFile $uploadedFile,
         User $user
     ): void {
-        $image = new Image();
-        $filename = $user->getId() . '.' . $uploadedFile->guessExtension();
+        $image = $this->userAvatarManager->createImage($uploadedFile, $user);
+        $this->userAvatarManager->saveAvatarInDirectory($uploadedFile, $user);
 
-        $this->directoryManager->saveAvatarInDirectory($uploadedFile, $user);
-        $image->setFile($filename);
-        $image->setAlt('User avatar');
         $entityManager = $this->getEntityManager();
         $entityManager->persist($image);
         $entityManager->flush();
 
-        $this->userRepository->saveAvatar($user, $image);
+        $user->setAvatar($image);
+        $this->userRepository->save($user);
     }
 
     /**
@@ -70,7 +68,7 @@ class ImageRepository extends ServiceEntityRepository
     {
         $image = $user->getAvatar();
 
-        $this->directoryManager->removeAvatarFromDirectory($user);
+        $this->userAvatarManager->removeAvatarFromDirectory($user);
 
         $user->setAvatar(null);
         $entityManager = $this->getEntityManager();

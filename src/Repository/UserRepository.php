@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
-use App\Entity\Image;
 use App\Entity\User;
 use App\Filters\ApplicantsListSort;
 use App\Filters\UserListFilter;
@@ -115,19 +114,5 @@ class UserRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query;
-    }
-
-    /**
-     * @param User $user
-     * @param Image $avatar
-     * @throws ORMException
-     * @throws OptimisticLockException
-     */
-    public function saveAvatar(User $user, Image $avatar): void
-    {
-        $user->setAvatar($avatar);
-        $em = $this->getEntityManager();
-        $em->persist($user);
-        $em->flush();
     }
 }

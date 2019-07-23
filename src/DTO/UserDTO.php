@@ -5,6 +5,7 @@ namespace App\DTO;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Swagger\Annotations as SWG;
 
@@ -170,10 +171,17 @@ class UserDTO
      * The avatar of User encoded in Base64
      * @var string
      * @Serializer\Type("string")
-     * @Assert\File(mimeTypes={ "image/png", "image/jpeg", "image/jpg" })
      * @Serializer\Expose()
      * @Groups({"UserEdit"})
      * @SWG\Property()
      */
     public $avatar;
+
+    public static function checkFileType(UploadedFile $uploadedFile): bool
+    {
+        $uploadedAvatarExtension = $uploadedFile->guessExtension();
+        return !($uploadedAvatarExtension !== 'jpg' &&
+            $uploadedAvatarExtension !== 'jpeg' &&
+            $uploadedAvatarExtension !== 'png');
+    }
 }

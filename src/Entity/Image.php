@@ -21,7 +21,6 @@ class Image
 
     /**
      * @ORM\Column(type="string")
-     * @Assert\File(mimeTypes={ "image/png", "image/jpeg", "image/jpg" })
      * @Assert\NotBlank(message="Please upload your image!")
      * @Groups({"UserDetail", "UserList"})
      */
