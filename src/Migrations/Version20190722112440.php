@@ -24,7 +24,7 @@ final class Version20190722112440 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE user ADD biography LONGTEXT DEFAULT NULL, CHANGE password_changed_at password_changed_at DATETIME NOT NULL');
+        $this->addSql('ALTER TABLE user ADD biography LONGTEXT DEFAULT NULL');
     }
 
     public function down(Schema $schema): void
@@ -33,6 +33,6 @@ final class Version20190722112440 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE user DROP biography, CHANGE password_changed_at password_changed_at DATETIME DEFAULT NULL');
+        $this->addSql('ALTER TABLE user DROP biography');
     }
 }
