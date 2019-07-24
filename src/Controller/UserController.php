@@ -7,7 +7,6 @@ use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidFileType;
 use App\Exceptions\NotValidOldPassword;
-use App\Exceptions\TransformerException;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -224,29 +223,29 @@ class UserController extends AbstractController
 
         try {
             $userEdit = $this->transformer->editTransform($userDTO, $user);
-        } catch (TransformerException $exception) {
-            if ($exception instanceof EntityNotFound) {
-                return new JsonResponse(
-                    [
-                        'code' => Response::HTTP_NOT_FOUND,
-                        'message' => $exception->getMessage(),
-                        'errors' => [
-                            array(
-                                'entity' => $exception->getEntity(),
-                                'id' => $exception->getId()
-                            )
-                        ]
-                    ],
-                    Response::HTTP_NOT_FOUND
-                );
-            }
-            if ($exception instanceof NotValidFileType) {
-                return new JsonResponse([
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_NOT_FOUND,
+                    'message' => $exception->getMessage(),
+                    'errors' => [
+                        array(
+                            'entity' => $exception->getEntity(),
+                            'id' => $exception->getId()
+                        )
+                    ]
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        } catch (NotValidFileType $exception) {
+            return new JsonResponse(
+                [
                     'code' => Response::HTTP_NOT_ACCEPTABLE,
                     'message' => $exception->getMessage(),
-                    'fileType' => $exception->getFileType()
-                ]);
-            }
+                    'filetype' => $exception->getFileType()
+                ],
+                Response::HTTP_NOT_ACCEPTABLE
+            );
         }
 
         $userRepository->save($userEdit);
