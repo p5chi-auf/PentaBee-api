@@ -2,12 +2,12 @@
 
 namespace App\Controller;
 
-use App\Base64EncodedFileTransformers\Base64EncodedFile;
-use App\Base64EncodedFileTransformers\UploadedBase64EncodedFile;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidFileType;
 use App\Exceptions\NotValidOldPassword;
+use App\Exceptions\TransformerException;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -199,16 +199,6 @@ class UserController extends AbstractController
 
         $data = $request->getContent();
 
-        if (!empty($request->get('avatar'))) {
-            $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($request->get('avatar')));
-            if (!UserDTO::checkFileType($userAvatar)) {
-                return new JsonResponse([
-                    'code' => Response::HTTP_NOT_ACCEPTABLE,
-                    'message' => 'File type must be png, jpg or jpeg!'
-                ], Response::HTTP_NOT_ACCEPTABLE);
-            }
-        }
-
         /** @var DeserializationContext $context */
         $context = DeserializationContext::create()->setGroups(array('UserEdit'));
 
@@ -234,20 +224,29 @@ class UserController extends AbstractController
 
         try {
             $userEdit = $this->transformer->editTransform($userDTO, $user);
-        } catch (EntityNotFound $exception) {
-            return new JsonResponse(
-                [
-                    'code' => Response::HTTP_NOT_FOUND,
+        } catch (TransformerException $exception) {
+            if ($exception instanceof EntityNotFound) {
+                return new JsonResponse(
+                    [
+                        'code' => Response::HTTP_NOT_FOUND,
+                        'message' => $exception->getMessage(),
+                        'errors' => [
+                            array(
+                                'entity' => $exception->getEntity(),
+                                'id' => $exception->getId()
+                            )
+                        ]
+                    ],
+                    Response::HTTP_NOT_FOUND
+                );
+            }
+            if ($exception instanceof NotValidFileType) {
+                return new JsonResponse([
+                    'code' => Response::HTTP_NOT_ACCEPTABLE,
                     'message' => $exception->getMessage(),
-                    'errors' => [
-                        array(
-                            'entity' => $exception->getEntity(),
-                            'id' => $exception->getId()
-                        )
-                    ]
-                ],
-                Response::HTTP_NOT_FOUND
-            );
+                    'fileType' => $exception->getFileType()
+                ]);
+            }
         }
 
         $userRepository->save($userEdit);
@@ -591,7 +590,7 @@ class UserController extends AbstractController
             ], Response::HTTP_FORBIDDEN);
         }
 
-        $imageRepository->removeUserAvatar($authenticatedUser);
+        $imageRepository->delete($authenticatedUser);
         return new JsonResponse(['message' => 'Avatar successfully deleted!'], Response::HTTP_OK);
     }
 }

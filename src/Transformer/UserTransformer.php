@@ -9,6 +9,7 @@ use App\Entity\Technology;
 use App\Entity\User;
 use App\Exceptions\DuplicateUsernameEmail;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidFileType;
 use App\Exceptions\NotValidOldPassword;
 use App\Repository\ImageRepository;
 use App\Repository\TechnologyRepository;
@@ -97,6 +98,7 @@ class UserTransformer
      * @throws EntityNotFound
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws NotValidFileType
      */
     public function editTransform(
         UserDTO $dto,
@@ -130,14 +132,29 @@ class UserTransformer
         if (!empty($dto->avatar)) {
             $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
 
+            $fileType = $userAvatar->guessExtension();
+            if ($fileType !== 'jpg' && $fileType !== 'jpeg' && $fileType !== 'png') {
+                $notValidFileType = new NotValidFileType(
+                    'File type must be jpg, jpeg or png!',
+                    $fileType
+                );
+                throw $notValidFileType;
+            }
+
             $image = $this->userAvatarManager->createImage($userAvatar, $user);
 
             if ($user->getAvatar()) {
                 $this->userAvatarManager->removeAvatarFromDirectory($user);
-                $this->imageRepository->removeUserAvatar($user);
+
+                $currentImage = $user->getAvatar();
+                $user->setAvatar(null);
+                $this->imageRepository->delete($currentImage);
             }
 
-            $this->imageRepository->uploadUserAvatar($image, $user);
+            $this->imageRepository->save($image);
+            $user->setAvatar($image);
+            $this->userRepository->save($user);
+
             $this->userAvatarManager->saveAvatarInDirectory($userAvatar, $user);
         }
 

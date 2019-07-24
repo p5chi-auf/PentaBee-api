@@ -51,9 +51,10 @@ class UserAvatarManager
 
         $uploadedFile->move($this->targetDirectory . 'Original/', $filename);
 
+        $path = '%s%sx%s/';
         foreach ($this->avatarSize as $size) {
             $image = $this->cropperResizer->resize($croppedImage, $size['width'], $size['height']);
-            $image->move($this->targetDirectory . $size['width'] . 'x' . $size['height'] . '/', $filename);
+            $image->move(sprintf($path, $this->targetDirectory, $size['width'], $size['height']), $filename);
         }
     }
 
@@ -65,13 +66,9 @@ class UserAvatarManager
         $filename = $image->getFile();
 
         $filesystem = new Filesystem();
+        $path = '%s%sx%s/%s';
         foreach ($this->avatarSize as $size) {
-            $filesystem->remove(
-                $this->targetDirectory
-                . $size['width'] . 'x'
-                . $size['height'] . '/'
-                . $filename
-            );
+            $filesystem->remove(sprintf($path, $this->targetDirectory, $size['width'], $size['height'], $filename));
         }
         $filesystem->remove($this->targetDirectory . 'Original/' . $filename);
     }
