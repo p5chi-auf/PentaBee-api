@@ -17,7 +17,7 @@ use App\Handlers\ActivityUserHandler;
 use App\Repository\ActivityUserRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
-use App\Service\ActivityTransformer;
+use App\Transformer\ActivityTransformer;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
 use JMS\Serializer\DeserializationContext;

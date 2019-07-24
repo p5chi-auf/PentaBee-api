@@ -142,6 +142,15 @@ class User implements UserInterface
      */
     private $passwordChangedAt;
 
+    /**
+     * @var Image
+     * @ORM\OneToOne(targetEntity="Image")
+     * @ORM\JoinColumn()
+     * @Serializer\Expose()
+     * @Groups({"UserDetail", "UserList"})
+     */
+    private $avatar;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
@@ -317,5 +326,18 @@ class User implements UserInterface
     public function updatedTimestamps(): void
     {
         $this->setUpdatedAt(new DateTime());
+    }
+
+    /**
+     * @return Image
+     */
+    public function getAvatar(): ?Image
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?Image $avatar): void
+    {
+        $this->avatar = $avatar;
     }
 }

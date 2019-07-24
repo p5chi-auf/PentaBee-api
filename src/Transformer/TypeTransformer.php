@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Transformer;
 
 use App\DTO\ActivityTypeDTO;
 use App\Entity\ActivityType;

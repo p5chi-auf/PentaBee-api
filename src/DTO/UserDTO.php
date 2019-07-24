@@ -5,6 +5,7 @@ namespace App\DTO;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Swagger\Annotations as SWG;
 
@@ -48,7 +49,7 @@ class UserDTO
      * Old Password
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"PasswordEdit"})
+     * @Assert\NotBlank(groups={"PasswordEdit"})
      * @Assert\Regex("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[-_!@#$%^&*])\S*$/",
      * message = "Password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special",
      * groups={"PasswordEdit"}
@@ -65,7 +66,7 @@ class UserDTO
      * @Serializer\Type("string")
      * @Serializer\Expose()
      * @Groups({"UserCreate", "PasswordEdit"})
-     * @Assert\NotNull(groups={"UserCreate", "PasswordEdit"})
+     * @Assert\NotBlank(groups={"UserCreate", "PasswordEdit"})
      * @Assert\Regex("/^\S*(?=\S{8,})(?=\S*[a-z])(?=\S*[A-Z])(?=\S*[\d])(?=\S*[-_!@#$%^&*])\S*$/",
      * message = "Password requirements(at least):length >8, 1 uppercase, 1 lowercase, 1 digit, 1 special",
      * groups={"UserCreate", "PasswordEdit"}
@@ -80,7 +81,7 @@ class UserDTO
      * Confirm password (===password on register or password edit)
      * @var string
      * @Serializer\Type("string")
-     * @Assert\NotNull(groups={"UserCreate", "PasswordEdit"})
+     * @Assert\NotBlank(groups={"UserCreate", "PasswordEdit"})
      * @Assert\EqualTo(propertyPath="password",
      *     message="Passwords do not match.",
      *     groups={"UserCreate", "PasswordEdit"}
@@ -165,4 +166,14 @@ class UserDTO
      * @SWG\Property()
      */
     public $technologies;
+
+    /**
+     * The avatar of User encoded in Base64
+     * @var string
+     * @Serializer\Type("string")
+     * @Serializer\Expose()
+     * @Groups({"UserEdit"})
+     * @SWG\Property()
+     */
+    public $avatar;
 }

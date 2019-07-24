@@ -1,15 +1,22 @@
 <?php
 
-namespace App\Service;
+namespace App\Transformer;
 
+use App\Base64EncodedFileTransformers\Base64EncodedFile;
+use App\Base64EncodedFileTransformers\UploadedBase64EncodedFile;
 use App\DTO\UserDTO;
 use App\Entity\Technology;
 use App\Entity\User;
 use App\Exceptions\DuplicateUsernameEmail;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidFileType;
 use App\Exceptions\NotValidOldPassword;
+use App\Repository\ImageRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
+use App\Service\UserAvatarManager;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class UserTransformer
@@ -26,21 +33,35 @@ class UserTransformer
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var ImageRepository
+     */
+    private $imageRepository;
+    /**
+     * @var UserAvatarManager
+     */
+    private $userAvatarManager;
 
     /**
      * UserTransformer constructor.
      * @param TechnologyRepository $techRepo
      * @param UserPasswordEncoderInterface $encoder
      * @param UserRepository $userRepository
+     * @param ImageRepository $imageRepository
+     * @param UserAvatarManager $userAvatarManager
      */
     public function __construct(
         TechnologyRepository $techRepo,
         UserPasswordEncoderInterface $encoder,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        ImageRepository $imageRepository,
+        UserAvatarManager $userAvatarManager
     ) {
         $this->techRepo = $techRepo;
         $this->encoder = $encoder;
         $this->userRepository = $userRepository;
+        $this->imageRepository = $imageRepository;
+        $this->userAvatarManager = $userAvatarManager;
     }
 
     /**
@@ -75,6 +96,9 @@ class UserTransformer
      * @param User $user
      * @return User
      * @throws EntityNotFound
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws NotValidFileType
      */
     public function editTransform(
         UserDTO $dto,
@@ -104,6 +128,36 @@ class UserTransformer
                 $user->addTechnology($techToAdd);
             }
         }
+
+        if (!empty($dto->avatar)) {
+            $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
+
+            $fileType = $userAvatar->guessExtension();
+            if ($fileType !== 'jpg' && $fileType !== 'jpeg' && $fileType !== 'png') {
+                $notValidFileType = new NotValidFileType(
+                    'File type must be jpg, jpeg or png!',
+                    $fileType
+                );
+                throw $notValidFileType;
+            }
+
+            $image = $this->userAvatarManager->createImage($userAvatar, $user);
+
+            if ($user->getAvatar()) {
+                $this->userAvatarManager->removeAvatarFromDirectory($user);
+
+                $currentImage = $user->getAvatar();
+                $user->setAvatar(null);
+                $this->imageRepository->delete($currentImage);
+            }
+
+            $this->imageRepository->save($image);
+            $user->setAvatar($image);
+            $this->userRepository->save($user);
+
+            $this->userAvatarManager->saveAvatarInDirectory($userAvatar, $user);
+        }
+
         return $user;
     }
 

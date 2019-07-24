@@ -2,7 +2,7 @@
 
 namespace App\Exceptions;
 
-class EntityNotFound extends \Exception
+class EntityNotFound extends TransformerException
 {
     /** @var string */
     private $entity;

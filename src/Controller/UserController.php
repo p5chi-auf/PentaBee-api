@@ -5,14 +5,16 @@ namespace App\Controller;
 use App\DTO\UserDTO;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidFileType;
 use App\Exceptions\NotValidOldPassword;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
 use App\Handlers\UserHandler;
+use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
-use App\Service\UserTransformer;
+use App\Transformer\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use JMS\Serializer\DeserializationContext;
@@ -152,7 +154,7 @@ class UserController extends AbstractController
      *     )
      * )
      * @SWG\Response(
-     *     response="201",
+     *     response="200",
      *     description="Successfull operation!",
      *     @SWG\Schema(
      *     @SWG\Property(property="message", type="string", example="User successfully edited!"),
@@ -234,6 +236,15 @@ class UserController extends AbstractController
                     ]
                 ],
                 Response::HTTP_NOT_FOUND
+            );
+        } catch (NotValidFileType $exception) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_NOT_ACCEPTABLE,
+                    'message' => $exception->getMessage(),
+                    'filetype' => $exception->getFileType()
+                ],
+                Response::HTTP_NOT_ACCEPTABLE
             );
         }
 
@@ -512,5 +523,73 @@ class UserController extends AbstractController
             [],
             true
         );
+    }
+
+    /**
+     * Remove User avatar.
+     * @Rest\Post("/{id}/remove_avatar")
+     * * @SWG\Post(
+     *     tags={"User"},
+     *     summary="Remove User avatar.",
+     *     description="Remove User avatar.",
+     *     operationId="removeAvatar",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to edit",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * ),
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Avatar successfully deleted!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @param User $user
+     * @param ImageRepository $imageRepository
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function removeAvatar(User $user, ImageRepository $imageRepository): JsonResponse
+    {
+        $authenticatedUser = $this->getUser();
+        if ($authenticatedUser !== $user) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $imageRepository->delete($authenticatedUser);
+        return new JsonResponse(['message' => 'Avatar successfully deleted!'], Response::HTTP_OK);
     }
 }
