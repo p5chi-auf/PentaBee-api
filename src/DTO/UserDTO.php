@@ -126,6 +126,19 @@ class UserDTO
     public $seniority = self::SENIORITY_JUNIOR;
 
     /**
+     * User location (CHI, NYC, BOS, FRA, PAR, ORL, BUC, BRA, CLU, IAS, HAN, GUA, LYO)
+     * @var string
+     * @Serializer\Type("string")
+     * @Assert\Choice(choices = {"CHI","NYC","BOS","FRA","PAR","ORL","BUC","BRA","CLU","IAS","HAN","GUA","LYO"},
+     *     message = "Choose a valid location.",
+     *     groups={"UserEdit"})
+     * @Serializer\Expose()
+     * @Groups({"UserEdit"})
+     * @SWG\Property()
+     */
+    public $location;
+
+    /**
      * The name of User
      * @var string
      * @Serializer\Type("string")

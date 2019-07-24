@@ -112,6 +112,7 @@ class UserTransformer
         $user->setSurname($dto->surname);
         $user->setPosition($dto->position);
         $user->setSeniority($dto->seniority);
+        $user->setLocation($dto->location);
         $user->setBiography($dto->biography);
         if ($dto->technologies !== null) {
             foreach ($dto->technologies as $tech) {

@@ -78,6 +78,15 @@ class User implements UserInterface
     private $seniority = self::SENIORITY_JUNIOR;
 
     /**
+     * User location (CHI, NYC, BOS, FRA, PAR, ORL, BUC, BRA, CLU, IAS, HAN, GUA, LYO)
+     * @ORM\Column(type="string", nullable=true)
+     * @Serializer\Expose()
+     * @Groups({"UserDetail", "UserList"})
+     * @SWG\Property()
+     */
+    private $location;
+
+    /**
      * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
@@ -244,6 +253,16 @@ class User implements UserInterface
     public function setSeniority(string $seniority): void
     {
         $this->seniority = $seniority;
+    }
+
+    public function getLocation(): ?string
+    {
+        return $this->location;
+    }
+
+    public function setLocation(string $location): void
+    {
+        $this->location = $location;
     }
 
     public function getName(): ?string
