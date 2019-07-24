@@ -17,26 +17,10 @@ class UserAvatarManager
      * @var string
      */
     private $targetDirectory;
-
     /**
-     * @var int
+     * @var array
      */
-    private $profilePicWidth;
-
-    /**
-     * @var int
-     */
-    private $profilePicHeight;
-
-    /**
-     * @var int
-     */
-    private $thumbnailPicWidth;
-
-    /**
-     * @var int
-     */
-    private $thumbnailPicHeight;
+    private $avatarSize;
 
     public function __construct(
         string $targetDirectory,
@@ -45,10 +29,7 @@ class UserAvatarManager
     ) {
         $this->cropperResizer = $cropperResizer;
         $this->targetDirectory = $targetDirectory;
-        $this->profilePicWidth = $avatarSize['profile']['width'];
-        $this->profilePicHeight = $avatarSize['profile']['height'];
-        $this->thumbnailPicWidth = $avatarSize['thumbnail']['width'];
-        $this->thumbnailPicHeight = $avatarSize['thumbnail']['height'];
+        $this->avatarSize = $avatarSize;
     }
 
     public function createImage(UploadedFile $uploadedFile, User $user): Image
@@ -68,27 +49,12 @@ class UserAvatarManager
 
         $croppedImage = $this->cropperResizer->centerSquareCrop($uploadedFile);
 
-        $normalUserAvatar = $this->cropperResizer
-            ->resize($croppedImage, $this->profilePicWidth, $this->profilePicHeight);
-        $normalUserAvatar
-            ->move(
-                $this->targetDirectory
-                . $this->profilePicWidth . 'x'
-                . $this->profilePicHeight . '/',
-                $filename
-            );
-
-        $thumbnailUserAvatar = $this->cropperResizer
-            ->resize($croppedImage, $this->thumbnailPicWidth, $this->thumbnailPicHeight);
-        $thumbnailUserAvatar
-            ->move(
-                $this->targetDirectory
-                . $this->thumbnailPicWidth . 'x'
-                . $this->thumbnailPicHeight . '/',
-                $filename
-            );
-
         $uploadedFile->move($this->targetDirectory . 'Original/', $filename);
+
+        foreach ($this->avatarSize as $size) {
+            $image = $this->cropperResizer->resize($croppedImage, $size['width'], $size['height']);
+            $image->move($this->targetDirectory . $size['width'] . 'x' . $size['height'] . '/', $filename);
+        }
     }
 
     public function removeAvatarFromDirectory(User $user): void
@@ -97,26 +63,16 @@ class UserAvatarManager
         $image = $user->getAvatar();
 
         $filename = $image->getFile();
-        $filepaths = array(
-            [
-                'original' =>
-                    $this->targetDirectory . 'Original/' . $filename,
-                'profile' =>
-                    $this->targetDirectory
-                    . $this->profilePicWidth . 'x'
-                    . $this->profilePicHeight . '/'
-                    . $filename,
-                'thumbnail' =>
-                    $this->targetDirectory
-                    . $this->thumbnailPicWidth . 'x'
-                    . $this->thumbnailPicHeight . '/'
-                    . $filename
-            ]
-        );
 
         $filesystem = new Filesystem();
-        foreach ($filepaths as $filepath) {
-            $filesystem->remove($filepath);
+        foreach ($this->avatarSize as $size) {
+            $filesystem->remove(
+                $this->targetDirectory
+                . $size['width'] . 'x'
+                . $size['height'] . '/'
+                . $filename
+            );
         }
+        $filesystem->remove($this->targetDirectory . 'Original/' . $filename);
     }
 }
