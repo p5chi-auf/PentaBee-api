@@ -13,6 +13,7 @@ use App\Exceptions\NotValidOldPassword;
 use App\Repository\ImageRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
+use App\Service\UserAvatarManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -35,6 +36,10 @@ class UserTransformer
      * @var ImageRepository
      */
     private $imageRepository;
+    /**
+     * @var UserAvatarManager
+     */
+    private $userAvatarManager;
 
     /**
      * UserTransformer constructor.
@@ -42,17 +47,20 @@ class UserTransformer
      * @param UserPasswordEncoderInterface $encoder
      * @param UserRepository $userRepository
      * @param ImageRepository $imageRepository
+     * @param UserAvatarManager $userAvatarManager
      */
     public function __construct(
         TechnologyRepository $techRepo,
         UserPasswordEncoderInterface $encoder,
         UserRepository $userRepository,
-        ImageRepository $imageRepository
+        ImageRepository $imageRepository,
+        UserAvatarManager $userAvatarManager
     ) {
         $this->techRepo = $techRepo;
         $this->encoder = $encoder;
         $this->userRepository = $userRepository;
         $this->imageRepository = $imageRepository;
+        $this->userAvatarManager = $userAvatarManager;
     }
 
     /**
@@ -122,11 +130,15 @@ class UserTransformer
         if (!empty($dto->avatar)) {
             $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
 
+            $image = $this->userAvatarManager->createImage($userAvatar, $user);
+
             if ($user->getAvatar()) {
+                $this->userAvatarManager->removeAvatarFromDirectory($user);
                 $this->imageRepository->removeUserAvatar($user);
             }
 
-            $this->imageRepository->uploadUserAvatar($userAvatar, $user);
+            $this->imageRepository->uploadUserAvatar($image, $user);
+            $this->userAvatarManager->saveAvatarInDirectory($userAvatar, $user);
         }
 
         return $user;
