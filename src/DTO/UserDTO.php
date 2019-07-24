@@ -126,7 +126,7 @@ class UserDTO
     public $seniority = self::SENIORITY_JUNIOR;
 
     /**
-     * User location (CHI, NYC, BOS, FRA, PAR, ORL, BUC, BRA, CLU, IAS, HAN, GUA, LYO)
+     * User location
      * @var string
      * @Serializer\Type("string")
      * @Assert\Choice(choices = {"CHI","NYC","BOS","FRA","PAR","ORL","BUC","BRA","CLU","IAS","HAN","GUA","LYO"},
