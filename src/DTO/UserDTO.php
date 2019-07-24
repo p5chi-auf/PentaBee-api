@@ -176,12 +176,4 @@ class UserDTO
      * @SWG\Property()
      */
     public $avatar;
-
-    public static function checkFileType(UploadedFile $uploadedFile): bool
-    {
-        $uploadedAvatarExtension = $uploadedFile->guessExtension();
-        return !($uploadedAvatarExtension !== 'jpg' &&
-            $uploadedAvatarExtension !== 'jpeg' &&
-            $uploadedAvatarExtension !== 'png');
-    }
 }
