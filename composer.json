@@ -30,7 +30,8 @@
     "symfony/twig-bundle": "4.2.*",
     "symfony/validator": "4.2.*",
     "symfony/yaml": "4.2.*",
-    "ext-imagick": "*"
+    "ext-imagick": "*",
+    "ext-http": "*"
   },
   "config": {
     "preferred-install": {

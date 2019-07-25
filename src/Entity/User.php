@@ -29,7 +29,7 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit", "ActivityDetails", "UserList"})
+     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit", "ActivityDetails", "UserList", "ActivityList"})
      * @SWG\Property()
      */
     protected $id;
@@ -38,7 +38,7 @@ class User implements UserInterface
      * The username of User
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityList"})
      * @SWG\Property()
      */
     private $username;
@@ -147,7 +147,7 @@ class User implements UserInterface
      * @ORM\OneToOne(targetEntity="Image")
      * @ORM\JoinColumn()
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails"})
      */
     private $avatar;
 
