@@ -38,6 +38,7 @@ class UserAvatarManager
         $filename = $user->getId() . '.' . $uploadedFile->guessExtension();
         $image->setFile($filename);
         $image->setAlt($user->getUsername());
+        $image->setLinkedTo(Image::IMAGE_TYPE_USER);
 
         return $image;
     }
@@ -73,5 +74,22 @@ class UserAvatarManager
             $filesystem->remove($path);
         }
         $filesystem->remove($this->targetDirectory . 'Original/' . $filename);
+    }
+
+    public function getAvatarResolutions(Image $image): array
+    {
+        $filename = $image->getFile();
+        $currentDirectory = substr($this->targetDirectory, strpos($this->targetDirectory, 'public'));
+        $resolutions = [];
+        $resolutions['original'] = $currentDirectory . 'Original/' . $filename;
+        foreach ($this->avatarSize as $size) {
+            $directoryFormat = '%sx%s';
+            $directory = sprintf($directoryFormat, $size['width'], $size['height']);
+            $pathFormat = '%s%s/%s';
+            $path = sprintf($pathFormat, $currentDirectory, $directory, $filename);
+            $resolutions[$directory] = $path;
+        }
+
+        return $resolutions;
     }
 }

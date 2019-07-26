@@ -13,6 +13,7 @@ nelmio_api_doc:
       - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
       - { alias: UserForActivityCreate, type: App\Entity\User, groups: [ActivityCreate] }
       - { alias: UserForActivityEdit, type: App\Entity\User, groups: [ActivityEdit] }
+      - { alias: UserForActivityList, type: App\Entity\User, groups: [ActivityList] }
       - { alias: UserCreate, type: App\DTO\UserDTO, groups: [UserCreate] }
       - { alias: UserEdit, type: App\DTO\UserDTO, groups: [UserEdit] }
       - { alias: UserPasswordEdit, type: App\DTO\UserDTO, groups: [PasswordEdit] }
@@ -29,6 +30,7 @@ nelmio_api_doc:
       - { alias: ActivityTypeForActivityDetails, type: App\Entity\ActivityType, groups: [ActivityDetails] }
       - { alias: ActivityTypeForActivityCreate, type: App\DTO\ActivityTypeDTO, groups: [ActivityCreate] }
       - { alias: ActivityTypeForActivityEdit, type: App\DTO\ActivityTypeDTO, groups: [ActivityEdit] }
+      - { alias: Image, type: App\Entity\Image }
   documentation:
     #        schemes: [http, https]
     info:
