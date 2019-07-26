@@ -22,7 +22,35 @@ class User implements UserInterface
     public const SENIORITY_JUNIOR = 0;
     public const SENIORITY_MIDDLE = 1;
     public const SENIORITY_SENIOR = 2;
+    public const LOCATION_CHISINAU = 'CHI';
+    public const LOCATION_NEW_YORK = 'NYC';
+    public const LOCATION_BOSTON = 'BOS';
+    public const LOCATION_FRANKFURT = 'FRA';
+    public const LOCATION_PARIS = 'PAR';
+    public const LOCATION_ORLEANS = 'ORL';
+    public const LOCATION_BUCHAREST = 'BUC';
+    public const LOCATION_BRASOV = 'BRA';
+    public const LOCATION_CLUJ = 'CLU';
+    public const LOCATION_IASI = 'IAS';
+    public const LOCATION_HANOI = 'HAN';
+    public const LOCATION_GUADALAJARA = 'GUA';
+    public const LOCATION_LYON = 'LYO';
 
+    public const LOCATION = [
+        self::LOCATION_CHISINAU,
+        self::LOCATION_NEW_YORK,
+        self::LOCATION_BOSTON,
+        self::LOCATION_FRANKFURT,
+        self::LOCATION_PARIS,
+        self::LOCATION_ORLEANS,
+        self::LOCATION_BUCHAREST,
+        self::LOCATION_BRASOV,
+        self::LOCATION_CLUJ,
+        self::LOCATION_IASI,
+        self::LOCATION_HANOI,
+        self::LOCATION_GUADALAJARA,
+        self::LOCATION_LYON
+    ];
     /**
      * User ID
      * @ORM\Id()
