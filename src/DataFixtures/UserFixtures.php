@@ -16,6 +16,7 @@ class UserFixtures extends Fixture
         'po',
         'qa'
     ];
+
     /**
      * @var UserPasswordEncoderInterface
      */
@@ -35,6 +36,7 @@ class UserFixtures extends Fixture
         $user->setPassword($this->encoder->encodePassword($user, 'iamadmin'));
         $user->setPosition(self::POSITIONS[rand(0, 2)]);
         $user->setSeniority(1);
+        $user->setLocation(User::LOCATION[rand(0, 12)]);
         $user->setName('Staci');
         $user->setSurname('Nicolae');
         $user->setEmail('nstaci@pentalog.com');
@@ -46,6 +48,7 @@ class UserFixtures extends Fixture
         $user->setPassword($this->encoder->encodePassword($user, 'passtester'));
         $user->setPosition(self::POSITIONS[rand(0, 2)]);
         $user->setSeniority(1);
+        $user->setLocation(User::LOCATION[rand(0, 12)]);
         $user->setName('Druta');
         $user->setSurname('Mihai');
         $user->setEmail('mdruta@pentalog.com');
@@ -58,6 +61,7 @@ class UserFixtures extends Fixture
             $user->setPassword($this->encoder->encodePassword($user, 'test_Password1'));
             $user->setPosition(self::POSITIONS[rand(0, 2)]);
             $user->setSeniority(mt_rand(0, 2));
+            $user->setLocation(User::LOCATION[rand(0, 12)]);
             $user->setName($faker->firstName);
             $user->setSurname($faker->lastName);
             $user->setEmail($faker->email);

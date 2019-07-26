@@ -2,12 +2,13 @@
 
 namespace App\DTO;
 
+use App\Entity\User;
 use Doctrine\Common\Collections\Collection;
 use JMS\Serializer\Annotation as Serializer;
 use JMS\Serializer\Annotation\Groups;
-use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Constraints as Assert;
 use Swagger\Annotations as SWG;
+use Symfony\Component\Validator\Context\ExecutionContext;
 
 /**
  * @Serializer\ExclusionPolicy("all")
@@ -76,7 +77,6 @@ class UserDTO
     public $password;
 
 
-
     /**
      * Confirm password (===password on register or password edit)
      * @var string
@@ -124,6 +124,16 @@ class UserDTO
      * @SWG\Property()
      */
     public $seniority = self::SENIORITY_JUNIOR;
+
+    /**
+     * User location (CHI, NYC, BOS, FRA, PAR, ORL, BUC, BRA, CLU, IAS, HAN, GUA, LYO)
+     * @var string
+     * @Serializer\Type("string")
+     * @Serializer\Expose()
+     * @Groups({"UserEdit"})
+     * @SWG\Property()
+     */
+    public $location;
 
     /**
      * The name of User
@@ -176,4 +186,15 @@ class UserDTO
      * @SWG\Property()
      */
     public $avatar;
+
+    /**
+     * @param ExecutionContext $context
+     * @Assert\Callback(groups={"UserEdit"})
+     */
+    public function isLocationValid(ExecutionContext $context): void
+    {
+        if (!in_array($this->location, User::LOCATION, true)) {
+            $context->addViolation('Please enter a valid location!', array());
+        }
+    }
 }
