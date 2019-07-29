@@ -3,7 +3,9 @@
 namespace App\Transformer;
 
 use App\DTO\ActivityDTO;
+use App\DTO\CommentDTO;
 use App\Entity\Activity;
+use App\Entity\Comment;
 use App\Entity\Technology;
 use App\Entity\ActivityType;
 use App\Entity\User;
@@ -140,5 +142,32 @@ class ActivityTransformer
         $this->addTypes($dto, $activity);
 
         return $activity;
+    }
+
+    /**
+     * @param CommentDTO $commentDTO
+     * @param Activity $activity
+     * @param User $user
+     * @return Comment
+     */
+    public function addComment(CommentDTO $commentDTO, Activity $activity, User $user): Comment
+    {
+        $entity = new Comment();
+        $entity->setActivity($activity);
+        $entity->setUser($user);
+        $entity->setComment($commentDTO->comment);
+        $entity->setReply($commentDTO->reply);
+        return $entity;
+    }
+
+    /**
+     * @param CommentDTO $commentDTO
+     * @param Comment $comment
+     * @return Comment
+     */
+    public function editComment(CommentDTO $commentDTO, Comment $comment): Comment
+    {
+        $comment->setComment($commentDTO->comment);
+        return $comment;
     }
 }
