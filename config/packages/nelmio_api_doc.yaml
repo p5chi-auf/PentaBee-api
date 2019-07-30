@@ -12,7 +12,7 @@ nelmio_api_doc:
       - { alias: UserList, type: App\Entity\User, groups: [UserList] }
       - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
       - { alias: UserForActivityCreate, type: App\Entity\User, groups: [ActivityCreate] }
-      - { alias: UserForComment, type: App\Entity\User, groups: [Comment] }
+      - { alias: CommentList, type: App\Entity\Comment, groups: [Comment] }
       - { alias: UserForActivityEdit, type: App\Entity\User, groups: [ActivityEdit] }
       - { alias: UserForActivityList, type: App\Entity\User, groups: [ActivityList] }
       - { alias: UserCreate, type: App\DTO\UserDTO, groups: [UserCreate] }

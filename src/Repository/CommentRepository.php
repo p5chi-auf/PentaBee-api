@@ -37,7 +37,7 @@ class CommentRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getCommentsFotActivity(Activity $activity): QueryBuilder
+    public function getCommentsForActivity(Activity $activity): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('comment');
         $queryBuilder

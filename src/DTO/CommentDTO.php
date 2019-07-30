@@ -34,7 +34,6 @@ class CommentDTO
     public $comment;
 
     /**
-     * @var int
      * @Serializer\Type("int")
      * @Serializer\Expose()
      * @Groups({"AddComment"})

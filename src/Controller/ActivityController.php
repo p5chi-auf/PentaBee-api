@@ -1528,6 +1528,14 @@ class ActivityController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
+        $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
+
+        if ($rights === false) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
@@ -1726,7 +1734,7 @@ class ActivityController extends AbstractController
      */
     public function getCommentsForActivity(CommentRepository $commentRepository, Activity $activity): JsonResponse
     {
-        $comments = $commentRepository->getCommentsFotActivity($activity)->getQuery()->getResult();
+        $comments = $commentRepository->getCommentsForActivity($activity)->getQuery()->getResult();
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('Comment'));
 

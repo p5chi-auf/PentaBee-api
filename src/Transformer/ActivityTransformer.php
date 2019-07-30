@@ -10,6 +10,7 @@ use App\Entity\Technology;
 use App\Entity\ActivityType;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Repository\CommentRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\ActivityTypeRepository;
 
@@ -24,13 +25,19 @@ class ActivityTransformer
      * @var ActivityTypeRepository
      */
     private $typeRepo;
+    /**
+     * @var CommentRepository
+     */
+    private $commentRepository;
 
     public function __construct(
         TechnologyRepository $techRepo,
-        ActivityTypeRepository $typeRepo
+        ActivityTypeRepository $typeRepo,
+        CommentRepository $commentRepository
     ) {
         $this->techRepo = $techRepo;
         $this->typeRepo = $typeRepo;
+        $this->commentRepository = $commentRepository;
     }
 
 
@@ -156,7 +163,10 @@ class ActivityTransformer
         $entity->setActivity($activity);
         $entity->setUser($user);
         $entity->setComment($commentDTO->comment);
-        $entity->setReply($commentDTO->reply);
+        if ($commentDTO->reply) {
+            $replyComment = $this->commentRepository->find($commentDTO->reply);
+            $entity->setReply($replyComment);
+        }
         return $entity;
     }
 

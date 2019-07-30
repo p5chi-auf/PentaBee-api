@@ -4,7 +4,10 @@ namespace App\Entity;
 
 use DateTime;
 use DateTimeInterface;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\ManyToOne;
+use Doctrine\ORM\Mapping\OneToMany;
 use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -18,6 +21,7 @@ class Comment
 {
     /**
      * @ORM\Id()
+     * @OneToMany(targetEntity="Comment", mappedBy="reply")
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
@@ -56,7 +60,7 @@ class Comment
 
     /**
      * Comment id linked to.
-     * @ORM\Column(type="integer")
+     * @ManyToOne(targetEntity="Comment", inversedBy="id")
      * @Serializer\Expose()
      * @Groups({"Comment"})
      * @SWG\Property()
@@ -82,11 +86,12 @@ class Comment
 
     public function __construct()
     {
+        $this->id = new ArrayCollection();
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
     }
 
-    public function getId(): ?int
+    public function getId(): ArrayCollection
     {
         return $this->id;
     }
@@ -96,9 +101,11 @@ class Comment
         return $this->activity;
     }
 
-    public function setActivity(?Activity $activity): void
+    public function setActivity(?Activity $activity): self
     {
         $this->activity = $activity;
+
+        return $this;
     }
 
     public function getUser(): ?User
@@ -106,9 +113,11 @@ class Comment
         return $this->user;
     }
 
-    public function setUser(?User $user): void
+    public function setUser(?User $user): self
     {
         $this->user = $user;
+
+        return $this;
     }
 
     public function getComment(): ?string
@@ -123,12 +132,12 @@ class Comment
         return $this;
     }
 
-    public function getReply(): ?int
+    public function getReply(): self
     {
         return $this->reply;
     }
 
-    public function setReply(int $reply): self
+    public function setReply(?Comment $reply): self
     {
         $this->reply = $reply;
 
