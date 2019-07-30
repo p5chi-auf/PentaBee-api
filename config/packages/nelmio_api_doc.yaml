@@ -38,13 +38,13 @@ nelmio_api_doc:
         properties:
           original:
             type: string
-            example: Images/User/Original/300.png
+            example: images/user/original/300.png
           200x200:
             type: string
-            example: Images/User/200x200/300.png
+            example: images/user/200x200/300.png
           40x40:
             type: string
-            example: Images/User/40x40/300.png
+            example: images/user/40x40/300.png
     #        schemes: [http, https]
     info:
       title: PentaBee API
