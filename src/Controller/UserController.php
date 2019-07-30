@@ -14,6 +14,7 @@ use App\Handlers\UserHandler;
 use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
+use App\Service\UserAvatarManager;
 use App\Transformer\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -575,12 +576,16 @@ class UserController extends AbstractController
      * )
      * @param User $user
      * @param ImageRepository $imageRepository
+     * @param UserAvatarManager $userAvatarManager
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function removeAvatar(User $user, ImageRepository $imageRepository): JsonResponse
-    {
+    public function removeAvatar(
+        User $user,
+        ImageRepository $imageRepository,
+        UserAvatarManager $userAvatarManager
+    ): JsonResponse {
         $authenticatedUser = $this->getUser();
         if ($authenticatedUser !== $user) {
             return new JsonResponse([
@@ -588,8 +593,11 @@ class UserController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
+        $image = $authenticatedUser->getAvatar();
 
-        $imageRepository->delete($authenticatedUser);
+        $userAvatarManager->removeAvatarFromDirectory($authenticatedUser);
+        $authenticatedUser->setAvatar(null);
+        $imageRepository->delete($image);
         return new JsonResponse(['message' => 'Avatar successfully deleted!'], Response::HTTP_OK);
     }
 }
