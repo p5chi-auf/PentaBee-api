@@ -21,8 +21,13 @@ class UserAvatarManager
      * @var array
      */
     private $avatarSize;
+    /**
+     * @var string
+     */
+    private $uploadDirectory;
 
     public function __construct(
+        string $uploadDirectory,
         string $targetDirectory,
         array $avatarSize,
         ImageCropperResizer $cropperResizer
@@ -30,6 +35,7 @@ class UserAvatarManager
         $this->cropperResizer = $cropperResizer;
         $this->targetDirectory = $targetDirectory;
         $this->avatarSize = $avatarSize;
+        $this->uploadDirectory = $uploadDirectory;
     }
 
     public function createImage(UploadedFile $uploadedFile, User $user): Image
@@ -50,11 +56,12 @@ class UserAvatarManager
 
         $croppedImage = $this->cropperResizer->centerSquareCrop($uploadedFile);
 
-        $uploadedFile->move($this->targetDirectory . 'Original/', $filename);
+        $fullPath = $this->uploadDirectory . $this->targetDirectory;
+        $uploadedFile->move($fullPath . 'original/', $filename);
 
         $pathFormat = '%s%sx%s/';
         foreach ($this->avatarSize as $size) {
-            $path = sprintf($pathFormat, $this->targetDirectory, $size['width'], $size['height']);
+            $path = sprintf($pathFormat, $fullPath, $size['width'], $size['height']);
             $image = $this->cropperResizer->resize($croppedImage, $size['width'], $size['height']);
             $image->move($path, $filename);
         }
@@ -66,27 +73,27 @@ class UserAvatarManager
         $image = $user->getAvatar();
 
         $filename = $image->getFile();
+        $fullPath = $this->uploadDirectory . $this->targetDirectory;
 
         $filesystem = new Filesystem();
         $pathFormat = '%s%sx%s/%s';
         foreach ($this->avatarSize as $size) {
-            $path = sprintf($pathFormat, $this->targetDirectory, $size['width'], $size['height'], $filename);
+            $path = sprintf($pathFormat, $fullPath, $size['width'], $size['height'], $filename);
             $filesystem->remove($path);
         }
-        $filesystem->remove($this->targetDirectory . 'Original/' . $filename);
+        $filesystem->remove($fullPath . 'original/' . $filename);
     }
 
     public function getAvatarResolutions(Image $image): array
     {
         $filename = $image->getFile();
-        $currentDirectory = substr($this->targetDirectory, strpos($this->targetDirectory, 'public'));
         $resolutions = [];
-        $resolutions['original'] = $currentDirectory . 'Original/' . $filename;
+        $resolutions['original'] = $this->targetDirectory . 'original/' . $filename;
         foreach ($this->avatarSize as $size) {
             $directoryFormat = '%sx%s';
             $directory = sprintf($directoryFormat, $size['width'], $size['height']);
             $pathFormat = '%s%s/%s';
-            $path = sprintf($pathFormat, $currentDirectory, $directory, $filename);
+            $path = sprintf($pathFormat, $this->targetDirectory, $directory, $filename);
             $resolutions[$directory] = $path;
         }
 

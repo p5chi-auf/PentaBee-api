@@ -185,6 +185,7 @@ class User implements UserInterface
      * @ORM\JoinColumn()
      * @Serializer\Expose()
      * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails"})
+     * @SWG\Property(ref="#/definitions/Image")
      */
     private $avatar;
 
