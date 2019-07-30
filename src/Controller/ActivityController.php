@@ -1736,7 +1736,9 @@ class ActivityController extends AbstractController
     {
         $comments = $commentRepository->getCommentsForActivity($activity)->getQuery()->getResult();
         /** @var SerializationContext $context */
-        $context = SerializationContext::create()->setGroups(array('Comment'));
+        $context = SerializationContext::create()
+            ->enableMaxDepthChecks()
+            ->setGroups(array('Comment'));
 
         $json = $this->serializer->serialize(
             $comments,

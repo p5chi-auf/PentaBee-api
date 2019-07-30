@@ -62,6 +62,7 @@ class Comment
      * Comment id linked to.
      * @ManyToOne(targetEntity="Comment", inversedBy="id")
      * @Serializer\Expose()
+     * @Serializer\MaxDepth(1)
      * @Groups({"Comment"})
      * @SWG\Property()
      */
