@@ -87,12 +87,11 @@ class Comment
 
     public function __construct()
     {
-        $this->id = new ArrayCollection();
         $this->createdAt = new DateTime();
         $this->updatedAt = new DateTime();
     }
 
-    public function getId(): ArrayCollection
+    public function getId(): int
     {
         return $this->id;
     }
@@ -133,7 +132,7 @@ class Comment
         return $this;
     }
 
-    public function getReply(): self
+    public function getReply(): ?self
     {
         return $this->reply;
     }
