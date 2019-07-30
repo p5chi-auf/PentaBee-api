@@ -5,7 +5,8 @@
 # https://symfony.com/doc/current/best_practices/configuration.html#application-related-configuration
 parameters:
   locale: 'en'
-  user_image_directory: '%kernel.project_dir%/public/Images/User/'
+  upload_directory: '%kernel.project_dir%/public/'
+  user_image_directory: 'images/user/'
   user_avatar_size:
     profile:
       width: 200
@@ -44,5 +45,6 @@ services:
       - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
   App\Service\UserAvatarManager:
     arguments:
+      $uploadDirectory: '%upload_directory%'
       $targetDirectory: '%user_image_directory%'
       $avatarSize: '%user_avatar_size%'

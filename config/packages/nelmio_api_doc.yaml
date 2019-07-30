@@ -30,8 +30,21 @@ nelmio_api_doc:
       - { alias: ActivityTypeForActivityDetails, type: App\Entity\ActivityType, groups: [ActivityDetails] }
       - { alias: ActivityTypeForActivityCreate, type: App\DTO\ActivityTypeDTO, groups: [ActivityCreate] }
       - { alias: ActivityTypeForActivityEdit, type: App\DTO\ActivityTypeDTO, groups: [ActivityEdit] }
-      - { alias: Image, type: App\Entity\Image }
   documentation:
+    definitions:
+      Image:
+        description: Image
+        type: object
+        properties:
+          original:
+            type: string
+            example: images/user/original/300.png
+          200x200:
+            type: string
+            example: images/user/200x200/300.png
+          40x40:
+            type: string
+            example: images/user/40x40/300.png
     #        schemes: [http, https]
     info:
       title: PentaBee API
