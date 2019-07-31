@@ -3,14 +3,11 @@
 namespace App\Transformer;
 
 use App\DTO\ActivityDTO;
-use App\DTO\CommentDTO;
 use App\Entity\Activity;
-use App\Entity\Comment;
 use App\Entity\Technology;
 use App\Entity\ActivityType;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
-use App\Repository\CommentRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\ActivityTypeRepository;
 
@@ -25,19 +22,13 @@ class ActivityTransformer
      * @var ActivityTypeRepository
      */
     private $typeRepo;
-    /**
-     * @var CommentRepository
-     */
-    private $commentRepository;
 
     public function __construct(
         TechnologyRepository $techRepo,
-        ActivityTypeRepository $typeRepo,
-        CommentRepository $commentRepository
+        ActivityTypeRepository $typeRepo
     ) {
         $this->techRepo = $techRepo;
         $this->typeRepo = $typeRepo;
-        $this->commentRepository = $commentRepository;
     }
 
 
@@ -149,35 +140,5 @@ class ActivityTransformer
         $this->addTypes($dto, $activity);
 
         return $activity;
-    }
-
-    /**
-     * @param CommentDTO $commentDTO
-     * @param Activity $activity
-     * @param User $user
-     * @return Comment
-     */
-    public function addComment(CommentDTO $commentDTO, Activity $activity, User $user): Comment
-    {
-        $entity = new Comment();
-        $entity->setActivity($activity);
-        $entity->setUser($user);
-        $entity->setComment($commentDTO->comment);
-        if ($commentDTO->reply) {
-            $replyComment = $this->commentRepository->find($commentDTO->reply);
-            $entity->setReply($replyComment);
-        }
-        return $entity;
-    }
-
-    /**
-     * @param CommentDTO $commentDTO
-     * @param Comment $comment
-     * @return Comment
-     */
-    public function editComment(CommentDTO $commentDTO, Comment $comment): Comment
-    {
-        $comment->setComment($commentDTO->comment);
-        return $comment;
     }
 }

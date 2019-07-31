@@ -39,5 +39,5 @@ class CommentDTO
      * @Groups({"AddComment"})
      * @SWG\Property()
      */
-    public $reply;
+    public $parent;
 }

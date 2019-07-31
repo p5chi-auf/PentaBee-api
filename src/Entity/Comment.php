@@ -4,10 +4,7 @@ namespace App\Entity;
 
 use DateTime;
 use DateTimeInterface;
-use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\ORM\Mapping as ORM;
-use Doctrine\ORM\Mapping\ManyToOne;
-use Doctrine\ORM\Mapping\OneToMany;
 use JMS\Serializer\Annotation\Groups;
 use JMS\Serializer\Annotation as Serializer;
 use Swagger\Annotations as SWG;
@@ -21,7 +18,6 @@ class Comment
 {
     /**
      * @ORM\Id()
-     * @OneToMany(targetEntity="Comment", mappedBy="reply")
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
@@ -41,8 +37,7 @@ class Comment
 
     /**
      * User id.
-     * @ORM\ManyToOne(targetEntity="User")
-     * @ORM\JoinColumn(onDelete="CASCADE")
+     * @ORM\ManyToOne(targetEntity="User", fetch="EAGER")
      * @Serializer\Expose()
      * @Groups({"Comment"})
      * @SWG\Property()
@@ -60,13 +55,15 @@ class Comment
 
     /**
      * Comment id linked to.
-     * @ManyToOne(targetEntity="Comment", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="id")
+     * @ORM\JoinColumn(onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\MaxDepth(1)
      * @Groups({"Comment"})
      * @SWG\Property()
      */
-    private $reply;
+    private $parent;
+
     /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
@@ -132,14 +129,14 @@ class Comment
         return $this;
     }
 
-    public function getReply(): ?self
+    public function getParent(): ?self
     {
-        return $this->reply;
+        return $this->parent;
     }
 
-    public function setReply(?Comment $reply): self
+    public function setParent(?Comment $parent): self
     {
-        $this->reply = $reply;
+        $this->parent = $parent;
 
         return $this;
     }
