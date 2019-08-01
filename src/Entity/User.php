@@ -199,6 +199,16 @@ class User implements UserInterface
      */
     private $avatar;
 
+    /**
+     * User rating in stars (1-5)
+     * @var float
+     * @ORM\Column(type="float")
+     * @Serializer\Expose()
+     * @Groups({"UserDetail"})
+     * @SWG\Property()
+     */
+    private $stars;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
@@ -397,5 +407,21 @@ class User implements UserInterface
     public function setAvatar(?Image $avatar): void
     {
         $this->avatar = $avatar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getStars(): float
+    {
+        return $this->stars;
+    }
+
+    /**
+     * @param float $stars
+     */
+    public function setStars(float $stars): void
+    {
+        $this->stars = $stars;
     }
 }
