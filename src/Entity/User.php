@@ -65,7 +65,8 @@ class User implements UserInterface
      *         "ActivityDetails",
      *         "UserList",
      *         "ActivityList",
-     *         "Comment"
+     *         "Comment",
+     *         "FeedbackList"
      *     }
      *)
      * @SWG\Property()
@@ -76,7 +77,7 @@ class User implements UserInterface
      * The username of User
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "FeedbackList"})
      * @SWG\Property()
      */
     private $username;
@@ -194,7 +195,7 @@ class User implements UserInterface
      * @ORM\OneToOne(targetEntity="Image")
      * @ORM\JoinColumn()
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails", "Comment"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails", "Comment", "FeedbackList"})
      * @SWG\Property(ref="#/definitions/UserAvatar")
      */
     private $avatar;
@@ -204,7 +205,7 @@ class User implements UserInterface
      * @var float
      * @ORM\Column(type="float")
      * @Serializer\Expose()
-     * @Groups({"UserDetail"})
+     * @Groups({"UserDetail", "UserList"})
      * @SWG\Property()
      */
     private $stars;

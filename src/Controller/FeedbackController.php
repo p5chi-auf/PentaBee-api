@@ -4,9 +4,14 @@ namespace App\Controller;
 
 use App\DTO\FeedbackDTO;
 use App\Entity\Activity;
+use App\Entity\Feedback;
 use App\Entity\User;
+use App\Filters\FeedbackPagination;
+use App\Filters\FeedbackSort;
+use App\Handlers\FeedbackHandler;
 use App\Repository\FeedbackRepository;
 use App\Repository\UserRepository;
+use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
 use App\Transformer\FeedbackTransformer;
 use Doctrine\ORM\OptimisticLockException;
@@ -51,19 +56,31 @@ class FeedbackController extends AbstractController
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var AccessRightsPolicy
+     */
+    private $accessRightsPolicy;
+    /**
+     * @var FeedbackHandler
+     */
+    private $feedbackHandler;
 
     public function __construct(
         SerializerInterface $serializer,
         ValidatorInterface $validator,
         FeedbackTransformer $feedbackTransformer,
         FeedbackRepository $feedbackRepository,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        AccessRightsPolicy $accessRightsPolicy,
+        FeedbackHandler $feedbackHandler
     ) {
         $this->serializer = $serializer;
         $this->validator = $validator;
         $this->feedbackTransformer = $feedbackTransformer;
         $this->feedbackRepository = $feedbackRepository;
         $this->userRepository = $userRepository;
+        $this->accessRightsPolicy = $accessRightsPolicy;
+        $this->feedbackHandler = $feedbackHandler;
     }
 
     /**
@@ -108,6 +125,27 @@ class FeedbackController extends AbstractController
      *     )
      * )
      * @SWG\Response(
+     *     response=412,
+     *     description="Precondition failed.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=412),
+     *     @SWG\Property(property="message",
+     *     type="string", example="You were not involved or the job is not yet finished!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad Request"
+     * )
+     * @SWG\Response(
      *     response="200",
      *     description="Successfull operation!",
      *     @SWG\Schema(
@@ -130,6 +168,15 @@ class FeedbackController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
+        $rights = $this->accessRightsPolicy->canGiveFeedback($activity, $authenticatedUser, $userTo);
+
+        if ($rights === false) {
+            return new JsonResponse([
+                'code' => Response::HTTP_PRECONDITION_FAILED,
+                'message' => 'You were not involved or the job is not yet finished!'
+            ], Response::HTTP_PRECONDITION_FAILED);
+        }
+
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
@@ -142,7 +189,7 @@ class FeedbackController extends AbstractController
             $context
         );
 
-        $errors = $this->validator->validate($feedbackDTO, null, ['ActivityCreate']);
+        $errors = $this->validator->validate($feedbackDTO, null, ['AddFeedback']);
 
         if (count($errors) > 0) {
             return new JsonResponse(
@@ -162,12 +209,230 @@ class FeedbackController extends AbstractController
             $userTo->setStars($newFeedback->getStars());
         } else {
             $countFeedback = $this->feedbackRepository->countFeedback($userTo)->getQuery()->getSingleScalarResult();
-            $newStars = ($userTo->getStars() + $newFeedback->getStars()) / $countFeedback;
+            $newStars = (($userTo->getStars() * ($countFeedback - 1)) + $newFeedback->getStars()) / $countFeedback;
             $userTo->setStars($newStars);
         }
         $this->userRepository->save($userTo);
 
-
         return new JsonResponse(['message' => 'Feedback submitted successfully!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Edit Feedback.
+     * @Rest\Post("/{id}/edit", requirements={"id"="\d+"})
+     * @SWG\Post(
+     *     tags={"Feedback"},
+     *     summary="Edit Feedback.",
+     *     description="Edit Feedback.",
+     *     operationId="editFeedback",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Feedback to edit",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * ),
+     *     @SWG\Parameter(
+     *     description="Json body for the request",
+     *     name="requestBody",
+     *     required=true,
+     *     in="body",
+     *     @Model(type=FeedbackDTO::class, groups={"EditFeedback"}),
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Feedback successfully edited!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @param Feedback $feedback
+     * @param Request $request
+     * @param ValidationErrorSerializer $validationErrorSerializer
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function editFeedback(
+        Feedback $feedback,
+        Request $request,
+        ValidationErrorSerializer $validationErrorSerializer
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+
+        if ($feedback->getUserFrom() !== $authenticatedUser) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied!'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        $data = $request->getContent();
+
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create()->setGroups(array('EditFeedback'));
+
+        $feedbackDTO = $this->serializer->deserialize(
+            $data,
+            FeedbackDTO::class,
+            'json',
+            $context
+        );
+
+        $errors = $this->validator->validate($feedbackDTO, null, ['EditFeedback']);
+
+        if (count($errors) > 0) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $oldFeedbackStars = $feedback->getStars();
+
+        $updatedFeedback = $this->feedbackTransformer->editFeedback($feedbackDTO, $feedback);
+        $this->feedbackRepository->save($updatedFeedback);
+
+        $userTo = $feedback->getUserTo();
+        $countFeedback = $this->feedbackRepository->countFeedback($userTo)->getQuery()->getSingleScalarResult();
+        $newStars = (($userTo->getStars() * $countFeedback) - $oldFeedbackStars + $updatedFeedback->getStars())
+            / $countFeedback;
+        $userTo->setStars($newStars);
+        $this->userRepository->save($userTo);
+
+        return new JsonResponse(['message' => 'Feedback successfully edited!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Get user Feedback
+     * @Rest\Get("/{id}", requirements={"id"="\d+"})
+     * @param User $user
+     * @param Request $request
+     * @param FeedbackSort $feedbackSort
+     * @param FeedbackPagination $feedbackPagination
+     * @return JsonResponse
+     * @SWG\Get(
+     *     tags={"Feedback"},
+     *     summary="Get user Feedback",
+     *     description="Get user Feedback",
+     *     operationId="getFeedback",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to see Feedback",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of the current page (1 by default)",
+     *     in="query",
+     *     name="pagination[page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by default)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by stars (asc or desc)",
+     *     in="query",
+     *     name="sortBy[stars]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by creation date (asc or desc)",
+     *     in="query",
+     *     name="sortBy[createdAt]",
+     *     required=false,
+     *     type="string",
+     *     ),
+     * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="currentPage", type="integer"),
+     *     @SWG\Property(property="numResults", type="integer"),
+     *     @SWG\Property(property="perPage", type="integer"),
+     *     @SWG\Property(property="numPages", type="integer"),
+     *     @SWG\Property(property="results", type="array", @Model(type=Feedback::class, groups={"FeedbackList"}),
+     *     )
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     */
+    public function getUserFeedback(
+        User $user,
+        Request $request,
+        FeedbackSort $feedbackSort,
+        FeedbackPagination $feedbackPagination
+    ): JsonResponse {
+
+        $sorting = $request->query->get('sortBy');
+        $feedbackSort->setSortingFields((array)$sorting);
+
+        $pagination = $request->query->get('pagination');
+        $feedbackPagination->setPaginationFields((array)$pagination);
+
+        return new JsonResponse(
+            json_encode($this->feedbackHandler->getUserFeedbackPaginated($user, $feedbackSort, $feedbackPagination)),
+            200,
+            [],
+            true
+        );
     }
 }

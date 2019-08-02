@@ -28,7 +28,7 @@ class Activity
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails"})
+     * @Groups({"ActivityList", "ActivityDetails", "FeedbackList"})
      * @SWG\Property()
      */
     protected $id;
@@ -37,7 +37,7 @@ class Activity
      * Activity name
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit"})
+     * @Groups({"ActivityList", "ActivityDetails", "ActivityCreate", "ActivityEdit", "FeedbackList"})
      * @SWG\Property()
      */
     private $name;

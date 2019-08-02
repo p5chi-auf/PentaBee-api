@@ -28,7 +28,7 @@ class FeedbackDTO
      *     groups={"AddFeedback"}
      * )
      * @Serializer\Expose()
-     * @Groups({"AddFeedback"})
+     * @Groups({"AddFeedback", "EditFeedback"})
      */
     public $stars;
 
@@ -36,7 +36,7 @@ class FeedbackDTO
      * @var string
      * @Serializer\Type("string")
      * @Serializer\Expose()
-     * @Groups({"AddFeedback"})
+     * @Groups({"AddFeedback", "EditFeedback"})
      */
     public $comment;
 

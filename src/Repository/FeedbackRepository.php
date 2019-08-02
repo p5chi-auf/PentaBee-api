@@ -4,9 +4,12 @@ namespace App\Repository;
 
 use App\Entity\Feedback;
 use App\Entity\User;
+use App\Filters\FeedbackPagination;
+use App\Filters\FeedbackSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -44,5 +47,39 @@ class FeedbackRepository extends ServiceEntityRepository
             ->setParameter('user', $user);
 
         return $queryBuilder;
+    }
+
+    public function getUserFeedback(User $user, FeedbackSort $feedbackSort): QueryBuilder
+    {
+        $queryBuilder = $this->createQueryBuilder('feedback');
+        $queryBuilder->select('feedback')
+            ->where('feedback.userTo = :user')
+            ->setParameter('user', $user);
+        if ($feedbackSort->createdAt !== null) {
+            $queryBuilder->orderBy('feedback.createdAt', $feedbackSort->createdAt);
+        }
+        if ($feedbackSort->stars !== null) {
+            $queryBuilder->orderBy('feedback.stars', $feedbackSort->stars);
+        }
+
+        return $queryBuilder;
+    }
+
+    public function getUserFeedbackPaginated(
+        User $user,
+        FeedbackSort $feedbackSort,
+        FeedbackPagination $feedbackPagination
+    ): Query {
+        $queryBuilder = $this->getUserFeedback($user, $feedbackSort);
+
+        $currentPage = $feedbackPagination->currentPage < 1 ? 1 : $feedbackPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $feedbackPagination->pageSize;
+
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($feedbackPagination->pageSize)
+            ->getQuery();
+
+        return $query;
     }
 }
