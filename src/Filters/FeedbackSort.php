@@ -4,7 +4,7 @@ namespace App\Filters;
 
 use DateTime;
 
-class FeedbackSort
+class FeedbackSort extends BaseSorting
 {
     /**
      * @var DateTime
@@ -15,12 +15,6 @@ class FeedbackSort
      * @var integer
      */
     public $stars;
-
-    private function isSortingParamValid($sortingParameter): bool
-    {
-        strtolower($sortingParameter);
-        return $sortingParameter === 'desc' || $sortingParameter === 'asc';
-    }
 
     public function setSortingFields(array $sorting): self
     {

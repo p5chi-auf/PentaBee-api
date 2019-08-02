@@ -7,6 +7,7 @@ use App\Entity\User;
 use App\Filters\FeedbackPagination;
 use App\Filters\FeedbackSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
@@ -39,14 +40,34 @@ class FeedbackRepository extends ServiceEntityRepository
         $entityManager->flush();
     }
 
-    public function countFeedback(User $user): QueryBuilder
+    /**
+     * @param User $user
+     * @return int
+     * @throws NonUniqueResultException
+     */
+    public function countFeedback(User $user): int
     {
         $queryBuilder = $this->createQueryBuilder('feedback');
         $queryBuilder->select('COUNT (feedback)')
             ->where('feedback.userTo = :user')
             ->setParameter('user', $user);
 
-        return $queryBuilder;
+        return $queryBuilder->getQuery()->getSingleScalarResult();
+    }
+
+    /**
+     * @param User $user
+     * @return int
+     * @throws NonUniqueResultException
+     */
+    public function getStarsSum(User $user): int
+    {
+        $queryBuilder = $this->createQueryBuilder('feedback');
+        $queryBuilder->select('SUM (feedback.stars)')
+            ->where('feedback.userTo = :user')
+            ->setParameter('user', $user);
+
+        return $queryBuilder->getQuery()->getSingleScalarResult();
     }
 
     public function getUserFeedback(User $user, FeedbackSort $feedbackSort): QueryBuilder

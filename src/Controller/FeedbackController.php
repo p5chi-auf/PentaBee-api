@@ -109,7 +109,7 @@ class FeedbackController extends AbstractController
      *     type="integer",
      * ),
      *     @SWG\Parameter(
-     *     description="Json body for the request",
+     *     description="Comment an stars for feedback",
      *     name="requestBody",
      *     required=true,
      *     in="body",
@@ -205,13 +205,8 @@ class FeedbackController extends AbstractController
         $newFeedback = $this->feedbackTransformer->addFeedback($feedbackDTO, $authenticatedUser, $activity, $userTo);
         $this->feedbackRepository->save($newFeedback);
 
-        if ($userTo->getStars() === 0.0) {
-            $userTo->setStars($newFeedback->getStars());
-        } else {
-            $countFeedback = $this->feedbackRepository->countFeedback($userTo)->getQuery()->getSingleScalarResult();
-            $newStars = (($userTo->getStars() * ($countFeedback - 1)) + $newFeedback->getStars()) / $countFeedback;
-            $userTo->setStars($newStars);
-        }
+        $userTo->setStars($this->feedbackRepository->getStarsSum($userTo)
+            / $this->feedbackRepository->countFeedback($userTo));
         $this->userRepository->save($userTo);
 
         return new JsonResponse(['message' => 'Feedback submitted successfully!'], Response::HTTP_OK);
@@ -234,7 +229,7 @@ class FeedbackController extends AbstractController
      *     type="integer",
      * ),
      *     @SWG\Parameter(
-     *     description="Json body for the request",
+     *     description="Comment an stars for feedback",
      *     name="requestBody",
      *     required=true,
      *     in="body",
@@ -321,16 +316,12 @@ class FeedbackController extends AbstractController
             );
         }
 
-        $oldFeedbackStars = $feedback->getStars();
-
         $updatedFeedback = $this->feedbackTransformer->editFeedback($feedbackDTO, $feedback);
         $this->feedbackRepository->save($updatedFeedback);
 
         $userTo = $feedback->getUserTo();
-        $countFeedback = $this->feedbackRepository->countFeedback($userTo)->getQuery()->getSingleScalarResult();
-        $newStars = (($userTo->getStars() * $countFeedback) - $oldFeedbackStars + $updatedFeedback->getStars())
-            / $countFeedback;
-        $userTo->setStars($newStars);
+        $userTo->setStars($this->feedbackRepository->getStarsSum($userTo)
+            / $this->feedbackRepository->countFeedback($userTo));
         $this->userRepository->save($userTo);
 
         return new JsonResponse(['message' => 'Feedback successfully edited!'], Response::HTTP_OK);

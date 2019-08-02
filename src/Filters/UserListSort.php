@@ -2,18 +2,12 @@
 
 namespace App\Filters;
 
-class UserListSort
+class UserListSort extends BaseSorting
 {
     /**
      * @var int
      */
     public $seniority = 'desc';
-
-    private function isSortingParamValid($sortingParameter): bool
-    {
-        strtolower($sortingParameter);
-        return $sortingParameter === 'desc' || $sortingParameter === 'asc';
-    }
 
     public function setSortingFields(array $sorting): self
     {

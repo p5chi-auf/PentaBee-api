@@ -129,7 +129,7 @@ class User implements UserInterface
      * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails", "Comment"})
+     * @Groups({"UserDetail", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
      * @SWG\Property()
      */
     private $name;
@@ -138,7 +138,7 @@ class User implements UserInterface
      * The surname of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails", "Comment"})
+     * @Groups({"UserDetail", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
      * @SWG\Property()
      */
     private $surname;
