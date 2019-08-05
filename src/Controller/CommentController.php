@@ -172,12 +172,12 @@ class CommentController extends AbstractController
         } catch (EntityNotFound $exception) {
             return new JsonResponse(
                 [
-                    'code' => Response::HTTP_NOT_FOUND,
+                    'code' => Response::HTTP_BAD_REQUEST,
                     'message' => $exception->getMessage(),
                     'entity' => $exception->getEntity(),
                     'id' => $exception->getId()
                 ],
-                Response::HTTP_NOT_FOUND
+                Response::HTTP_BAD_REQUEST
             );
         }
         $commentRepository->save($addComment);

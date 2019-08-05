@@ -49,11 +49,17 @@ class CommentRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
+    /**
+     * @param User $user
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
     public function anonymizeUserComments(User $user): void
     {
         $userComments = $this->findBy(array('user' => $user));
         foreach ($userComments as $userComment) {
             $userComment->setUser(null);
+            $this->save($userComment);
         }
     }
 }
