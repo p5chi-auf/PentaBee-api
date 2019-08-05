@@ -90,6 +90,7 @@ class UserTransformer
         $entity->setSurname($dto->surname);
         $entity->setUsername($dto->username);
         $entity->setEmail($dto->email);
+        $entity->setStars(0);
         return $entity;
     }
 

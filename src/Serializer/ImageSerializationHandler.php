@@ -3,7 +3,8 @@
 namespace App\Serializer;
 
 use App\Entity\Image;
-use App\Service\ImageManager;
+use App\Service\ActivityCoverManager;
+use App\Service\UserAvatarManager;
 use JMS\Serializer\Context;
 use JMS\Serializer\GraphNavigator;
 use JMS\Serializer\Handler\SubscribingHandlerInterface;
@@ -12,13 +13,20 @@ use JMS\Serializer\JsonSerializationVisitor;
 class ImageSerializationHandler implements SubscribingHandlerInterface
 {
     /**
-     * @var ImageManager
+     * @var UserAvatarManager
      */
-    private $imageManager;
+    private $userAvatarManager;
+    /**
+     * @var ActivityCoverManager
+     */
+    private $activityCoverManager;
 
-    public function __construct(ImageManager $imageManager)
-    {
-        $this->imageManager = $imageManager;
+    public function __construct(
+        UserAvatarManager $userAvatarManager,
+        ActivityCoverManager $activityCoverManager
+    ) {
+        $this->userAvatarManager = $userAvatarManager;
+        $this->activityCoverManager = $activityCoverManager;
     }
 
     /**
@@ -42,6 +50,13 @@ class ImageSerializationHandler implements SubscribingHandlerInterface
         array $type,
         Context $context
     ): array {
-        return $this->imageManager->getAvailableResolutions($image);
+        if ($image->getLinkedTo() === Image::IMAGE_TYPE_USER) {
+            return $this->userAvatarManager->getAvailableResolutions($image);
+        }
+
+        if ($image->getLinkedTo() === Image::IMAGE_TYPE_ACTIVITY) {
+            return $this->activityCoverManager->getAvailableResolutions($image);
+        }
+        return array();
     }
 }
