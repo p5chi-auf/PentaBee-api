@@ -7,6 +7,7 @@ use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
+use App\Exceptions\NotValidFileType;
 use App\Filters\ActivityListFilter;
 use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
@@ -15,8 +16,10 @@ use App\Filters\ApplicantsListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
 use App\Repository\ActivityUserRepository;
+use App\Repository\ImageRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
+use App\Service\ActivityCoverManager;
 use App\Transformer\ActivityTransformer;
 use DateTime;
 use Doctrine\ORM\NonUniqueResultException;
@@ -531,6 +534,7 @@ class ActivityController extends AbstractController
      * @return Response
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws NotValidFileType
      */
     public function editAction(
         Activity $activity,
@@ -1445,5 +1449,83 @@ class ActivityController extends AbstractController
         $accept->setType(ActivityUser::TYPE_DECLINED);
         $activityUserRepo->save($accept);
         return new JsonResponse(['message' => 'You declined the invitation!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Remove Activity cover.
+     * @Rest\Delete("/{id}/remove_cover")
+     * * @SWG\Delete(
+     *     tags={"Activity"},
+     *     summary="Remove Activity cover.",
+     *     description="Remove Activity cover.",
+     *     operationId="removeCover",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity to edit",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * ),
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Cover successfully deleted!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ImageRepository $imageRepository
+     * @param ActivityCoverManager $activityCoverManager
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function removeCover(
+        Activity $activity,
+        ImageRepository $imageRepository,
+        ActivityCoverManager $activityCoverManager
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+
+        if ($authenticatedUser !== $activity->getOwner()) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
+        $image = $activity->getCover();
+        if ($image) {
+            $activityCoverManager->removeImageFromDirectory($image->getFile());
+            $activity->setCover(null);
+            $imageRepository->delete($image);
+        }
+        return new JsonResponse(['message' => 'Cover successfully deleted!'], Response::HTTP_OK);
     }
 }

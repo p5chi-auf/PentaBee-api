@@ -5,6 +5,7 @@ namespace App\Transformer;
 use App\Base64EncodedFileTransformers\Base64EncodedFile;
 use App\Base64EncodedFileTransformers\UploadedBase64EncodedFile;
 use App\DTO\UserDTO;
+use App\Entity\Image;
 use App\Entity\Technology;
 use App\Entity\User;
 use App\Exceptions\DuplicateUsernameEmail;
@@ -14,6 +15,7 @@ use App\Exceptions\NotValidOldPassword;
 use App\Repository\ImageRepository;
 use App\Repository\TechnologyRepository;
 use App\Repository\UserRepository;
+use App\Service\ImageManager;
 use App\Service\UserAvatarManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -38,7 +40,7 @@ class UserTransformer
      */
     private $imageRepository;
     /**
-     * @var UserAvatarManager
+     * @var ImageManager
      */
     private $userAvatarManager;
 
@@ -133,21 +135,20 @@ class UserTransformer
         if (!empty($dto->avatar)) {
             $userAvatar = new UploadedBase64EncodedFile(new Base64EncodedFile($dto->avatar));
 
-            $fileType = $userAvatar->guessExtension();
-            if ($fileType !== 'jpg' && $fileType !== 'jpeg' && $fileType !== 'png') {
-                $notValidFileType = new NotValidFileType(
-                    'File type must be jpg, jpeg or png!',
-                    $fileType
-                );
-                throw $notValidFileType;
-            }
+            $this->userAvatarManager->checkFileType($userAvatar);
 
-            $image = $this->userAvatarManager->createImage($userAvatar, $user);
+            $image = $this->userAvatarManager->createImage(
+                $user->getId() . '.' . $userAvatar->guessExtension(),
+                $user->getUsername(),
+                Image::IMAGE_TYPE_USER
+            );
 
-            if ($user->getAvatar()) {
-                $this->userAvatarManager->removeAvatarFromDirectory($user);
+            $currentImage = $user->getAvatar();
+            if ($currentImage) {
+                $filename = $currentImage->getFile();
+                $this->userAvatarManager->removeImageFromDirectory($filename);
 
-                $currentImage = $user->getAvatar();
+
                 $user->setAvatar(null);
                 $this->imageRepository->delete($currentImage);
             }
@@ -156,7 +157,10 @@ class UserTransformer
             $user->setAvatar($image);
             $this->userRepository->save($user);
 
-            $this->userAvatarManager->saveAvatarInDirectory($userAvatar, $user);
+            $this->userAvatarManager->saveImageInDirectory(
+                $userAvatar,
+                $user->getId() . '.' . $userAvatar->guessExtension()
+            );
         }
 
         return $user;

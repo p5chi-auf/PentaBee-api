@@ -143,6 +143,16 @@ class Activity
      */
     private $activityUsers;
 
+    /**
+     * @var Image
+     * @ORM\OneToOne(targetEntity="Image")
+     * @ORM\JoinColumn()
+     * @Serializer\Expose()
+     * @Groups({"ActivityList", "ActivityDetails"})
+     * @SWG\Property(ref="#/definitions/ActivityCover")
+     */
+    private $cover;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
@@ -329,5 +339,21 @@ class Activity
     public function setPublic(bool $public): void
     {
         $this->public = $public;
+    }
+
+    /**
+     * @return Image
+     */
+    public function getCover(): ?Image
+    {
+        return $this->cover;
+    }
+
+    /**
+     * @param Image $cover
+     */
+    public function setCover(?Image $cover): void
+    {
+        $this->cover = $cover;
     }
 }

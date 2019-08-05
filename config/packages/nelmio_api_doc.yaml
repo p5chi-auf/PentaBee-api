@@ -35,8 +35,8 @@ nelmio_api_doc:
       - { alias: ActivityTypeForActivityEdit, type: App\DTO\ActivityTypeDTO, groups: [ActivityEdit] }
   documentation:
     definitions:
-      Image:
-        description: Image
+      UserAvatar:
+        description: UserAvatar
         type: object
         properties:
           original:
@@ -48,6 +48,19 @@ nelmio_api_doc:
           40x40:
             type: string
             example: images/user/40x40/300.png
+      ActivityCover:
+        description: ActivityCover
+        type: object
+        properties:
+          original:
+            type: string
+            example: images/activity/original/300.png
+          150x150:
+            type: string
+            example: images/activity/150x150/300.png
+          40x40:
+            type: string
+            example: images/activity/40x40/300.png
     #        schemes: [http, https]
     info:
       title: PentaBee API
