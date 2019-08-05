@@ -324,7 +324,7 @@ class UserController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
-        $this->commentTransformer->clearUserComments($authenticatedUser);
+
         $userRepository->delete($user);
 
         return new JsonResponse(['message' => 'The user was successfully deleted!'], Response::HTTP_OK);

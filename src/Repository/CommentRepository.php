@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Activity;
 use App\Entity\Comment;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -46,5 +47,13 @@ class CommentRepository extends ServiceEntityRepository
             ->setParameter('activity', $activity);
 
         return $queryBuilder;
+    }
+
+    public function anonymizeUserComments(User $user): void
+    {
+        $userComments = $this->findBy(array('user' => $user));
+        foreach ($userComments as $userComment) {
+            $userComment->setUser(null);
+        }
     }
 }

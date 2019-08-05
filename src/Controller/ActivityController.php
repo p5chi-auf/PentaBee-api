@@ -3,10 +3,8 @@
 namespace App\Controller;
 
 use App\DTO\ActivityDTO;
-use App\DTO\CommentDTO;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
-use App\Entity\Comment;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Filters\ActivityListFilter;
@@ -17,7 +15,6 @@ use App\Filters\ApplicantsListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
 use App\Repository\ActivityUserRepository;
-use App\Repository\CommentRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
 use App\Transformer\ActivityTransformer;

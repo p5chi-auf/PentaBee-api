@@ -55,7 +55,7 @@ class Comment
 
     /**
      * Comment id linked to.
-     * @ORM\ManyToOne(targetEntity="Comment", inversedBy="id")
+     * @ORM\ManyToOne(targetEntity="Comment")
      * @ORM\JoinColumn(onDelete="CASCADE")
      * @Serializer\Expose()
      * @Serializer\MaxDepth(1)

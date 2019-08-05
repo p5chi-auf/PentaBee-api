@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\DTO\CommentDTO;
 use App\Entity\Activity;
 use App\Entity\Comment;
+use App\Exceptions\EntityNotFound;
 use App\Repository\CommentRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
@@ -166,14 +167,27 @@ class CommentController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
-        $addComment = $this->transformer->addComment($commentDTO, $activity, $authenticatedUser);
+        try {
+            $addComment = $this->transformer->addComment($commentDTO, $activity, $authenticatedUser);
+        } catch (EntityNotFound $exception) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_NOT_FOUND,
+                    'message' => $exception->getMessage(),
+                    'entity' => $exception->getEntity(),
+                    'id' => $exception->getId()
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
         $commentRepository->save($addComment);
         return new JsonResponse(['message' => 'Your comment has successfully added!'], Response::HTTP_OK);
     }
 
     /**
      * Edit comment.
-     * @Rest\Post("/activities/{activityId}/edit_comment/{commentId}", requirements={"id"="\d+"})
+     * @Rest\Post("/activities/{activityId}/edit_comment/{commentId}",
+     *     requirements={"activityId"="\d+", "commentId"="\d+"})
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @ParamConverter("comment", options={"mapping": {"commentId" : "id"}})
      * @SWG\Post(

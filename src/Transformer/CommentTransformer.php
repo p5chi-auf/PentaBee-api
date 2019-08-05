@@ -6,6 +6,7 @@ use App\DTO\CommentDTO;
 use App\Entity\Activity;
 use App\Entity\Comment;
 use App\Entity\User;
+use App\Exceptions\EntityNotFound;
 use App\Repository\CommentRepository;
 
 class CommentTransformer
@@ -25,6 +26,7 @@ class CommentTransformer
      * @param Activity $activity
      * @param User $user
      * @return Comment
+     * @throws EntityNotFound
      */
     public function addComment(CommentDTO $commentDTO, Activity $activity, User $user): Comment
     {
@@ -34,6 +36,9 @@ class CommentTransformer
         $entity->setComment($commentDTO->comment);
         if ($commentDTO->parent) {
             $parentComment = $this->commentRepository->find($commentDTO->parent);
+            if (!$parentComment) {
+                throw new EntityNotFound(Comment::class, $commentDTO->parent, 'Comment not found');
+            }
             $entity->setParent($parentComment);
         }
         return $entity;
@@ -48,13 +53,5 @@ class CommentTransformer
     {
         $comment->setComment($commentDTO->comment);
         return $comment;
-    }
-
-    public function clearUserComments(User $user): void
-    {
-        $userComments = $this->commentRepository->findBy(array('user' => $user));
-        foreach ($userComments as $userComment) {
-            $userComment->setUser(null);
-        }
     }
 }
