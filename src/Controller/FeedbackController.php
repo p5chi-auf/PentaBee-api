@@ -205,8 +205,7 @@ class FeedbackController extends AbstractController
         $newFeedback = $this->feedbackTransformer->addFeedback($feedbackDTO, $authenticatedUser, $activity, $userTo);
         $this->feedbackRepository->save($newFeedback);
 
-        $userTo->setStars($this->feedbackRepository->getStarsSum($userTo)
-            / $this->feedbackRepository->countFeedback($userTo));
+        $userTo->setStars($this->feedbackRepository->getAvgStars($userTo));
         $this->userRepository->save($userTo);
 
         return new JsonResponse(['message' => 'Feedback submitted successfully!'], Response::HTTP_OK);
@@ -320,9 +319,7 @@ class FeedbackController extends AbstractController
         $this->feedbackRepository->save($updatedFeedback);
 
         $userTo = $feedback->getUserTo();
-        $userTo->setStars($this->feedbackRepository->getStarsSum($userTo)
-            / $this->feedbackRepository->countFeedback($userTo));
-        $this->userRepository->save($userTo);
+        $userTo->setStars($this->feedbackRepository->getAvgStars($userTo));
 
         return new JsonResponse(['message' => 'Feedback successfully edited!'], Response::HTTP_OK);
     }

@@ -42,28 +42,13 @@ class FeedbackRepository extends ServiceEntityRepository
 
     /**
      * @param User $user
-     * @return int
+     * @return float
      * @throws NonUniqueResultException
      */
-    public function countFeedback(User $user): int
+    public function getAvgStars(User $user): float
     {
         $queryBuilder = $this->createQueryBuilder('feedback');
-        $queryBuilder->select('COUNT (feedback)')
-            ->where('feedback.userTo = :user')
-            ->setParameter('user', $user);
-
-        return $queryBuilder->getQuery()->getSingleScalarResult();
-    }
-
-    /**
-     * @param User $user
-     * @return int
-     * @throws NonUniqueResultException
-     */
-    public function getStarsSum(User $user): int
-    {
-        $queryBuilder = $this->createQueryBuilder('feedback');
-        $queryBuilder->select('SUM (feedback.stars)')
+        $queryBuilder->select('SUM (feedback.stars) / COUNT (feedback)')
             ->where('feedback.userTo = :user')
             ->setParameter('user', $user);
 
