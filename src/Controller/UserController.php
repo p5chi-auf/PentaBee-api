@@ -15,6 +15,7 @@ use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
 use App\Service\UserAvatarManager;
+use App\Transformer\CommentTransformer;
 use App\Transformer\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -54,17 +55,23 @@ class UserController extends AbstractController
      * @var UserHandler
      */
     private $userHandler;
+    /**
+     * @var CommentTransformer
+     */
+    private $commentTransformer;
 
     public function __construct(
         SerializerInterface $serializer,
         UserTransformer $transformer,
         ValidatorInterface $validator,
-        UserHandler $userHandler
+        UserHandler $userHandler,
+        CommentTransformer $commentTransformer
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
         $this->validator = $validator;
         $this->userHandler = $userHandler;
+        $this->commentTransformer = $commentTransformer;
     }
 
     /**
@@ -317,6 +324,7 @@ class UserController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
+
         $userRepository->delete($user);
 
         return new JsonResponse(['message' => 'The user was successfully deleted!'], Response::HTTP_OK);

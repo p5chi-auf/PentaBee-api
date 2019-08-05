@@ -57,7 +57,17 @@ class User implements UserInterface
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "ActivityCreate", "ActivityEdit", "ActivityDetails", "UserList", "ActivityList"})
+     * @Groups(
+     *     {
+     *         "UserDetail",
+     *         "ActivityCreate",
+     *         "ActivityEdit",
+     *         "ActivityDetails",
+     *         "UserList",
+     *         "ActivityList",
+     *         "Comment"
+     *     }
+     *)
      * @SWG\Property()
      */
     protected $id;
@@ -118,7 +128,7 @@ class User implements UserInterface
      * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails"})
+     * @Groups({"UserDetail", "UserList", "ActivityDetails", "Comment"})
      * @SWG\Property()
      */
     private $name;
@@ -127,7 +137,7 @@ class User implements UserInterface
      * The surname of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails"})
+     * @Groups({"UserDetail", "UserList", "ActivityDetails", "Comment"})
      * @SWG\Property()
      */
     private $surname;
@@ -184,7 +194,7 @@ class User implements UserInterface
      * @ORM\OneToOne(targetEntity="Image")
      * @ORM\JoinColumn()
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails", "Comment"})
      * @SWG\Property(ref="#/definitions/Image")
      */
     private $avatar;

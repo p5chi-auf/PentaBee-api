@@ -24,9 +24,17 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class UserRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
-    {
+    /**
+     * @var CommentRepository
+     */
+    private $commentRepository;
+
+    public function __construct(
+        RegistryInterface $registry,
+        CommentRepository $commentRepository
+    ) {
         parent::__construct($registry, User::class);
+        $this->commentRepository = $commentRepository;
     }
 
     /**
@@ -51,6 +59,7 @@ class UserRepository extends ServiceEntityRepository
      */
     public function delete(User $user): void
     {
+        $this->commentRepository->anonymizeUserComments($user);
         $em = $this->getEntityManager();
         $em->remove($user);
         $em->flush();
