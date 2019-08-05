@@ -65,7 +65,8 @@ class User implements UserInterface
      *         "ActivityDetails",
      *         "UserList",
      *         "ActivityList",
-     *         "Comment"
+     *         "Comment",
+     *         "FeedbackList"
      *     }
      *)
      * @SWG\Property()
@@ -76,7 +77,7 @@ class User implements UserInterface
      * The username of User
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "FeedbackList"})
      * @SWG\Property()
      */
     private $username;
@@ -128,7 +129,7 @@ class User implements UserInterface
      * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails", "Comment"})
+     * @Groups({"UserDetail", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
      * @SWG\Property()
      */
     private $name;
@@ -137,7 +138,7 @@ class User implements UserInterface
      * The surname of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails", "Comment"})
+     * @Groups({"UserDetail", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
      * @SWG\Property()
      */
     private $surname;
@@ -194,10 +195,20 @@ class User implements UserInterface
      * @ORM\OneToOne(targetEntity="Image")
      * @ORM\JoinColumn()
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails", "Comment"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails", "Comment", "FeedbackList"})
      * @SWG\Property(ref="#/definitions/UserAvatar")
      */
     private $avatar;
+
+    /**
+     * User rating in stars (1-5)
+     * @var float
+     * @ORM\Column(type="float")
+     * @Serializer\Expose()
+     * @Groups({"UserDetail", "UserList"})
+     * @SWG\Property()
+     */
+    private $stars;
 
     public function __construct()
     {
@@ -397,5 +408,21 @@ class User implements UserInterface
     public function setAvatar(?Image $avatar): void
     {
         $this->avatar = $avatar;
+    }
+
+    /**
+     * @return float
+     */
+    public function getStars(): float
+    {
+        return $this->stars;
+    }
+
+    /**
+     * @param float $stars
+     */
+    public function setStars(float $stars): void
+    {
+        $this->stars = $stars;
     }
 }

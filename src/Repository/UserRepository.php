@@ -82,6 +82,20 @@ class UserRepository extends ServiceEntityRepository
         return $queryBuilder;
     }
 
+    public function getAssignedUsersForActivity(Activity $activity): QueryBuilder
+    {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->select('user')
+            ->leftJoin('user.activityUsers', 'activityUsers')
+            ->where('activityUsers.activity = :activity')
+            ->andWhere('activityUsers.type = :type')
+            ->setParameter('activity', $activity)
+            ->setParameter('type', ActivityUser::TYPE_ASSIGNED);
+
+        return $queryBuilder;
+    }
+
     /**
      * @param UserListFilter $userListFilter
      * @param UserListSort $userListSort

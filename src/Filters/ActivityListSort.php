@@ -4,7 +4,7 @@ namespace App\Filters;
 
 use DateTime;
 
-class ActivityListSort
+class ActivityListSort extends BaseSorting
 {
     /**
      * @var DateTime
@@ -20,12 +20,6 @@ class ActivityListSort
      * @var string
      */
     public $name;
-
-    private function isSortingParamValid($sortingParameter): bool
-    {
-        strtolower($sortingParameter);
-        return $sortingParameter === 'desc' || $sortingParameter === 'asc';
-    }
 
     public function setSortingFields(array $sorting): self
     {

@@ -2,16 +2,10 @@
 
 namespace App\Filters;
 
-class ApplicantsListSort
+class ApplicantsListSort extends BaseSorting
 {
     /** @var integer $seniority */
     public $seniority;
-
-    private function isSortingParamValid($sortingParameter): bool
-    {
-        strtolower($sortingParameter);
-        return $sortingParameter === 'desc' || $sortingParameter === 'asc';
-    }
 
     public function setSortingFields(array $sorting): self
     {
