@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\DTO\UserDTO;
+use App\Entity\Image;
 use App\Entity\User;
 use App\Exceptions\EntityNotFound;
 use App\Exceptions\NotValidFileType;
@@ -536,8 +537,8 @@ class UserController extends AbstractController
 
     /**
      * Remove User avatar.
-     * @Rest\Post("/{id}/remove_avatar")
-     * * @SWG\Post(
+     * @Rest\Delete("/{id}/remove_avatar")
+     * @SWG\Delete(
      *     tags={"User"},
      *     summary="Remove User avatar.",
      *     description="Remove User avatar.",
@@ -601,11 +602,14 @@ class UserController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
-        $image = $authenticatedUser->getAvatar();
 
-        $userAvatarManager->removeAvatarFromDirectory($authenticatedUser);
-        $authenticatedUser->setAvatar(null);
-        $imageRepository->delete($image);
+        /** @var Image $image */
+        $image = $authenticatedUser->getAvatar();
+        if ($image) {
+            $userAvatarManager->removeImageFromDirectory($image->getFile());
+            $authenticatedUser->setAvatar(null);
+            $imageRepository->delete($image);
+        }
         return new JsonResponse(['message' => 'Avatar successfully deleted!'], Response::HTTP_OK);
     }
 }

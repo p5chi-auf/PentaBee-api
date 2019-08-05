@@ -114,6 +114,16 @@ class ActivityDTO
      */
     public $types;
 
+    /**
+     * The cover of Activity encoded in Base64
+     * @var string
+     * @Serializer\Type("string")
+     * @Serializer\Expose()
+     * @Groups({"ActivityEdit"})
+     * @SWG\Property()
+     */
+    public $cover;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();

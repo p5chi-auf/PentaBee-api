@@ -7,10 +7,18 @@ parameters:
   locale: 'en'
   upload_directory: '%kernel.project_dir%/public/'
   user_image_directory: 'images/user/'
+  activity_image_directory: 'images/activity/'
   user_avatar_size:
     profile:
       width: 200
       height: 200
+    thumbnail:
+      width: 40
+      height: 40
+  activity_cover_size:
+    cover:
+      width: 150
+      height: 150
     thumbnail:
       width: 40
       height: 40
@@ -43,8 +51,18 @@ services:
     class: App\EventListener\JWTDecodedListener
     tags:
       - { name: kernel.event_listener, event: lexik_jwt_authentication.on_jwt_decoded, method: onJWTDecoded }
+  App\Service\ImageManager:
+    arguments:
+      $uploadDirectory: '%upload_directory%'
+      $directory:
+      $size:
   App\Service\UserAvatarManager:
     arguments:
       $uploadDirectory: '%upload_directory%'
-      $targetDirectory: '%user_image_directory%'
-      $avatarSize: '%user_avatar_size%'
+      $directory: '%user_image_directory%'
+      $size: '%user_avatar_size%'
+  App\Service\ActivityCoverManager:
+    arguments:
+      $uploadDirectory: '%upload_directory%'
+      $directory: '%activity_image_directory%'
+      $size: '%activity_cover_size%'
