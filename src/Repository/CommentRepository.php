@@ -59,7 +59,8 @@ class CommentRepository extends ServiceEntityRepository
         $userComments = $this->findBy(array('user' => $user));
         foreach ($userComments as $userComment) {
             $userComment->setUser(null);
-            $this->save($userComment);
         }
+        $em = $this->getEntityManager();
+        $em->flush();
     }
 }
