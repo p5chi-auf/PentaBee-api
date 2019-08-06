@@ -138,7 +138,7 @@ class CommentController extends AbstractController
         $authenticatedUser = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
 
-        if ($rights === false) {
+        if ($rights === false && $authenticatedUser->getRoles() !== array('ROLE_ADMIN')) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -273,7 +273,7 @@ class CommentController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
-        if ($authenticatedUser !== $comment->getUser()) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $comment->getUser()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -355,6 +355,16 @@ class CommentController extends AbstractController
      */
     public function getCommentsForActivity(CommentRepository $commentRepository, Activity $activity): JsonResponse
     {
+        $authenticatedUser = $this->getUser();
+        $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
+
+        if ($rights === false && $authenticatedUser->getRoles() !== array('ROLE_ADMIN')) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+
         $comments = $commentRepository->getCommentsForActivity($activity)->getQuery()->getResult();
         /** @var SerializationContext $context */
         $context = SerializationContext::create()

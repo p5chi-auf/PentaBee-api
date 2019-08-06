@@ -61,15 +61,20 @@ class ActivityRepository extends ServiceEntityRepository
         User $user
     ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('activity');
-        $queryBuilder
-            ->select('DISTINCT activity')
-            ->leftJoin('activity.activityUsers', 'activityUsers')
-            ->where($queryBuilder->expr()->orX(
-                $queryBuilder->expr()->eq('activity.public', 1),
-                $queryBuilder->expr()->eq('activity.owner', ':user'),
-                $queryBuilder->expr()->eq('activityUsers.user', ':user')
-            ))
-            ->setParameter('user', $user);
+        if ($user->getRoles() === array('ROLE_ADMIN')) {
+            $queryBuilder
+                ->select('activity');
+        } else {
+            $queryBuilder
+                ->select('DISTINCT activity')
+                ->leftJoin('activity.activityUsers', 'activityUsers')
+                ->where($queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->eq('activity.public', 1),
+                    $queryBuilder->expr()->eq('activity.owner', ':user'),
+                    $queryBuilder->expr()->eq('activityUsers.user', ':user')
+                ))
+                ->setParameter('user', $user);
+        }
         if ($activityListFilter->name !== null) {
             $queryBuilder->andWhere('activity.name LIKE :nameFilter')
                 ->setParameter('nameFilter', $activityListFilter->name . '%');

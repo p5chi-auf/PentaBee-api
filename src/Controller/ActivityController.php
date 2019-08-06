@@ -275,7 +275,7 @@ class ActivityController extends AbstractController
         $user = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $user);
 
-        if ($rights === false) {
+        if ($rights === false && $user->getRoles() !== array('ROLE_ADMIN')) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -351,7 +351,7 @@ class ActivityController extends AbstractController
     {
         $authenticatedUser = $this->getUser();
 
-        if ($authenticatedUser !== $activity->getOwner()) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -544,7 +544,7 @@ class ActivityController extends AbstractController
     ): Response {
         $authenticatedUser = $this->getUser();
 
-        if ($authenticatedUser !== $activity->getOwner()) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -686,7 +686,7 @@ class ActivityController extends AbstractController
         /** @var User $applierUser */
         $applierUser = $this->getUser();
 
-        if ($activity->isPublic() === false) {
+        if ($applierUser->getRoles() !== array('ROLE_ADMIN') && $activity->isPublic() === false) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -854,7 +854,7 @@ class ActivityController extends AbstractController
         /** @var User $authenticatedUser */
         $authenticatedUser = $this->getUser();
 
-        if ($activity->getOwner() !== $authenticatedUser) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1105,7 +1105,7 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
-        if ($activity->getOwner() !== $authenticatedUser) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1231,7 +1231,7 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
-        if ($activity->getOwner() !== $authenticatedUser) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1513,7 +1513,7 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
-        if ($authenticatedUser !== $activity->getOwner()) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'

@@ -16,7 +16,6 @@ use App\Repository\ImageRepository;
 use App\Repository\UserRepository;
 use App\Serializer\ValidationErrorSerializer;
 use App\Service\UserAvatarManager;
-use App\Transformer\CommentTransformer;
 use App\Transformer\UserTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -56,23 +55,17 @@ class UserController extends AbstractController
      * @var UserHandler
      */
     private $userHandler;
-    /**
-     * @var CommentTransformer
-     */
-    private $commentTransformer;
 
     public function __construct(
         SerializerInterface $serializer,
         UserTransformer $transformer,
         ValidatorInterface $validator,
-        UserHandler $userHandler,
-        CommentTransformer $commentTransformer
+        UserHandler $userHandler
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
         $this->validator = $validator;
         $this->userHandler = $userHandler;
-        $this->commentTransformer = $commentTransformer;
     }
 
     /**
@@ -201,8 +194,11 @@ class UserController extends AbstractController
     ) {
         $authenticatedUser = $this->getUser();
 
-        if ($authenticatedUser->getId() !== $user->getId()) {
-            return new JsonResponse(['message' => 'Access denied!'], Response::HTTP_FORBIDDEN);
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser->getId() !== $user->getId()) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
         }
 
         $data = $request->getContent();
@@ -319,7 +315,7 @@ class UserController extends AbstractController
     {
         $authenticatedUser = $this->getUser();
 
-        if ($authenticatedUser->getId() !== $user->getId()) {
+        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser->getId() !== $user->getId()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -596,7 +592,7 @@ class UserController extends AbstractController
         UserAvatarManager $userAvatarManager
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        if ($authenticatedUser !== $user) {
+        if ($authenticatedUser !== $user && $authenticatedUser->getRoles() !== array('ROLE_ADMIN')) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
