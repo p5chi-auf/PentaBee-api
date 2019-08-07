@@ -294,6 +294,9 @@
     "phpspec/prophecy": {
         "version": "1.8.0"
     },
+    "phpstan/extension-installer": {
+        "version": "1.0.1"
+    },
     "phpstan/phpstan-shim": {
         "version": "0.11.5"
     },

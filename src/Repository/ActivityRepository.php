@@ -14,6 +14,7 @@ use Doctrine\ORM\ORMException;
 use Doctrine\ORM\Query;
 use Doctrine\ORM\QueryBuilder;
 use Symfony\Bridge\Doctrine\RegistryInterface;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 /**
  * @method Activity|null find($id, $lockMode = null, $lockVersion = null)
@@ -23,9 +24,15 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ActivityRepository extends ServiceEntityRepository
 {
-    public function __construct(RegistryInterface $registry)
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $checker;
+
+    public function __construct(RegistryInterface $registry, AuthorizationCheckerInterface $checker)
     {
         parent::__construct($registry, Activity::class);
+        $this->checker = $checker;
     }
 
     /**
@@ -61,15 +68,21 @@ class ActivityRepository extends ServiceEntityRepository
         User $user
     ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('activity');
-        $queryBuilder
-            ->select('DISTINCT activity')
-            ->leftJoin('activity.activityUsers', 'activityUsers')
-            ->where($queryBuilder->expr()->orX(
-                $queryBuilder->expr()->eq('activity.public', 1),
-                $queryBuilder->expr()->eq('activity.owner', ':user'),
-                $queryBuilder->expr()->eq('activityUsers.user', ':user')
-            ))
-            ->setParameter('user', $user);
+        $hasAccess = $this->checker->isGranted('ROLE_ADMIN');
+        if ($hasAccess) {
+            $queryBuilder
+                ->select('activity');
+        } else {
+            $queryBuilder
+                ->select('DISTINCT activity')
+                ->leftJoin('activity.activityUsers', 'activityUsers')
+                ->where($queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->eq('activity.public', 1),
+                    $queryBuilder->expr()->eq('activity.owner', ':user'),
+                    $queryBuilder->expr()->eq('activityUsers.user', ':user')
+                ))
+                ->setParameter('user', $user);
+        }
         if ($activityListFilter->name !== null) {
             $queryBuilder->andWhere('activity.name LIKE :nameFilter')
                 ->setParameter('nameFilter', $activityListFilter->name . '%');

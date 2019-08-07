@@ -42,6 +42,7 @@ class UserFixtures extends Fixture
         $user->setEmail('nstaci@pentalog.com');
         $user->setBiography($faker->sentence);
         $user->setStars(0);
+        $user->setRoles((array)'ROLE_ADMIN');
         $manager->persist($user);
 
         $user = new User();
@@ -55,6 +56,7 @@ class UserFixtures extends Fixture
         $user->setEmail('mdruta@pentalog.com');
         $user->setBiography($faker->sentence);
         $user->setStars(0);
+        $user->setRoles((array)'ROLE_USER');
         $manager->persist($user);
 
         for ($i = 0; $i < 10; $i++) {
@@ -69,6 +71,7 @@ class UserFixtures extends Fixture
             $user->setEmail($faker->email);
             $user->setBiography($faker->sentence);
             $user->setStars(0);
+            $user->setRoles((array)'ROLE_USER');
             $this->setReference('user_' . $i, $user);
 
             /** @var Technology $technology */

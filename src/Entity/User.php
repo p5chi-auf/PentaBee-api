@@ -210,6 +210,12 @@ class User implements UserInterface
      */
     private $stars;
 
+    /**
+     * The role of User
+     * @ORM\Column(type="json")
+     */
+    private $roles;
+
     public function __construct()
     {
         $this->technologies = new ArrayCollection();
@@ -367,7 +373,12 @@ class User implements UserInterface
 
     public function getRoles(): array
     {
-        return array('ROLE_USER');
+        return $this->roles;
+    }
+
+    public function setRoles(array $roles): void
+    {
+        $this->roles = $roles;
     }
 
     public function getSalt()
