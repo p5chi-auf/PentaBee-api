@@ -9,8 +9,9 @@ use Doctrine\Migrations\AbstractMigration;
 
 /**
  * Auto-generated Migration: Please modify to your needs!
+ * @codingStandardsIgnoreFile
  */
-final class Version20190806113123 extends AbstractMigration
+final class Version20190807072418 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -23,7 +24,7 @@ final class Version20190806113123 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE user ADD roles VARCHAR(255) NOT NULL');
+        $this->addSql('ALTER TABLE user ADD roles JSON NOT NULL');
     }
 
     public function down(Schema $schema): void

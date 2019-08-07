@@ -212,7 +212,7 @@ class User implements UserInterface
 
     /**
      * The role of User
-     * @ORM\Column(type="string")
+     * @ORM\Column(type="json")
      */
     private $roles;
 
@@ -373,10 +373,10 @@ class User implements UserInterface
 
     public function getRoles(): array
     {
-        return array($this->roles);
+        return $this->roles;
     }
 
-    public function setRoles(string $roles): void
+    public function setRoles(array $roles): void
     {
         $this->roles = $roles;
     }

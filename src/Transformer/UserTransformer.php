@@ -91,7 +91,7 @@ class UserTransformer
         $entity->setUsername($dto->username);
         $entity->setEmail($dto->email);
         $entity->setStars(0);
-        $entity->setRoles('ROLE_USER');
+        $entity->setRoles((array)'ROLE_USER');
         return $entity;
     }
 

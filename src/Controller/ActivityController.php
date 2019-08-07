@@ -690,7 +690,7 @@ class ActivityController extends AbstractController
         $applierUser = $this->getUser();
         $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($hasAccess && $activity->isPublic() === false) {
+        if (!$hasAccess && $activity->isPublic() === false) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
