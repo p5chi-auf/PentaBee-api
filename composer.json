@@ -30,8 +30,7 @@
     "symfony/twig-bundle": "4.2.*",
     "symfony/validator": "4.2.*",
     "symfony/yaml": "4.2.*",
-    "ext-imagick": "*",
-    "ext-http": "*"
+    "ext-imagick": "*"
   },
   "config": {
     "preferred-install": {
@@ -80,6 +79,12 @@
     }
   },
   "require-dev": {
+    "behat/behat": "^3.5",
+    "behat/mink": "dev-master",
+    "behat/mink-browserkit-driver": "^1.3",
+    "behat/mink-extension": "^2.3",
+    "behat/symfony2-extension": "^2.1",
+    "behatch/contexts": "^3.2",
     "doctrine/doctrine-fixtures-bundle": "^3.1",
     "edmondscommerce/phpqa": "dev-master@dev",
     "symfony/maker-bundle": "^1.11",
