@@ -15,6 +15,7 @@ nelmio_api_doc:
       - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
       - { alias: UserForActivityCreate, type: App\Entity\User, groups: [ActivityCreate] }
       - { alias: CommentList, type: App\Entity\Comment, groups: [Comment] }
+      - { alias: UserForComment, type: App\Entity\User, groups: [Comment] }
       - { alias: UserForActivityEdit, type: App\Entity\User, groups: [ActivityEdit] }
       - { alias: UserForActivityList, type: App\Entity\User, groups: [ActivityList] }
       - { alias: UserCreate, type: App\DTO\UserDTO, groups: [UserCreate] }
@@ -67,6 +68,7 @@ nelmio_api_doc:
           40x40:
             type: string
             example: images/activity/40x40/300.png
+
     #        schemes: [http, https]
     info:
       title: PentaBee API

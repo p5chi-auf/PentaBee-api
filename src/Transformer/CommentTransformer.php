@@ -41,6 +41,7 @@ class CommentTransformer
             }
             $entity->setParent($parentComment);
         }
+        $entity->setDeleted(false);
         return $entity;
     }
 
@@ -52,6 +53,12 @@ class CommentTransformer
     public function editComment(CommentDTO $commentDTO, Comment $comment): Comment
     {
         $comment->setComment($commentDTO->comment);
+        return $comment;
+    }
+
+    public function setCommentDeleted(Comment $comment): Comment
+    {
+        $comment->setDeleted(true);
         return $comment;
     }
 }

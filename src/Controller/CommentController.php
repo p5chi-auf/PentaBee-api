@@ -36,7 +36,7 @@ class CommentController extends AbstractController
     /** @var SerializerInterface */
     private $serializer;
 
-    /** @var ActivityTransformer */
+    /** @var CommentTransformer */
     private $transformer;
 
     /** @var ValidatorInterface */
@@ -62,7 +62,7 @@ class CommentController extends AbstractController
      * Add comment for activity.
      * @Rest\Post("/activities/{id}/add_comment", requirements={"id"="\d+"})
      * @SWG\Post(
-     *     tags={"Activity"},
+     *     tags={"Comment"},
      *     summary="Add comment.",
      *     description="Add comment.",
      *     operationId="addComment",
@@ -193,7 +193,7 @@ class CommentController extends AbstractController
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @ParamConverter("comment", options={"mapping": {"commentId" : "id"}})
      * @SWG\Post(
-     *     tags={"Activity"},
+     *     tags={"Comment"},
      *     summary="Edit comment.",
      *     description="Edit comment.",
      *     operationId="editComment",
@@ -318,7 +318,7 @@ class CommentController extends AbstractController
      * Get comments for activity.
      * @Rest\Get("/activities/{id}/comments", requirements={"id"="\d+"})
      * @SWG\Get(
-     *     tags={"Activity"},
+     *     tags={"Comment"},
      *     summary="Get comments for activity.",
      *     description="Get comments for activity.",
      *     operationId="getComments",
@@ -381,5 +381,32 @@ class CommentController extends AbstractController
         );
 
         return new JsonResponse($json, 200, [], true);
+    }
+
+    /**
+     * Delete a comment.
+     * @Rest\Delete("/comment/{id}/delete",requirements={"id"="\d+"})
+     * @param Comment $comment
+     * @param CommentRepository $commentRepository
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function deleteComment(
+        Comment $comment,
+        CommentRepository $commentRepository
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
+
+        if (!$hasAccess && $authenticatedUser->getId() !== $comment->getUser()->getId()) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+        $deletedComment = $this->transformer->setCommentDeleted($comment);
+        $commentRepository->save($deletedComment);
+        return new JsonResponse(['message' => 'Your comment was successfully deleted!'], Response::HTTP_OK);
     }
 }

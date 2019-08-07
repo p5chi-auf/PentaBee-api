@@ -65,6 +65,15 @@ class Comment
     private $parent;
 
     /**
+     * Comment status (true=deleted, false=available)
+     * @ORM\Column(type="boolean")
+     * @Serializer\Expose()
+     * @Groups({"Comment"})
+     * @SWG\Property()
+     */
+    private $deleted;
+
+    /**
      * @ORM\Column(type="datetime")
      * @Serializer\Expose()
      * @Serializer\Type("DateTime<'U'>")
@@ -171,5 +180,15 @@ class Comment
         if ($this->getCreatedAt() === null) {
             $this->setCreatedAt(new DateTime('now'));
         }
+    }
+
+    public function getDeleted()
+    {
+        return $this->deleted;
+    }
+
+    public function setDeleted($deleted): void
+    {
+        $this->deleted = $deleted;
     }
 }
