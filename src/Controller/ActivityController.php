@@ -274,8 +274,9 @@ class ActivityController extends AbstractController
     {
         $user = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $user);
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($rights === false && $user->getRoles() !== array('ROLE_ADMIN')) {
+        if ($rights === false && !$hasAccess) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -350,8 +351,9 @@ class ActivityController extends AbstractController
     public function deleteActivity(Activity $activity, ActivityRepository $activityRepository): JsonResponse
     {
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $activity->getOwner()) {
+        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -543,8 +545,9 @@ class ActivityController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ): Response {
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $activity->getOwner()) {
+        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -685,8 +688,9 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         /** @var User $applierUser */
         $applierUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($applierUser->getRoles() !== array('ROLE_ADMIN') && $activity->isPublic() === false) {
+        if ($hasAccess && $activity->isPublic() === false) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -853,8 +857,9 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         /** @var User $authenticatedUser */
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $activity->getOwner() !== $authenticatedUser) {
+        if (!$hasAccess && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1104,8 +1109,9 @@ class ActivityController extends AbstractController
         Swift_Mailer $mailer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $activity->getOwner() !== $authenticatedUser) {
+        if (!$hasAccess && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1230,8 +1236,9 @@ class ActivityController extends AbstractController
         Swift_Mailer $mailer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $activity->getOwner() !== $authenticatedUser) {
+        if (!$hasAccess && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1512,8 +1519,9 @@ class ActivityController extends AbstractController
         ActivityCoverManager $activityCoverManager
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $activity->getOwner()) {
+        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'

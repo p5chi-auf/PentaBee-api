@@ -137,13 +137,15 @@ class CommentController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($rights === false && $authenticatedUser->getRoles() !== array('ROLE_ADMIN')) {
+        if ($rights === false && !$hasAccess) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
+
         $data = $request->getContent();
 
         /** @var DeserializationContext $context */
@@ -272,8 +274,9 @@ class CommentController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
 
-        if ($authenticatedUser->getRoles() !== array('ROLE_ADMIN') && $authenticatedUser !== $comment->getUser()) {
+        if (!$hasAccess && $authenticatedUser !== $comment->getUser()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -357,8 +360,8 @@ class CommentController extends AbstractController
     {
         $authenticatedUser = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
-
-        if ($rights === false && $authenticatedUser->getRoles() !== array('ROLE_ADMIN')) {
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        if ($rights === false && !$hasAccess) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
