@@ -40,12 +40,4 @@ class CommentDTO
      * @SWG\Property()
      */
     public $parent;
-
-    /**
-     * @var boolean
-     * @Serializer\Type("boolean")
-     * @Serializer\Expose()
-     * @Groups({"AddComment", "EditComment"})
-     */
-    public $deleted;
 }
