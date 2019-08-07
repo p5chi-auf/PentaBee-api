@@ -386,6 +386,51 @@ class CommentController extends AbstractController
     /**
      * Delete a comment.
      * @Rest\Delete("/comment/{id}/delete",requirements={"id"="\d+"})
+     * @SWG\Delete(
+     *     tags={"Comment"},
+     *     summary="Delete an comment.",
+     *     description="Delete an comment.",
+     *     operationId="deleteCommentById",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Comment to delete",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Your comment was successfully deleted!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not Found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not Found"),
+     * )
+     * )
      * @param Comment $comment
      * @param CommentRepository $commentRepository
      * @return JsonResponse
