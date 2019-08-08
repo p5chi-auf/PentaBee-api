@@ -2,7 +2,7 @@
 
 namespace App\Handlers;
 
-use App\Filters\PaginatorPageFieldValidator;
+use App\Filters\PaginatorValidator;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use App\Entity\User;
 use App\Filters\FeedbackPagination;
@@ -23,14 +23,14 @@ class FeedbackHandler
      */
     private $feedbackRepository;
     /**
-     * @var PaginatorPageFieldValidator
+     * @var PaginatorValidator
      */
     private $parameterValidator;
 
     public function __construct(
         SerializerInterface $serializer,
         FeedbackRepository $feedbackRepository,
-        PaginatorPageFieldValidator $parameterValidator
+        PaginatorValidator $parameterValidator
     ) {
         $this->serializer = $serializer;
         $this->feedbackRepository = $feedbackRepository;
@@ -48,8 +48,12 @@ class FeedbackHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if ($feedbackPagination->pageSize === -1) {
+            $feedbackPagination->pageSize = $numResults;
+        }
+
         $numPages = (int)ceil($numResults / $feedbackPagination->pageSize);
-        if (!$this->parameterValidator->isParameterValid($numPages, $feedbackPagination->currentPage)) {
+        if (!$this->parameterValidator->isPageNumberValid($numPages, $feedbackPagination->currentPage)) {
             throw new NotFoundHttpException();
         }
 

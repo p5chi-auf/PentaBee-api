@@ -135,9 +135,12 @@ class ActivityRepository extends ServiceEntityRepository
         User $user
     ): Query {
         $queryBuilder = $this->getAvailableActivities($activityListSort, $activityListFilter, $user);
-
+        if ($activityListPagination->pageSize === -1) {
+            return $queryBuilder->getQuery();
+        }
         $currentPage = $activityListPagination->currentPage < 1 ? 1 : $activityListPagination->currentPage;
         $firstResult = ($currentPage - 1) * $activityListPagination->pageSize;
+
 
         $query = $queryBuilder
             ->setFirstResult($firstResult)

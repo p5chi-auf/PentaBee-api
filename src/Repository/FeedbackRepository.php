@@ -78,7 +78,9 @@ class FeedbackRepository extends ServiceEntityRepository
         FeedbackPagination $feedbackPagination
     ): Query {
         $queryBuilder = $this->getUserFeedback($user, $feedbackSort);
-
+        if ($feedbackPagination->pageSize === -1) {
+            return $queryBuilder->getQuery();
+        }
         $currentPage = $feedbackPagination->currentPage < 1 ? 1 : $feedbackPagination->currentPage;
         $firstResult = ($currentPage - 1) * $feedbackPagination->pageSize;
 
@@ -90,11 +92,11 @@ class FeedbackRepository extends ServiceEntityRepository
         return $query;
     }
 
-    public function canUserGiveFeedback(Activity $activity, User $userFrom, User $userTo): bool
+    public function hasUserGivenFeedback(Activity $activity, User $userFrom, User $userTo): bool
     {
         if ($this->findOneBy(array('activity' => $activity, 'userFrom' => $userFrom, 'userTo' => $userTo))) {
-            return false;
+            return true;
         }
-        return true;
+        return false;
     }
 }

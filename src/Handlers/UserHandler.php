@@ -2,7 +2,7 @@
 
 namespace App\Handlers;
 
-use App\Filters\PaginatorPageFieldValidator;
+use App\Filters\PaginatorValidator;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -23,14 +23,14 @@ class UserHandler
      */
     private $userRepository;
     /**
-     * @var PaginatorPageFieldValidator
+     * @var PaginatorValidator
      */
     private $parameterValidator;
 
     public function __construct(
         SerializerInterface $serializer,
         UserRepository $userRepository,
-        PaginatorPageFieldValidator $parameterValidator
+        PaginatorValidator $parameterValidator
     ) {
 
         $this->serializer = $serializer;
@@ -50,6 +50,15 @@ class UserHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if ($userListPagination->pageSize === -1) {
+            $userListPagination->pageSize = $numResults;
+        }
+
+        $numPages = (int)ceil($numResults / $userListPagination->pageSize);
+        if (!$this->parameterValidator->isPageNumberValid($numPages, $userListPagination->currentPage)) {
+            throw new NotFoundHttpException();
+        }
+
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('UserList'));
 
@@ -58,15 +67,6 @@ class UserHandler
             'json',
             $context
         );
-
-        if ($userListPagination->pageSize === -1) {
-            $userListPagination->pageSize = $numResults;
-        }
-
-        $numPages = (int)ceil($numResults / $userListPagination->pageSize);
-        if (!$this->parameterValidator->isParameterValid($numPages, $userListPagination->currentPage)) {
-            throw new NotFoundHttpException();
-        }
 
         return array(
             'results' => json_decode($json, true),

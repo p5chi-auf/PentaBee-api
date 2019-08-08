@@ -172,7 +172,7 @@ class FeedbackController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
 
-        if (!$this->feedbackRepository->canUserGiveFeedback($activity, $authenticatedUser, $userTo)) {
+        if ($this->feedbackRepository->hasUserGivenFeedback($activity, $authenticatedUser, $userTo)) {
             return new JsonResponse([
                 'code' => Response::HTTP_BAD_REQUEST,
                 'message' => 'You already gave feedback to this user involved!'

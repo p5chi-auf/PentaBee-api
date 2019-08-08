@@ -2,9 +2,9 @@
 
 namespace App\Filters;
 
-class PaginatorPageFieldValidator
+class PaginatorValidator
 {
-    public function isParameterValid($maxPage, $numPage): bool
+    public function isPageNumberValid($maxPage, $numPage): bool
     {
         return !(($maxPage !== 0 && $numPage > $maxPage) || $numPage < 0);
     }

@@ -6,7 +6,7 @@ use App\Entity\User;
 use App\Filters\ActivityListFilter;
 use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
-use App\Filters\PaginatorPageFieldValidator;
+use App\Filters\PaginatorValidator;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
@@ -24,14 +24,14 @@ class ActivityHandler
      */
     private $activityRepository;
     /**
-     * @var PaginatorPageFieldValidator
+     * @var PaginatorValidator
      */
     private $parameterValidator;
 
     public function __construct(
         SerializerInterface $serializer,
         ActivityRepository $activityRepository,
-        PaginatorPageFieldValidator $parameterValidator
+        PaginatorValidator $parameterValidator
     ) {
 
         $this->serializer = $serializer;
@@ -51,8 +51,12 @@ class ActivityHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if ($activityListPagination->pageSize === -1) {
+            $activityListPagination->pageSize = $numResults;
+        }
+
         $numPages = (int)ceil($numResults / $activityListPagination->pageSize);
-        if (!$this->parameterValidator->isParameterValid($numPages, $activityListPagination->currentPage)) {
+        if (!$this->parameterValidator->isPageNumberValid($numPages, $activityListPagination->currentPage)) {
             throw new NotFoundHttpException();
         }
 
