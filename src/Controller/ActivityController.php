@@ -1564,6 +1564,20 @@ class ActivityController extends AbstractController
         UserListSort $userListSort,
         UserListPagination $userListPagination
     ): JsonResponse {
+
+        $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
+
+        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied!'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
         $filter = $request->query->get('filter');
         $userListFilter->setFilterFields((array)$filter);
 
