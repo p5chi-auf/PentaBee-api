@@ -6,10 +6,12 @@ use App\Entity\User;
 use App\Filters\ActivityListFilter;
 use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
+use App\Filters\PaginatorPageFieldValidator;
 use App\Repository\ActivityRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class ActivityHandler
 {
@@ -21,12 +23,20 @@ class ActivityHandler
      * @var ActivityRepository
      */
     private $activityRepository;
+    /**
+     * @var PaginatorPageFieldValidator
+     */
+    private $parameterValidator;
 
-    public function __construct(SerializerInterface $serializer, ActivityRepository $activityRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        ActivityRepository $activityRepository,
+        PaginatorPageFieldValidator $parameterValidator
+    ) {
 
         $this->serializer = $serializer;
         $this->activityRepository = $activityRepository;
+        $this->parameterValidator = $parameterValidator;
     }
 
     public function getActivitiesListPaginated(
@@ -40,6 +50,12 @@ class ActivityHandler
 
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
+
+        $numPages = (int)ceil($numResults / $activityListPagination->pageSize);
+        if (!$this->parameterValidator->isParameterValid($numPages, $activityListPagination->currentPage)) {
+            throw new NotFoundHttpException();
+        }
+
 
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('ActivityList'));
@@ -55,7 +71,7 @@ class ActivityHandler
             'currentPage' => $activityListPagination->currentPage,
             'numResults' => $numResults,
             'perPage' => $activityListPagination->pageSize,
-            'numPages' => (int)ceil($numResults / $activityListPagination->pageSize)
+            'numPages' => $numPages
         );
     }
 }

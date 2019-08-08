@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Activity;
 use App\Entity\Feedback;
 use App\Entity\User;
 use App\Filters\FeedbackPagination;
@@ -87,5 +88,13 @@ class FeedbackRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query;
+    }
+
+    public function canUserGiveFeedback(Activity $activity, User $userFrom, User $userTo): bool
+    {
+        if ($this->findOneBy(array('activity' => $activity, 'userFrom' => $userFrom, 'userTo' => $userTo))) {
+            return false;
+        }
+        return true;
     }
 }

@@ -143,7 +143,11 @@ class FeedbackController extends AbstractController
      * )
      * @SWG\Response(
      *     response="400",
-     *     description="Bad Request"
+     *     description="Bad Request",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="string", example="400"),
+     *     @SWG\Property(property="message", type="string", example="You already gave feedback to this user involved!"),
+     *     )
      * )
      * @SWG\Response(
      *     response="200",
@@ -167,6 +171,13 @@ class FeedbackController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
+
+        if (!$this->feedbackRepository->canUserGiveFeedback($activity, $authenticatedUser, $userTo)) {
+            return new JsonResponse([
+                'code' => Response::HTTP_BAD_REQUEST,
+                'message' => 'You already gave feedback to this user involved!'
+            ], Response::HTTP_BAD_REQUEST);
+        }
 
         $rights = $this->accessRightsPolicy->canGiveFeedback($activity, $authenticatedUser, $userTo);
 

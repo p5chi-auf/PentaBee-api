@@ -2,7 +2,7 @@
 
 namespace App\Handlers;
 
-use App\Entity\User;
+use App\Filters\PaginatorPageFieldValidator;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserHandler
 {
@@ -21,12 +22,20 @@ class UserHandler
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var PaginatorPageFieldValidator
+     */
+    private $parameterValidator;
 
-    public function __construct(SerializerInterface $serializer, UserRepository $userRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        UserRepository $userRepository,
+        PaginatorPageFieldValidator $parameterValidator
+    ) {
 
         $this->serializer = $serializer;
         $this->userRepository = $userRepository;
+        $this->parameterValidator = $parameterValidator;
     }
 
     public function getUserListPaginated(
@@ -54,12 +63,17 @@ class UserHandler
             $userListPagination->pageSize = $numResults;
         }
 
+        $numPages = (int)ceil($numResults / $userListPagination->pageSize);
+        if (!$this->parameterValidator->isParameterValid($numPages, $userListPagination->currentPage)) {
+            throw new NotFoundHttpException();
+        }
+
         return array(
             'results' => json_decode($json, true),
             'currentPage' => $userListPagination->currentPage,
             'numResults' => $numResults,
             'perPage' => $userListPagination->pageSize,
-            'numPages' => (int)ceil($numResults / $userListPagination->pageSize)
+            'numPages' => $numPages
         );
     }
 }
