@@ -13,8 +13,12 @@ use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
 use App\Filters\ApplicantsListPagination;
 use App\Filters\ApplicantsListSort;
+use App\Filters\UserListFilter;
+use App\Filters\UserListPagination;
+use App\Filters\UserListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
+use App\Handlers\UsersForActivityHandler;
 use App\Repository\ActivityUserRepository;
 use App\Repository\ImageRepository;
 use App\Security\AccessRightsPolicy;
@@ -68,6 +72,10 @@ class ActivityController extends AbstractController
      * @var ActivityUserHandler
      */
     private $activityUserHandler;
+    /**
+     * @var UsersForActivityHandler
+     */
+    private $usersForActivityHandler;
 
     public function __construct(
         SerializerInterface $serializer,
@@ -75,7 +83,8 @@ class ActivityController extends AbstractController
         ValidatorInterface $validator,
         AccessRightsPolicy $accessRightsPolicy,
         ActivityHandler $activityHandler,
-        ActivityUserHandler $activityUserHandler
+        ActivityUserHandler $activityUserHandler,
+        UsersForActivityHandler $usersForActivityHandler
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
@@ -83,6 +92,7 @@ class ActivityController extends AbstractController
         $this->accessRightsPolicy = $accessRightsPolicy;
         $this->activityHandler = $activityHandler;
         $this->activityUserHandler = $activityUserHandler;
+        $this->usersForActivityHandler = $usersForActivityHandler;
     }
 
     /**
@@ -1535,5 +1545,44 @@ class ActivityController extends AbstractController
             $imageRepository->delete($image);
         }
         return new JsonResponse(['message' => 'Cover successfully deleted!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Get Users for Activity
+     * @Rest\Get("/{id}/users", requirements={"id"="\d+"})
+     * @param Activity $activity
+     * @param Request $request
+     * @param UserListFilter $userListFilter
+     * @param UserListSort $userListSort
+     * @param UserListPagination $userListPagination
+     * @return JsonResponse
+     */
+    public function getUsersForActivity(
+        Activity $activity,
+        Request $request,
+        UserListFilter $userListFilter,
+        UserListSort $userListSort,
+        UserListPagination $userListPagination
+    ): JsonResponse {
+        $filter = $request->query->get('filter');
+        $userListFilter->setFilterFields((array)$filter);
+
+        $sorting = $request->query->get('sortBy');
+        $userListSort->setSortingFields((array)$sorting);
+
+        $pagination = $request->query->get('pagination');
+        $userListPagination->setPaginationFields((array)$pagination);
+        return new JsonResponse(
+            json_encode($this->usersForActivityHandler
+                ->getUsersForActivityListPaginated(
+                    $userListPagination,
+                    $userListSort,
+                    $userListFilter,
+                    $activity
+                )),
+            200,
+            [],
+            true
+        );
     }
 }

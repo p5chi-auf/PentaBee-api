@@ -138,4 +138,47 @@ class UserRepository extends ServiceEntityRepository
 
         return $query;
     }
+
+    public function getUsersForActivityListPaginated(
+        UserListPagination $userListPagination,
+        UserListSort $userListSort,
+        UserListFilter $userListFilter,
+        Activity $activity
+    ): Query {
+        $queryBuilder = $this->getUsersForActivity($userListFilter, $userListSort, $activity);
+        if ($userListPagination->pageSize === -1) {
+            return $queryBuilder->getQuery();
+        }
+        $currentPage = $userListPagination->currentPage < 1 ? 1 : $userListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $userListPagination->pageSize;
+
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($userListPagination->pageSize)
+            ->getQuery();
+
+        return $query;
+    }
+
+    public function getUsersForActivity(
+        UserListFilter $userListFilter,
+        UserListSort $userListSort,
+        Activity $activity
+    ): QueryBuilder {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->select('DISTINCT user');
+
+        if ($userListFilter->activityRole !== null) {
+            $queryBuilder->join('user.activityUsers', 'activityUsers')
+                ->andWhere('activityUsers.type IN (:activityRoleFilter)')
+                ->andWhere('activityUsers.activity = :activity')
+                ->setParameter('activityRoleFilter', $userListFilter->activityRole)
+                ->setParameter('activity', $activity);
+        }
+        if ($userListSort->seniority !== null) {
+            $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
+        }
+        return $queryBuilder;
+    }
 }
