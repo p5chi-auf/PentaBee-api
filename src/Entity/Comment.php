@@ -71,7 +71,7 @@ class Comment
      * @Groups({"Comment"})
      * @SWG\Property()
      */
-    private $deleted;
+    private $deleted = false;
 
     /**
      * @ORM\Column(type="datetime")

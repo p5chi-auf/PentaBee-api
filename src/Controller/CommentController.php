@@ -9,7 +9,6 @@ use App\Exceptions\EntityNotFound;
 use App\Repository\CommentRepository;
 use App\Security\AccessRightsPolicy;
 use App\Serializer\ValidationErrorSerializer;
-use App\Transformer\ActivityTransformer;
 use App\Transformer\CommentTransformer;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
@@ -450,8 +449,10 @@ class CommentController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
-        $deletedComment = $this->transformer->setCommentDeleted($comment);
-        $commentRepository->save($deletedComment);
+
+        $comment->setDeleted(true);
+        $commentRepository->save($comment);
+
         return new JsonResponse(['message' => 'Your comment was successfully deleted!'], Response::HTTP_OK);
     }
 }
