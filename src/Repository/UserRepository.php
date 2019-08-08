@@ -65,23 +65,6 @@ class UserRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getApplicantsForActivity(ApplicantsListSort $applicantsListSort, Activity $activity): QueryBuilder
-    {
-        $queryBuilder = $this->createQueryBuilder('user');
-        $queryBuilder
-            ->select('user')
-            ->leftJoin('user.activityUsers', 'activityUsers')
-            ->where('activityUsers.activity = :activity')
-            ->andWhere('activityUsers.type = :type')
-            ->setParameter('activity', $activity)
-            ->setParameter('type', ActivityUser::TYPE_APPLIED);
-        if ($applicantsListSort->seniority !== null) {
-            $queryBuilder->orderBy('user.seniority', $applicantsListSort->seniority);
-        }
-
-        return $queryBuilder;
-    }
-
     public function getAssignedUsersForActivity(Activity $activity): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('user');

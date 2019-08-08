@@ -11,13 +11,10 @@ use App\Exceptions\NotValidFileType;
 use App\Filters\ActivityListFilter;
 use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
-use App\Filters\ApplicantsListPagination;
-use App\Filters\ApplicantsListSort;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
 use App\Handlers\ActivityHandler;
-use App\Handlers\ActivityUserHandler;
 use App\Handlers\UsersForActivityHandler;
 use App\Repository\ActivityUserRepository;
 use App\Repository\ImageRepository;
@@ -69,10 +66,6 @@ class ActivityController extends AbstractController
      */
     private $activityHandler;
     /**
-     * @var ActivityUserHandler
-     */
-    private $activityUserHandler;
-    /**
      * @var UsersForActivityHandler
      */
     private $usersForActivityHandler;
@@ -83,7 +76,6 @@ class ActivityController extends AbstractController
         ValidatorInterface $validator,
         AccessRightsPolicy $accessRightsPolicy,
         ActivityHandler $activityHandler,
-        ActivityUserHandler $activityUserHandler,
         UsersForActivityHandler $usersForActivityHandler
     ) {
         $this->serializer = $serializer;
@@ -91,7 +83,6 @@ class ActivityController extends AbstractController
         $this->validator = $validator;
         $this->accessRightsPolicy = $accessRightsPolicy;
         $this->activityHandler = $activityHandler;
-        $this->activityUserHandler = $activityUserHandler;
         $this->usersForActivityHandler = $usersForActivityHandler;
     }
 
@@ -938,107 +929,6 @@ class ActivityController extends AbstractController
     }
 
     /**
-     * Get a list of all applicants.
-     * @Rest\Get("/{activityId}/applicants", requirements={"activityId"="\d+"})
-     * @param Request $request
-     * @param ApplicantsListSort $applicantsListSort
-     * @param ApplicantsListPagination $applicantsListPagination
-     * @param Activity $activity
-     * @return JsonResponse
-     * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
-     * @SWG\Get(
-     *     tags={"Activity"},
-     *     summary="Get a list of all applicants",
-     *     description="Get a list of all applicants",
-     *     operationId="getApplicants",
-     *     produces={"application/json"},
-     *     @SWG\Parameter(
-     *     description="ID of Activity",
-     *     in="path",
-     *     name="activityId",
-     *     required=true,
-     *     type="integer",
-     *     ),
-     *     @SWG\Parameter(
-     *     description="Number of the current page (1 by default)",
-     *     in="query",
-     *     name="pagination[page]",
-     *     required=false,
-     *     type="integer",
-     *     ),
-     *     @SWG\Parameter(
-     *     description="Number of items per page (10 by default)",
-     *     in="query",
-     *     name="pagination[per_page]",
-     *     required=false,
-     *     type="integer",
-     *     ),
-     *     @SWG\Parameter(
-     *     description="Sorting by seniority (asc or desc)",
-     *     in="query",
-     *     name="sortBy[seniority]",
-     *     required=false,
-     *     type="integer",
-     *     )
-     * )
-     * @SWG\Response(
-     *     response=200,
-     *     description="Successfull operation!",
-     *     @SWG\Schema(
-     *     @SWG\Property(property="currentPage", type="integer"),
-     *     @SWG\Property(property="numResults", type="integer"),
-     *     @SWG\Property(property="perPage", type="integer"),
-     *     @SWG\Property(property="numPages", type="integer"),
-     *     @SWG\Property(property="results", type="array", @Model(type=User::class, groups={"UserList"}),
-     *     )
-     * )
-     * )
-     * @SWG\Response(
-     *     response=401,
-     *     description="Unauthorized.",
-     *     @SWG\Schema(
-     *     @SWG\Property(property="code", type="integer", example=401),
-     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
-     *     )
-     * )
-     * @SWG\Response(
-     *     response=404,
-     *     description="Not found",
-     *     @SWG\Schema(
-     *     @SWG\Property(property="code", type="integer", example=404),
-     *     @SWG\Property(property="message", type="string", example="Not found!"),
-     *     )
-     * )
-     */
-    public function listOfApplicants(
-        Request $request,
-        ApplicantsListSort $applicantsListSort,
-        ApplicantsListPagination $applicantsListPagination,
-        Activity $activity
-    ): JsonResponse {
-
-        $sorting = $request->query->get('sortBy');
-        $applicantsListSort->setSortingFields((array)$sorting);
-
-        $pagination = $request->query->get('pagination');
-        $applicantsListPagination->setPaginationFields((array)$pagination);
-
-        return new JsonResponse(
-            json_encode(
-                $this->activityUserHandler->
-                getApplicantsPaginated(
-                    $applicantsListSort,
-                    $applicantsListPagination,
-                    $activity
-                )
-            ),
-            200,
-            [],
-            true
-        );
-    }
-
-    /**
      * Validate an applicant.
      * @Rest\Post("/{activityId}/applicants/{userId}/accept")
      * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
@@ -1550,6 +1440,69 @@ class ActivityController extends AbstractController
     /**
      * Get Users for Activity
      * @Rest\Get("/{id}/users", requirements={"id"="\d+"})
+     * @SWG\Get(
+     *     tags={"Activity"},
+     *     summary="Get a list of all users for activity",
+     *     description="Get a list of users for activity",
+     *     operationId="getUsers",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity",
+     *     in="path",
+     *     name="activityId",
+     *     required=true,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of the current page (1 by default)",
+     *     in="query",
+     *     name="pagination[page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Number of items per page (10 by default)",
+     *     in="query",
+     *     name="pagination[per_page]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Sorting by seniority (asc or desc)",
+     *     in="query",
+     *     name="sortBy[seniority]",
+     *     required=false,
+     *     type="integer",
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="currentPage", type="integer"),
+     *     @SWG\Property(property="numResults", type="integer"),
+     *     @SWG\Property(property="perPage", type="integer"),
+     *     @SWG\Property(property="numPages", type="integer"),
+     *     @SWG\Property(property="results", type="array", @Model(type=User::class, groups={"UserList"}),
+     *     )
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
      * @param Activity $activity
      * @param Request $request
      * @param UserListFilter $userListFilter
@@ -1564,20 +1517,6 @@ class ActivityController extends AbstractController
         UserListSort $userListSort,
         UserListPagination $userListPagination
     ): JsonResponse {
-
-        $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
-
-        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
-            return new JsonResponse(
-                [
-                    'code' => Response::HTTP_FORBIDDEN,
-                    'message' => 'Access denied!'
-                ],
-                Response::HTTP_FORBIDDEN
-            );
-        }
-
         $filter = $request->query->get('filter');
         $userListFilter->setFilterFields((array)$filter);
 
