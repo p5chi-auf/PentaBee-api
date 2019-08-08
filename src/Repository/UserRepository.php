@@ -5,7 +5,7 @@ namespace App\Repository;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
-use App\Filters\ApplicantsListSort;
+use App\Filters\AssignedUsersListSort;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -28,13 +28,19 @@ class UserRepository extends ServiceEntityRepository
      * @var CommentRepository
      */
     private $commentRepository;
+    /**
+     * @var AssignedUsersListSort
+     */
+    private $assignedUsersListSort;
 
     public function __construct(
         RegistryInterface $registry,
-        CommentRepository $commentRepository
+        CommentRepository $commentRepository,
+        AssignedUsersListSort $assignedUsersListSort
     ) {
         parent::__construct($registry, User::class);
         $this->commentRepository = $commentRepository;
+        $this->assignedUsersListSort = $assignedUsersListSort;
     }
 
     /**
@@ -65,23 +71,6 @@ class UserRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getApplicantsForActivity(ApplicantsListSort $applicantsListSort, Activity $activity): QueryBuilder
-    {
-        $queryBuilder = $this->createQueryBuilder('user');
-        $queryBuilder
-            ->select('user')
-            ->leftJoin('user.activityUsers', 'activityUsers')
-            ->where('activityUsers.activity = :activity')
-            ->andWhere('activityUsers.type = :type')
-            ->setParameter('activity', $activity)
-            ->setParameter('type', ActivityUser::TYPE_APPLIED);
-        if ($applicantsListSort->seniority !== null) {
-            $queryBuilder->orderBy('user.seniority', $applicantsListSort->seniority);
-        }
-
-        return $queryBuilder;
-    }
-
     public function getAssignedUsersForActivity(Activity $activity): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('user');
@@ -92,7 +81,9 @@ class UserRepository extends ServiceEntityRepository
             ->andWhere('activityUsers.type = :type')
             ->setParameter('activity', $activity)
             ->setParameter('type', ActivityUser::TYPE_ASSIGNED);
-
+        if ($this->assignedUsersListSort->seniority !== null) {
+            $queryBuilder->orderBy('user.seniority', $this->assignedUsersListSort->seniority);
+        }
         return $queryBuilder;
     }
 

@@ -2,7 +2,7 @@
 
 namespace App\Filters;
 
-class ApplicantsListPagination
+class AssignedUsersListPagination
 {
     /** @var integer $currentPage */
     public $currentPage = 1;

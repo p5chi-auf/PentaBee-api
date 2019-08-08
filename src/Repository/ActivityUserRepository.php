@@ -5,8 +5,7 @@ namespace App\Repository;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
-use App\Filters\ApplicantsListPagination;
-use App\Filters\ApplicantsListSort;
+use App\Filters\AssignedUsersListPagination;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
@@ -88,19 +87,18 @@ class ActivityUserRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
-    public function getApplicantsForActivityPaginated(
-        ApplicantsListSort $applicantsListSort,
-        ApplicantsListPagination $applicantsListPagination,
+    public function getAssignedUsersForActivityPaginated(
+        AssignedUsersListPagination $assignedUsersListPagination,
         Activity $activity
     ): Query {
-        $queryBuilder = $this->userRepository->getApplicantsForActivity($applicantsListSort, $activity);
+        $queryBuilder = $this->userRepository->getAssignedUsersForActivity($activity);
 
-        $currentPage = $applicantsListPagination->currentPage < 1 ? 1 : $applicantsListPagination->currentPage;
-        $firstResult = ($currentPage - 1) * $applicantsListPagination->pageSize;
+        $currentPage = $assignedUsersListPagination->currentPage < 1 ? 1 : $assignedUsersListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $assignedUsersListPagination->pageSize;
 
         $query = $queryBuilder
             ->setFirstResult($firstResult)
-            ->setMaxResults($applicantsListPagination->pageSize)
+            ->setMaxResults($assignedUsersListPagination->pageSize)
             ->getQuery();
 
         return $query;

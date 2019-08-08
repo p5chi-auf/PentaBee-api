@@ -2,7 +2,7 @@
 
 namespace App\Filters;
 
-class ApplicantsListSort extends BaseSorting
+class AssignedUsersListSort extends BaseSorting
 {
     /** @var integer $seniority */
     public $seniority;

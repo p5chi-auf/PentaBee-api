@@ -11,8 +11,8 @@ use App\Exceptions\NotValidFileType;
 use App\Filters\ActivityListFilter;
 use App\Filters\ActivityListPagination;
 use App\Filters\ActivityListSort;
-use App\Filters\ApplicantsListPagination;
-use App\Filters\ApplicantsListSort;
+use App\Filters\AssignedUsersListPagination;
+use App\Filters\AssignedUsersListSort;
 use App\Handlers\ActivityHandler;
 use App\Handlers\ActivityUserHandler;
 use App\Repository\ActivityUserRepository;
@@ -928,14 +928,13 @@ class ActivityController extends AbstractController
     }
 
     /**
-     * Get a list of all applicants.
-     * @Rest\Get("/{activityId}/applicants", requirements={"activityId"="\d+"})
+     * Get a list of all assigned users.
+     * @Rest\Get("/{id}/assigned", requirements={"id"="\d+"})
      * @param Request $request
-     * @param ApplicantsListSort $applicantsListSort
-     * @param ApplicantsListPagination $applicantsListPagination
+     * @param AssignedUsersListSort $assignedUsersListSort
+     * @param AssignedUsersListPagination $assignedUsersListPagination
      * @param Activity $activity
      * @return JsonResponse
-     * @ParamConverter("activity", options={"mapping": {"activityId" : "id"}})
      * @SWG\Get(
      *     tags={"Activity"},
      *     summary="Get a list of all applicants",
@@ -1000,25 +999,24 @@ class ActivityController extends AbstractController
      *     )
      * )
      */
-    public function listOfApplicants(
+    public function listOfAssignedUsers(
         Request $request,
-        ApplicantsListSort $applicantsListSort,
-        ApplicantsListPagination $applicantsListPagination,
+        AssignedUsersListSort $assignedUsersListSort,
+        AssignedUsersListPagination $assignedUsersListPagination,
         Activity $activity
     ): JsonResponse {
 
         $sorting = $request->query->get('sortBy');
-        $applicantsListSort->setSortingFields((array)$sorting);
+        $assignedUsersListSort->setSortingFields((array)$sorting);
 
         $pagination = $request->query->get('pagination');
-        $applicantsListPagination->setPaginationFields((array)$pagination);
+        $assignedUsersListPagination->setPaginationFields((array)$pagination);
 
         return new JsonResponse(
             json_encode(
                 $this->activityUserHandler->
-                getApplicantsPaginated(
-                    $applicantsListSort,
-                    $applicantsListPagination,
+                getAssignedUsersPaginated(
+                    $assignedUsersListPagination,
                     $activity
                 )
             ),
