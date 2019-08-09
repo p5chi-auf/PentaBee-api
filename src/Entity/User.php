@@ -181,7 +181,12 @@ class User implements UserInterface
     protected $technologies;
 
     /**
+     * User type in Activity (ActivityUser Collection)
+     * @var Collection|ActivityUser[]
      * @ORM\OneToMany(targetEntity="ActivityUser", mappedBy="user")
+     * @Serializer\Expose()
+     * @Groups({"UserList"})
+     * @SWG\Property()
      */
     private $activityUsers;
 
