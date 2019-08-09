@@ -150,14 +150,14 @@ class UserRepository extends ServiceEntityRepository
     ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('user');
         $queryBuilder
-            ->select('DISTINCT user');
-
+            ->select('DISTINCT user')
+            ->join('user.activityUsers', 'activityUsers')
+            ->where('activityUsers.activity = :activity')
+            ->setParameter('activity', $activity);
         if ($userListFilter->activityRole !== null) {
-            $queryBuilder->join('user.activityUsers', 'activityUsers')
+            $queryBuilder
                 ->andWhere('activityUsers.type IN (:activityRoleFilter)')
-                ->andWhere('activityUsers.activity = :activity')
-                ->setParameter('activityRoleFilter', $userListFilter->activityRole)
-                ->setParameter('activity', $activity);
+                ->setParameter('activityRoleFilter', $userListFilter->activityRole);
         }
         if ($userListSort->seniority !== null) {
             $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
