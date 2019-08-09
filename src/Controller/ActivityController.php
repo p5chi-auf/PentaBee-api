@@ -1483,7 +1483,7 @@ class ActivityController extends AbstractController
      *     @SWG\Property(property="numResults", type="integer"),
      *     @SWG\Property(property="perPage", type="integer"),
      *     @SWG\Property(property="numPages", type="integer"),
-     *     @SWG\Property(property="results", type="array", @Model(type=User::class, groups={"UserList"}),
+     *     @SWG\Property(property="results", type="array", @Model(type=User::class, groups={"ActivityUser"}),
      *     )
      * )
      * )

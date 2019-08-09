@@ -22,7 +22,7 @@ class ActivityUser
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
-     * @Groups({"UserList"})
+     * @Groups({"ActivityUser"})
      */
     protected $id;
 
@@ -40,7 +40,7 @@ class ActivityUser
 
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"UserList"})
+     * @Groups({"ActivityUser"})
      */
     private $type;
 

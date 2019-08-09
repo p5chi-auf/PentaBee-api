@@ -43,7 +43,7 @@ class UsersForActivityHandler
         $numResults = $paginator->count();
 
         /** @var SerializationContext $context */
-        $context = SerializationContext::create()->setGroups(array('UserList'));
+        $context = SerializationContext::create()->setGroups(array('ActivityUser'));
 
         $json = $this->serializer->serialize(
             $paginatedResults->getResult(),
