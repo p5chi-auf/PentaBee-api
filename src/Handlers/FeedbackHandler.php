@@ -48,6 +48,9 @@ class FeedbackHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if (!$this->parameterValidator->isPageSizeValid($feedbackPagination->pageSize)) {
+            throw new NotFoundHttpException();
+        }
         if ($feedbackPagination->pageSize === -1) {
             $feedbackPagination->pageSize = $numResults;
         }

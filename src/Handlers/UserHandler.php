@@ -50,6 +50,9 @@ class UserHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if (!$this->parameterValidator->isPageSizeValid($userListPagination->pageSize)) {
+            throw new NotFoundHttpException();
+        }
         if ($userListPagination->pageSize === -1) {
             $userListPagination->pageSize = $numResults;
         }

@@ -8,4 +8,9 @@ class PaginatorValidator
     {
         return !(($maxPage !== 0 && $numPage > $maxPage) || $numPage < 0);
     }
+
+    public function isPageSizeValid($pageSize): bool
+    {
+        return !($pageSize < -1);
+    }
 }

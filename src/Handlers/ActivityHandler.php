@@ -51,6 +51,9 @@ class ActivityHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if (!$this->parameterValidator->isPageSizeValid($activityListPagination->pageSize)) {
+            throw new NotFoundHttpException();
+        }
         if ($activityListPagination->pageSize === -1) {
             $activityListPagination->pageSize = $numResults;
         }
