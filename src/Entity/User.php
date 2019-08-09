@@ -181,7 +181,7 @@ class User implements UserInterface
     protected $technologies;
 
     /**
-     * User type in Activity (ActivityUser Collection)
+     * User type in Activity(invited = 0, applied = 1, assigned = 2, declined = 3, rejected = 4)
      * @var Collection|ActivityUser[]
      * @ORM\OneToMany(targetEntity="ActivityUser", mappedBy="user")
      * @Serializer\Expose()
