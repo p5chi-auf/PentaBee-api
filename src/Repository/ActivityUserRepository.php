@@ -88,24 +88,6 @@ class ActivityUserRepository extends ServiceEntityRepository
         return $queryBuilder->getQuery()->getOneOrNullResult();
     }
 
-    public function getApplicantsForActivityPaginated(
-        ApplicantsListSort $applicantsListSort,
-        ApplicantsListPagination $applicantsListPagination,
-        Activity $activity
-    ): Query {
-        $queryBuilder = $this->userRepository->getApplicantsForActivity($applicantsListSort, $activity);
-
-        $currentPage = $applicantsListPagination->currentPage < 1 ? 1 : $applicantsListPagination->currentPage;
-        $firstResult = ($currentPage - 1) * $applicantsListPagination->pageSize;
-
-        $query = $queryBuilder
-            ->setFirstResult($firstResult)
-            ->setMaxResults($applicantsListPagination->pageSize)
-            ->getQuery();
-
-        return $query;
-    }
-
     /**
      * Persist an Activity invitation.
      * @param Activity $activity

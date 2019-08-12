@@ -65,23 +65,6 @@ class UserRepository extends ServiceEntityRepository
         $em->flush();
     }
 
-    public function getApplicantsForActivity(ApplicantsListSort $applicantsListSort, Activity $activity): QueryBuilder
-    {
-        $queryBuilder = $this->createQueryBuilder('user');
-        $queryBuilder
-            ->select('user')
-            ->leftJoin('user.activityUsers', 'activityUsers')
-            ->where('activityUsers.activity = :activity')
-            ->andWhere('activityUsers.type = :type')
-            ->setParameter('activity', $activity)
-            ->setParameter('type', ActivityUser::TYPE_APPLIED);
-        if ($applicantsListSort->seniority !== null) {
-            $queryBuilder->orderBy('user.seniority', $applicantsListSort->seniority);
-        }
-
-        return $queryBuilder;
-    }
-
     public function getAssignedUsersForActivity(Activity $activity): QueryBuilder
     {
         $queryBuilder = $this->createQueryBuilder('user');
@@ -137,5 +120,48 @@ class UserRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query;
+    }
+
+    public function getUsersForActivityListPaginated(
+        UserListPagination $userListPagination,
+        UserListSort $userListSort,
+        UserListFilter $userListFilter,
+        Activity $activity
+    ): Query {
+        $queryBuilder = $this->getUsersForActivity($userListFilter, $userListSort, $activity);
+        if ($userListPagination->pageSize === -1) {
+            return $queryBuilder->getQuery();
+        }
+        $currentPage = $userListPagination->currentPage < 1 ? 1 : $userListPagination->currentPage;
+        $firstResult = ($currentPage - 1) * $userListPagination->pageSize;
+
+        $query = $queryBuilder
+            ->setFirstResult($firstResult)
+            ->setMaxResults($userListPagination->pageSize)
+            ->getQuery();
+
+        return $query;
+    }
+
+    public function getUsersForActivity(
+        UserListFilter $userListFilter,
+        UserListSort $userListSort,
+        Activity $activity
+    ): QueryBuilder {
+        $queryBuilder = $this->createQueryBuilder('user');
+        $queryBuilder
+            ->select('DISTINCT user')
+            ->join('user.activityUsers', 'activityUsers')
+            ->where('activityUsers.activity = :activity')
+            ->setParameter('activity', $activity);
+        if ($userListFilter->activityRole !== null) {
+            $queryBuilder
+                ->andWhere('activityUsers.type IN (:activityRoleFilter)')
+                ->setParameter('activityRoleFilter', $userListFilter->activityRole);
+        }
+        if ($userListSort->seniority !== null) {
+            $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
+        }
+        return $queryBuilder;
     }
 }

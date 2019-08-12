@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
+use JMS\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\ActivityUserRepository")
@@ -21,6 +22,7 @@ class ActivityUser
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"ActivityUser"})
      */
     protected $id;
 
@@ -38,6 +40,7 @@ class ActivityUser
 
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"ActivityUser"})
      */
     private $type;
 

@@ -11,6 +11,7 @@ nelmio_api_doc:
       - { alias: User, type: App\Entity\User }
       - { alias: UserDetail, type: App\Entity\User, groups: [UserDetail] }
       - { alias: UserList, type: App\Entity\User, groups: [UserList] }
+      - { alias: ActivityUserList, type: App\Entity\User, groups: [ActivityUser] }
       - { alias: UserForFeedbackList, type: App\Entity\User, groups: [FeedbackList] }
       - { alias: UserForActivityDetails, type: App\Entity\User, groups: [ActivityDetails] }
       - { alias: UserForActivityCreate, type: App\Entity\User, groups: [ActivityCreate] }
@@ -31,6 +32,7 @@ nelmio_api_doc:
       - { alias: TechnologyForUserDetail, type: App\Entity\Technology, groups: [UserDetail] }
       - { alias: TechnologyForUserEdit, type: App\DTO\TechnologyDTO, groups: [UserEdit] }
       - { alias: TechnologyForUserList, type: App\Entity\Technology, groups: [UserList] }
+      - { alias: TechnologyForActivityUser, type: App\Entity\Technology, groups: [ActivityUser] }
       - { alias: ActivityType, type: App\Entity\ActivityType }
       - { alias: ActivityTypeList, type: App\Entity\ActivityType, groups: [ActivityTypeList] }
       - { alias: ActivityTypeForActivityDetails, type: App\Entity\ActivityType, groups: [ActivityDetails] }
@@ -40,6 +42,8 @@ nelmio_api_doc:
       - { alias: FeedbackList, type: App\Entity\Feedback, groups: [FeedbackList] }
       - { alias: FeedbackCreate, type: App\DTO\FeedbackDTO, groups: [AddFeedback] }
       - { alias: FeedbackEdit, type: App\DTO\FeedbackDTO, groups: [EditFeedback] }
+      - { alias: UserTypeForActivityUserList, type: App\Entity\ActivityUser, groups: [ActivityUser] }
+      - { alias: ActivityUser, type: App\Entity\ActivityUser }
   documentation:
     definitions:
       UserAvatar:

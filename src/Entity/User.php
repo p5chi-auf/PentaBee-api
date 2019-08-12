@@ -66,7 +66,8 @@ class User implements UserInterface
      *         "UserList",
      *         "ActivityList",
      *         "Comment",
-     *         "FeedbackList"
+     *         "FeedbackList",
+     *         "ActivityUser"
      *     }
      *)
      * @SWG\Property()
@@ -77,7 +78,7 @@ class User implements UserInterface
      * The username of User
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList", "FeedbackList"})
+     * @Groups({"UserDetail", "UserList", "ActivityList", "FeedbackList", "ActivityUser"})
      * @SWG\Property()
      */
     private $username;
@@ -93,7 +94,7 @@ class User implements UserInterface
      * User email
      * @ORM\Column(type="string", unique=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityUser"})
      * @SWG\Property()
      */
     protected $email;
@@ -102,7 +103,7 @@ class User implements UserInterface
      * User position
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityUser"})
      * @SWG\Property()
      */
     private $position;
@@ -111,7 +112,7 @@ class User implements UserInterface
      * User seniority (JUNIOR, MIDDLE, SENIOR int(0-2) )
      * @ORM\Column(type="integer", nullable=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityUser"})
      * @SWG\Property()
      */
     private $seniority = self::SENIORITY_JUNIOR;
@@ -120,7 +121,7 @@ class User implements UserInterface
      * User location (CHI, NYC, BOS, FRA, PAR, ORL, BUC, BRA, CLU, IAS, HAN, GUA, LYO)
      * @ORM\Column(type="string", nullable=true)
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityUser"})
      * @SWG\Property()
      */
     private $location;
@@ -129,7 +130,7 @@ class User implements UserInterface
      * The name of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
+     * @Groups({"UserDetail", "ActivityUser", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
      * @SWG\Property()
      */
     private $name;
@@ -138,7 +139,7 @@ class User implements UserInterface
      * The surname of User
      * @ORM\Column(type="string")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
+     * @Groups({"UserDetail", "ActivityUser", "UserList", "ActivityDetails", "FeedbackList", "ActivityList", "Comment"})
      * @SWG\Property()
      */
     private $surname;
@@ -175,13 +176,18 @@ class User implements UserInterface
      * @var Collection|Technology[]
      * @ORM\ManyToMany(targetEntity="Technology")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityUser"})
      * @SWG\Property()
      */
     protected $technologies;
 
     /**
+     * User type in Activity(invited = 0, applied = 1, assigned = 2, declined = 3, rejected = 4)
+     * @var Collection|ActivityUser[]
      * @ORM\OneToMany(targetEntity="ActivityUser", mappedBy="user")
+     * @Serializer\Expose()
+     * @Groups({"ActivityUser"})
+     * @SWG\Property()
      */
     private $activityUsers;
 
@@ -195,7 +201,18 @@ class User implements UserInterface
      * @ORM\OneToOne(targetEntity="Image")
      * @ORM\JoinColumn()
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList", "ActivityList", "ActivityDetails", "Comment", "FeedbackList"})
+     * @Groups
+     * (
+     *     {
+     *      "UserDetail",
+     *      "ActivityUser",
+     *      "UserList",
+     *      "ActivityList",
+     *      "ActivityDetails",
+     *      "Comment",
+     *      "FeedbackList"
+     *     }
+     * )
      * @SWG\Property(ref="#/definitions/UserAvatar")
      */
     private $avatar;
@@ -205,7 +222,7 @@ class User implements UserInterface
      * @var float
      * @ORM\Column(type="float")
      * @Serializer\Expose()
-     * @Groups({"UserDetail", "UserList"})
+     * @Groups({"UserDetail", "UserList", "ActivityUser"})
      * @SWG\Property()
      */
     private $stars;
