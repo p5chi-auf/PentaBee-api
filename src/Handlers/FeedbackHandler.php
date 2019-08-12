@@ -2,6 +2,7 @@
 
 namespace App\Handlers;
 
+use App\Filters\PaginatorValidator;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use App\Entity\User;
 use App\Filters\FeedbackPagination;
@@ -9,6 +10,7 @@ use App\Filters\FeedbackSort;
 use App\Repository\FeedbackRepository;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class FeedbackHandler
 {
@@ -20,11 +22,19 @@ class FeedbackHandler
      * @var FeedbackRepository
      */
     private $feedbackRepository;
+    /**
+     * @var PaginatorValidator
+     */
+    private $parameterValidator;
 
-    public function __construct(SerializerInterface $serializer, FeedbackRepository $feedbackRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        FeedbackRepository $feedbackRepository,
+        PaginatorValidator $parameterValidator
+    ) {
         $this->serializer = $serializer;
         $this->feedbackRepository = $feedbackRepository;
+        $this->parameterValidator = $parameterValidator;
     }
 
     public function getUserFeedbackPaginated(
@@ -37,6 +47,18 @@ class FeedbackHandler
 
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
+
+        if (!$this->parameterValidator->isPageSizeValid($feedbackPagination->pageSize)) {
+            throw new NotFoundHttpException();
+        }
+        if ($feedbackPagination->pageSize === -1) {
+            $feedbackPagination->pageSize = $numResults;
+        }
+
+        $numPages = (int)ceil($numResults / $feedbackPagination->pageSize);
+        if (!$this->parameterValidator->isPageNumberValid($numPages, $feedbackPagination->currentPage)) {
+            throw new NotFoundHttpException();
+        }
 
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('FeedbackList'));
@@ -52,7 +74,7 @@ class FeedbackHandler
             'currentPage' => $feedbackPagination->currentPage,
             'numResults' => $numResults,
             'perPage' => $feedbackPagination->pageSize,
-            'numPages' => (int)ceil($numResults / $feedbackPagination->pageSize)
+            'numPages' => $numPages
         );
     }
 }

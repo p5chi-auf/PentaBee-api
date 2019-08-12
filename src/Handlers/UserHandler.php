@@ -2,7 +2,7 @@
 
 namespace App\Handlers;
 
-use App\Entity\User;
+use App\Filters\PaginatorValidator;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -10,6 +10,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\Tools\Pagination\Paginator;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class UserHandler
 {
@@ -21,12 +22,20 @@ class UserHandler
      * @var UserRepository
      */
     private $userRepository;
+    /**
+     * @var PaginatorValidator
+     */
+    private $parameterValidator;
 
-    public function __construct(SerializerInterface $serializer, UserRepository $userRepository)
-    {
+    public function __construct(
+        SerializerInterface $serializer,
+        UserRepository $userRepository,
+        PaginatorValidator $parameterValidator
+    ) {
 
         $this->serializer = $serializer;
         $this->userRepository = $userRepository;
+        $this->parameterValidator = $parameterValidator;
     }
 
     public function getUserListPaginated(
@@ -41,6 +50,18 @@ class UserHandler
         $paginator = new Paginator($paginatedResults);
         $numResults = $paginator->count();
 
+        if (!$this->parameterValidator->isPageSizeValid($userListPagination->pageSize)) {
+            throw new NotFoundHttpException();
+        }
+        if ($userListPagination->pageSize === -1) {
+            $userListPagination->pageSize = $numResults;
+        }
+
+        $numPages = (int)ceil($numResults / $userListPagination->pageSize);
+        if (!$this->parameterValidator->isPageNumberValid($numPages, $userListPagination->currentPage)) {
+            throw new NotFoundHttpException();
+        }
+
         /** @var SerializationContext $context */
         $context = SerializationContext::create()->setGroups(array('UserList'));
 
@@ -50,16 +71,12 @@ class UserHandler
             $context
         );
 
-        if ($userListPagination->pageSize === -1) {
-            $userListPagination->pageSize = $numResults;
-        }
-
         return array(
             'results' => json_decode($json, true),
             'currentPage' => $userListPagination->currentPage,
             'numResults' => $numResults,
             'perPage' => $userListPagination->pageSize,
-            'numPages' => (int)ceil($numResults / $userListPagination->pageSize)
+            'numPages' => $numPages
         );
     }
 }
