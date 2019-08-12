@@ -164,7 +164,7 @@ class User implements UserInterface
     private $createdAt;
 
     /**
-     * Comment id linked to.
+     * Project Manager id.
      * @ORM\ManyToOne(targetEntity="User")
      */
     private $projectManager;

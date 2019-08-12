@@ -682,7 +682,7 @@ class UserController extends AbstractController
 
     /**
      * Set Project Manager
-     * @Rest\Post("/{userId}/set_pm/{pmId}", requirements={"id"="\d+"})
+     * @Rest\Post("/{userId}/set_pm/{pmId}", requirements={"userId"="\d+", "pmId"="\d+"})
      * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
      * @ParamConverter("projectManager", options={"mapping": {"pmId" : "id"}})
      * @SWG\Post(
@@ -742,7 +742,7 @@ class UserController extends AbstractController
      *     description="This user in not a PM!",
      *     @SWG\Schema(
      *     @SWG\Property(property="code", type="integer", example=400),
-     *     @SWG\Property(property="message", type="string"),
+     *     @SWG\Property(property="message", type="string", example="This user in not a PM!"),
      *     )
      * )
      * @param User $user
