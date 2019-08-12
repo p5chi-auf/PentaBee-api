@@ -23,6 +23,7 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -609,5 +610,165 @@ class UserController extends AbstractController
             $imageRepository->delete($image);
         }
         return new JsonResponse(['message' => 'Avatar successfully deleted!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Set Project Manager role
+     * @Rest\Post("/{id}/set_pm", requirements={"id"="\d+"})
+     * @SWG\Post(
+     *     tags={"User"},
+     *     summary="Set Project Manager role.",
+     *     description="Set Project Manager role.",
+     *     operationId="setProjectManagerRole",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User to set role",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Role successfully set up!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @param User $user
+     * @param UserRepository $userRepository
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function setPM(User $user, UserRepository $userRepository): JsonResponse
+    {
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        if (!$hasAccess) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+        $user->setRoles(array('ROLE_PM'));
+        $userRepository->save($user);
+        return new JsonResponse(['message' => 'Role successfully set up!'], Response::HTTP_OK);
+    }
+
+    /**
+     * Set Project Manager
+     * @Rest\Post("/{userId}/set_pm/{pmId}", requirements={"id"="\d+"})
+     * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
+     * @ParamConverter("projectManager", options={"mapping": {"pmId" : "id"}})
+     * @SWG\Post(
+     *     tags={"User"},
+     *     summary="Set Project Manager for user.",
+     *     description="Set Project Manager for user.",
+     *     operationId="setProjectManager",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of User",
+     *     in="path",
+     *     name="userId",
+     *     required=true,
+     *     type="integer",
+     *     )
+     *     @SWG\Parameter(
+     *     description="ID of Project Manager",
+     *     in="path",
+     *     name="pmId",
+     *     required=true,
+     *     type="integer",
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Project Manager successfully set up!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="This user in not a PM!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
+     *     @SWG\Property(property="message", type="string"),
+     *     )
+     * )
+     * @param User $user
+     * @param User $projectManager
+     * @param UserRepository $userRepository
+     * @return JsonResponse
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function setProjectManagerForUser(
+        User $user,
+        User $projectManager,
+        UserRepository $userRepository
+    ): JsonResponse {
+        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        if (!$hasAccess) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+        if ($projectManager->getRoles() === array('ROLE_USER')) {
+            return new JsonResponse(['message' => 'This user in not a PM!'], Response::HTTP_BAD_REQUEST);
+        }
+        $user->setProjectManager($projectManager);
+        $userRepository->save($user);
+        return new JsonResponse(['message' => 'Project Manager successfully set up!'], Response::HTTP_OK);
     }
 }

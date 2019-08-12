@@ -160,7 +160,14 @@ class User implements UserInterface
      * @Groups({"UserDetail"})
      * @SWG\Property(example="15555555599")
      */
+
     private $createdAt;
+
+    /**
+     * Comment id linked to.
+     * @ORM\ManyToOne(targetEntity="User")
+     */
+    private $projectManager;
 
     /**
      * @ORM\Column(type="datetime")
@@ -452,5 +459,15 @@ class User implements UserInterface
     public function setStars(float $stars): void
     {
         $this->stars = $stars;
+    }
+
+    public function getProjectManager(): ?self
+    {
+        return $this->projectManager;
+    }
+
+    public function setProjectManager(?User $projectManager): void
+    {
+        $this->projectManager = $projectManager;
     }
 }
