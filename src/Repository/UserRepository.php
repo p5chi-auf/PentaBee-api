@@ -60,7 +60,7 @@ class UserRepository extends ServiceEntityRepository
     public function delete(User $user): void
     {
         $this->commentRepository->anonymizeUserComments($user);
-        $this->clearProjectManager($user);
+        $this->unassignProjectManager($user);
         $em = $this->getEntityManager();
         $em->remove($user);
         $em->flush();
@@ -171,7 +171,7 @@ class UserRepository extends ServiceEntityRepository
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function clearProjectManager(User $user): void
+    public function unassignProjectManager(User $user): void
     {
         $projectManagers = $this->findBy(array('projectManager' => $user));
         foreach ($projectManagers as $projectManager) {

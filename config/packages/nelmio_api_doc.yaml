@@ -24,6 +24,7 @@ nelmio_api_doc:
       - { alias: UserPasswordEdit, type: App\DTO\UserDTO, groups: [PasswordEdit] }
       - { alias: EditComment, type: App\DTO\CommentDTO, groups: [EditComment] }
       - { alias: AddComment, type: App\DTO\CommentDTO, groups: [AddComment] }
+      - { alias: UserRole, type: App\DTO\UserDTO, groups: [UserRole] }
       - { alias: Technology, type: App\Entity\Technology }
       - { alias: TechnologyList, type: App\Entity\Technology, groups: [TechnologyList] }
       - { alias: TechnologyForActivityDetails, type: App\Entity\Technology, groups: [ActivityDetails] }

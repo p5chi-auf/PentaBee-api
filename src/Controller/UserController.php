@@ -613,13 +613,13 @@ class UserController extends AbstractController
     }
 
     /**
-     * Set Project Manager role
-     * @Rest\Post("/{id}/set_pm", requirements={"id"="\d+"})
+     * Set role
+     * @Rest\Post("/{id}/set_role", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"User"},
-     *     summary="Set Project Manager role.",
-     *     description="Set Project Manager role.",
-     *     operationId="setProjectManagerRole",
+     *     summary="Set role.",
+     *     description="Set role.",
+     *     operationId="setRole",
      *     produces={"application/json"},
      *     @SWG\Parameter(
      *     description="ID of User to set role",
@@ -627,7 +627,14 @@ class UserController extends AbstractController
      *     name="id",
      *     required=true,
      *     type="integer",
-     *     )
+     *     ),
+     *     @SWG\Parameter(
+     *     description="Json body for the request",
+     *     name="requestBody",
+     *     required=true,
+     *     in="body",
+     *     @Model(type=UserDTO::class, groups={"UserRole"}),
+     * )
      * )
      * @SWG\Response(
      *     response=401,
@@ -662,12 +669,18 @@ class UserController extends AbstractController
      * )
      * @param User $user
      * @param UserRepository $userRepository
+     * @param Request $request
+     * @param ValidationErrorSerializer $validationErrorSerializer
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
      */
-    public function setPM(User $user, UserRepository $userRepository): JsonResponse
-    {
+    public function setRole(
+        User $user,
+        UserRepository $userRepository,
+        Request $request,
+        ValidationErrorSerializer $validationErrorSerializer
+    ): JsonResponse {
         $hasAccess = $this->isGranted('ROLE_ADMIN');
         if (!$hasAccess) {
             return new JsonResponse([
@@ -675,16 +688,35 @@ class UserController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
-        $user->setRoles(array('ROLE_PM'));
+        $data = $request->getContent();
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create()->setGroups(array('UserRole'));
+
+        $userDTO = $this->serializer->deserialize(
+            $data,
+            UserDTO::class,
+            'json',
+            $context
+        );
+        $errors = $this->validator->validate($userDTO, null, ['UserRole']);
+        if (count($errors) > 0) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'Bad Request',
+                    'errors' => $validationErrorSerializer->serialize($errors)
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+        $user->setRoles(array($userDTO->roles));
         $userRepository->save($user);
         return new JsonResponse(['message' => 'Role successfully set up!'], Response::HTTP_OK);
     }
 
     /**
      * Set Project Manager
-     * @Rest\Post("/{userId}/set_pm/{pmId}", requirements={"userId"="\d+", "pmId"="\d+"})
-     * @ParamConverter("user", options={"mapping": {"userId" : "id"}})
-     * @ParamConverter("projectManager", options={"mapping": {"pmId" : "id"}})
+     * @Rest\Post("/{id}/assign_project_manager", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"User"},
      *     summary="Set Project Manager for user.",
@@ -694,17 +726,17 @@ class UserController extends AbstractController
      *     @SWG\Parameter(
      *     description="ID of User",
      *     in="path",
-     *     name="userId",
+     *     name="id",
      *     required=true,
      *     type="integer",
-     *     )
+     *     ),
      *     @SWG\Parameter(
-     *     description="ID of Project Manager",
-     *     in="path",
-     *     name="pmId",
+     *     description="Json body for the request",
+     *     name="requestBody",
      *     required=true,
-     *     type="integer",
-     *     )
+     *     in="body",
+     *     @Model(type=User::class, groups={"SetRole"}),
+     * )
      * )
      * @SWG\Response(
      *     response=401,
@@ -746,16 +778,16 @@ class UserController extends AbstractController
      *     )
      * )
      * @param User $user
-     * @param User $projectManager
      * @param UserRepository $userRepository
+     * @param Request $request
      * @return JsonResponse
      * @throws ORMException
      * @throws OptimisticLockException
      */
     public function setProjectManagerForUser(
         User $user,
-        User $projectManager,
-        UserRepository $userRepository
+        UserRepository $userRepository,
+        Request $request
     ): JsonResponse {
         $hasAccess = $this->isGranted('ROLE_ADMIN');
         if (!$hasAccess) {
@@ -764,8 +796,36 @@ class UserController extends AbstractController
                 'message' => 'Access denied!'
             ], Response::HTTP_FORBIDDEN);
         }
+
+        $data = $request->getContent();
+        /** @var DeserializationContext $context */
+        $context = DeserializationContext::create()->setGroups(array('SetRole'));
+
+        $id = $this->serializer->deserialize(
+            $data,
+            User::class,
+            'json',
+            $context
+        );
+        $projectManager = $userRepository->find($id);
+        if (!$projectManager) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_NOT_FOUND,
+                    'message' => 'Not found!'
+                ],
+                Response::HTTP_NOT_FOUND
+            );
+        }
+
         if ($projectManager->getRoles() === array('ROLE_USER')) {
-            return new JsonResponse(['message' => 'This user in not a PM!'], Response::HTTP_BAD_REQUEST);
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'This user in not a PM!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
         }
         $user->setProjectManager($projectManager);
         $userRepository->save($user);

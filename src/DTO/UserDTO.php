@@ -188,6 +188,16 @@ class UserDTO
     public $avatar;
 
     /**
+     * User role
+     * @var string
+     * @Serializer\Type("string")
+     * @Serializer\Expose()
+     * @Groups({"UserRole"})
+     * @SWG\Property()
+     */
+    public $roles;
+
+    /**
      * @param ExecutionContext $context
      * @Assert\Callback(groups={"UserEdit"})
      */
@@ -195,6 +205,17 @@ class UserDTO
     {
         if (!in_array($this->location, User::LOCATION, true)) {
             $context->addViolation('Please enter a valid location!', array());
+        }
+    }
+
+    /**
+     * @param ExecutionContext $context
+     * @Assert\Callback(groups={"UserRole"})
+     */
+    public function isRoleValid(ExecutionContext $context): void
+    {
+        if (!in_array($this->roles, User::ROLES, true)) {
+            $context->addViolation('Please enter a valid ROLE!', array());
         }
     }
 }
