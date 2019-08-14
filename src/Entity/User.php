@@ -77,7 +77,7 @@ class User implements UserInterface
      *         "Comment",
      *         "FeedbackList",
      *         "ActivityUser",
-     *         "SetRole"
+     *         "SetPM"
      *     }
      *)
      * @SWG\Property()

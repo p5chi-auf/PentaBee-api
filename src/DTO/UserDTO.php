@@ -189,8 +189,8 @@ class UserDTO
 
     /**
      * User role
-     * @var string
-     * @Serializer\Type("string")
+     * @var array
+     * @Serializer\Type("array")
      * @Serializer\Expose()
      * @Groups({"UserRole"})
      * @SWG\Property()
@@ -214,8 +214,10 @@ class UserDTO
      */
     public function isRoleValid(ExecutionContext $context): void
     {
-        if (!in_array($this->roles, User::ROLES, true)) {
-            $context->addViolation('Please enter a valid ROLE!', array());
+        foreach ($this->roles as $role) {
+            if (!in_array($role, User::ROLES, true)) {
+                $context->addViolation('Please enter a valid ROLE!', array());
+            }
         }
     }
 }

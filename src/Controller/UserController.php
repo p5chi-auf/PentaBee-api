@@ -614,7 +614,7 @@ class UserController extends AbstractController
 
     /**
      * Set role
-     * @Rest\Post("/{id}/set_role", requirements={"id"="\d+"})
+     * @Rest\Post("/{id}/set-role", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"User"},
      *     summary="Set role.",
@@ -716,7 +716,7 @@ class UserController extends AbstractController
 
     /**
      * Set Project Manager
-     * @Rest\Post("/{id}/assign_project_manager", requirements={"id"="\d+"})
+     * @Rest\Post("/{id}/assign-project-manager", requirements={"id"="\d+"})
      * @SWG\Post(
      *     tags={"User"},
      *     summary="Set Project Manager for user.",
@@ -766,7 +766,7 @@ class UserController extends AbstractController
      *     description="Not found",
      *     @SWG\Schema(
      *     @SWG\Property(property="code", type="integer", example=404),
-     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     @SWG\Property(property="message", type="string", example="Project Manager to assign not found!"),
      *     )
      * )
      * @SWG\Response(
@@ -774,7 +774,7 @@ class UserController extends AbstractController
      *     description="This user in not a PM!",
      *     @SWG\Schema(
      *     @SWG\Property(property="code", type="integer", example=400),
-     *     @SWG\Property(property="message", type="string", example="This user in not a PM!"),
+     *     @SWG\Property(property="message", type="string", example="This user cannot be assigned as a Project Manager!"),
      *     )
      * )
      * @param User $user
@@ -799,7 +799,7 @@ class UserController extends AbstractController
 
         $data = $request->getContent();
         /** @var DeserializationContext $context */
-        $context = DeserializationContext::create()->setGroups(array('SetRole'));
+        $context = DeserializationContext::create()->setGroups(array('SetPM'));
 
         $id = $this->serializer->deserialize(
             $data,
@@ -812,17 +812,17 @@ class UserController extends AbstractController
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_NOT_FOUND,
-                    'message' => 'Not found!'
+                    'message' => 'Project Manager to assign not found!'
                 ],
                 Response::HTTP_NOT_FOUND
             );
         }
-
-        if ($projectManager->getRoles() === array('ROLE_USER')) {
+        $projectManagerRole = $projectManager->getRoles();
+        if ($projectManagerRole !== array('ROLE_PM') || $projectManagerRole !== array('ROLE_ADMIN')) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_BAD_REQUEST,
-                    'message' => 'This user in not a PM!'
+                    'message' => 'This user cannot be assigned as a Project Manager!'
                 ],
                 Response::HTTP_BAD_REQUEST
             );
