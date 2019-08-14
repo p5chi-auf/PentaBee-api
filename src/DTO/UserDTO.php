@@ -204,7 +204,10 @@ class UserDTO
     public function isLocationValid(ExecutionContext $context): void
     {
         if (!in_array($this->location, User::LOCATION, true)) {
-            $context->addViolation('Please enter a valid location!', array());
+            $context
+                ->buildViolation('Please enter a valid location!')
+                ->atPath('location')
+                ->addViolation();
         }
     }
 
@@ -216,7 +219,10 @@ class UserDTO
     {
         foreach ($this->roles as $role) {
             if (!in_array($role, User::ROLES, true)) {
-                $context->addViolation('Please enter a valid ROLE!', array());
+                $context
+                    ->buildViolation('Please enter a valid ROLE!')
+                    ->atPath('roles')
+                    ->addViolation();
             }
         }
     }
