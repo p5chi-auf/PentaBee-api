@@ -23,7 +23,6 @@ use JMS\Serializer\DeserializationContext;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
-use Sensio\Bundle\FrameworkExtraBundle\Configuration\ParamConverter;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -774,7 +773,10 @@ class UserController extends AbstractController
      *     description="This user in not a PM!",
      *     @SWG\Schema(
      *     @SWG\Property(property="code", type="integer", example=400),
-     *     @SWG\Property(property="message", type="string", example="This user cannot be assigned as a Project Manager!"),
+     *     @SWG\Property(
+     *     property="message",
+     *     type="string",
+     *     example="This user cannot be assigned as a Project Manager!"),
      *     )
      * )
      * @param User $user
