@@ -131,6 +131,12 @@ class RegisterController extends AbstractController
             );
         }
         $userRepository->save($newUser);
-        return new JsonResponse(['message' => 'User successfully created!'], Response::HTTP_OK);
+        return new JsonResponse(
+            [
+                'code' => Response::HTTP_OK,
+                'message' => 'User successfully created!'
+            ],
+            Response::HTTP_OK
+        );
     }
 }
