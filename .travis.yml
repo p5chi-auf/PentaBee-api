@@ -5,6 +5,11 @@ language: php
 php:
   - 7.3
 
+branches:
+  only:
+  - master
+  - develop
+
 # In case of timeouts and build failures you may want to prepend 'travis_retry' to the following commands:
 before_script:
   - yes '' | pecl install imagick
