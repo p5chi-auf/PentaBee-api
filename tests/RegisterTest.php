@@ -45,21 +45,9 @@ class RegisterTest extends WebTestCase
 
         $repository = $this->entityManager->getRepository(User::class);
 
-        $users = $repository->findBy(array(
-            'username' => 'TestUsername',
-            'email' => 'testemail@test.mail',
-            'name' => 'TestName',
-            'surname' => 'TestSurname'
-        ));
-
-        $this->assertCount(1, $users);
-
         /** @var User $user */
         $user = $repository->findOneBy(array(
             'username' => 'TestUsername',
-            'email' => 'testemail@test.mail',
-            'name' => 'TestName',
-            'surname' => 'TestSurname'
         ));
 
         $this->assertEquals('TestUsername', $user->getUsername());
