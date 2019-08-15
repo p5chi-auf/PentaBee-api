@@ -1,4 +1,7 @@
 {
+    "codacy/coverage": {
+        "version": "dev-master"
+    },
     "composer/ca-bundle": {
         "version": "1.1.4"
     },
@@ -128,6 +131,9 @@
     },
     "fzaninotto/faker": {
         "version": "v1.8.0"
+    },
+    "gitonomy/gitlib": {
+        "version": "v1.1.0"
     },
     "hoa/compiler": {
         "version": "3.17.08.08"
