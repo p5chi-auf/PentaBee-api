@@ -11,7 +11,7 @@ use Doctrine\Migrations\AbstractMigration;
  * Auto-generated Migration: Please modify to your needs!
  * @codingStandardsIgnoreFile
  */
-final class Version20190807111657 extends AbstractMigration
+final class Version20190812102815 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -24,7 +24,9 @@ final class Version20190807111657 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE comment ADD deleted TINYINT(1) NOT NULL');
+        $this->addSql('ALTER TABLE user ADD project_manager_id INT DEFAULT NULL');
+        $this->addSql('ALTER TABLE user ADD CONSTRAINT FK_8D93D64960984F51 FOREIGN KEY (project_manager_id) REFERENCES user (id)');
+        $this->addSql('CREATE INDEX IDX_8D93D64960984F51 ON user (project_manager_id)');
     }
 
     public function down(Schema $schema): void
@@ -33,6 +35,8 @@ final class Version20190807111657 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql',
             'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('ALTER TABLE comment DROP deleted');
+        $this->addSql('ALTER TABLE user DROP FOREIGN KEY FK_8D93D64960984F51');
+        $this->addSql('DROP INDEX IDX_8D93D64960984F51 ON user');
+        $this->addSql('ALTER TABLE user DROP project_manager_id');
     }
 }

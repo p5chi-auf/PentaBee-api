@@ -138,7 +138,7 @@ class Comment
         return $this;
     }
 
-    public function getParent(): ?self
+    public function getParent(): ?Comment
     {
         return $this->parent;
     }

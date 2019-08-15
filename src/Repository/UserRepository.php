@@ -5,7 +5,6 @@ namespace App\Repository;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
-use App\Filters\ApplicantsListSort;
 use App\Filters\UserListFilter;
 use App\Filters\UserListPagination;
 use App\Filters\UserListSort;
@@ -60,6 +59,7 @@ class UserRepository extends ServiceEntityRepository
     public function delete(User $user): void
     {
         $this->commentRepository->anonymizeUserComments($user);
+        $this->unassignProjectManager($user);
         $em = $this->getEntityManager();
         $em->remove($user);
         $em->flush();
@@ -163,5 +163,20 @@ class UserRepository extends ServiceEntityRepository
             $queryBuilder->orderBy('user.seniority', $userListSort->seniority);
         }
         return $queryBuilder;
+    }
+
+    /**
+     * @param User $user
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function unassignProjectManager(User $user): void
+    {
+        $projectManagers = $this->findBy(array('projectManager' => $user));
+        foreach ($projectManagers as $projectManager) {
+            $projectManager->setProjectManager(null);
+        }
+        $em = $this->getEntityManager();
+        $em->flush();
     }
 }

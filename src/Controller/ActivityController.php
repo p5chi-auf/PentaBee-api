@@ -1454,6 +1454,13 @@ class ActivityController extends AbstractController
      *     type="integer",
      *     ),
      *     @SWG\Parameter(
+     *     description="Filtration by users on activity",
+     *     in="query",
+     *     name="filter[activityRole][]",
+     *     required=false,
+     *     type="integer",
+     *     ),
+     *     @SWG\Parameter(
      *     description="Number of the current page (1 by default)",
      *     in="query",
      *     name="pagination[page]",

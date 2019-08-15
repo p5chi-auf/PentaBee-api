@@ -53,12 +53,14 @@ class CommentSerializationHandler implements SubscribingHandlerInterface
             $serializationContext
         );
 
+        /** @var Comment $parent */
+        $parent = $comment->getParent();
         if ($comment->getDeleted() === true) {
             return array(
                 'id' => $comment->getId(),
                 'user' => json_decode($json, true),
                 'comment' => 'Comment was deleted',
-                'parent' => $comment->getParent(),
+                'parent' => $parent ? $parent->getId() : null,
                 'deleted' => $comment->getDeleted(),
                 'created_at' => $comment->getCreatedAt()->getTimestamp(),
                 'updated_at' => $comment->getUpdatedAt()->getTimestamp()
@@ -68,7 +70,7 @@ class CommentSerializationHandler implements SubscribingHandlerInterface
             'id' => $comment->getId(),
             'user' => json_decode($json, true),
             'comment' => $comment->getComment(),
-            'parent' => $comment->getParent(),
+            'parent' => $parent ? $parent->getId() : null,
             'deleted' => $comment->getDeleted(),
             'created_at' => $comment->getCreatedAt()->getTimestamp(),
             'updated_at' => $comment->getUpdatedAt()->getTimestamp()

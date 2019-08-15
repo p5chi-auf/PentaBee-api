@@ -35,6 +35,15 @@ class User implements UserInterface
     public const LOCATION_HANOI = 'HAN';
     public const LOCATION_GUADALAJARA = 'GUA';
     public const LOCATION_LYON = 'LYO';
+    public const ROLE_ADMIN = 'ROLE_ADMIN';
+    public const ROLE_PM = 'ROLE_PM';
+    public const ROLE_USER = 'ROLE_USER';
+
+    public const ROLES = [
+        self::ROLE_USER,
+        self::ROLE_PM,
+        self::ROLE_ADMIN
+    ];
 
     public const LOCATION = [
         self::LOCATION_CHISINAU,
@@ -67,7 +76,8 @@ class User implements UserInterface
      *         "ActivityList",
      *         "Comment",
      *         "FeedbackList",
-     *         "ActivityUser"
+     *         "ActivityUser",
+     *         "SetPM"
      *     }
      *)
      * @SWG\Property()
@@ -160,7 +170,15 @@ class User implements UserInterface
      * @Groups({"UserDetail"})
      * @SWG\Property(example="15555555599")
      */
+
     private $createdAt;
+
+    /**
+     * Project Manager id.
+     * @ORM\ManyToOne(targetEntity="User")
+     * @Serializer\Expose()
+     */
+    private $projectManager;
 
     /**
      * @ORM\Column(type="datetime")
@@ -452,5 +470,15 @@ class User implements UserInterface
     public function setStars(float $stars): void
     {
         $this->stars = $stars;
+    }
+
+    public function getProjectManager(): ?self
+    {
+        return $this->projectManager;
+    }
+
+    public function setProjectManager(?User $projectManager): void
+    {
+        $this->projectManager = $projectManager;
     }
 }
