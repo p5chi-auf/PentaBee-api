@@ -88,6 +88,7 @@
     "symfony/maker-bundle": "^1.11",
     "symfony/profiler-pack": "^1.0",
     "symfony/web-server-bundle": "4.2.*",
-    "phpunit/phpunit": "8.2.*"
+    "phpunit/phpunit": "8.2.*",
+    "codacy/coverage": "dev-master"
   }
 }
