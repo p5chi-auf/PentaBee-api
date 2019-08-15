@@ -5,13 +5,10 @@ namespace App\Repository;
 use App\Entity\Activity;
 use App\Entity\ActivityUser;
 use App\Entity\User;
-use App\Filters\ApplicantsListPagination;
-use App\Filters\ApplicantsListSort;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
-use Doctrine\ORM\Query;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -22,15 +19,10 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class ActivityUserRepository extends ServiceEntityRepository
 {
-    /**
-     * @var UserRepository
-     */
-    private $userRepository;
 
-    public function __construct(RegistryInterface $registry, UserRepository $userRepository)
+    public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, ActivityUser::class);
-        $this->userRepository = $userRepository;
     }
 
     /**

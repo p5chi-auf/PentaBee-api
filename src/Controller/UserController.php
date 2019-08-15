@@ -29,6 +29,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Symfony\Component\Security\Core\Role\Role;
+use Symfony\Component\Security\Core\Role\RoleHierarchyInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Swagger\Annotations as SWG;
 
@@ -55,17 +57,23 @@ class UserController extends AbstractController
      * @var UserHandler
      */
     private $userHandler;
+    /**
+     * @var RoleHierarchyInterface
+     */
+    private $roleHierarchy;
 
     public function __construct(
         SerializerInterface $serializer,
         UserTransformer $transformer,
         ValidatorInterface $validator,
-        UserHandler $userHandler
+        UserHandler $userHandler,
+        RoleHierarchyInterface $roleHierarchy
     ) {
         $this->serializer = $serializer;
         $this->transformer = $transformer;
         $this->validator = $validator;
         $this->userHandler = $userHandler;
+        $this->roleHierarchy = $roleHierarchy;
     }
 
     /**
@@ -708,7 +716,7 @@ class UserController extends AbstractController
                 Response::HTTP_BAD_REQUEST
             );
         }
-        $user->setRoles(array($userDTO->roles));
+        $user->setRoles($userDTO->roles);
         $userRepository->save($user);
         return new JsonResponse(['message' => 'Role successfully set up!'], Response::HTTP_OK);
     }
@@ -819,8 +827,17 @@ class UserController extends AbstractController
                 Response::HTTP_NOT_FOUND
             );
         }
-        $projectManagerRole = $projectManager->getRoles();
-        if ($projectManagerRole !== array('ROLE_PM') || $projectManagerRole !== array('ROLE_ADMIN')) {
+        $userHasRole = false;
+        foreach ($projectManager->getRoles() as $userRole) {
+            $roleHierarchy = $this->roleHierarchy->getReachableRoles([new Role($userRole)]);
+            foreach ($roleHierarchy as $role) {
+                if ($role->getRole() === 'ROLE_PM') {
+                    $userHasRole = true;
+                }
+            }
+        }
+
+        if (!$userHasRole) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_BAD_REQUEST,
