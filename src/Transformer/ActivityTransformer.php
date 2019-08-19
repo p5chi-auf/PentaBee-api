@@ -164,7 +164,11 @@ class ActivityTransformer
         $activity->setDescription($dto->description);
         $activity->setApplicationDeadline($dto->applicationDeadline);
         $activity->setFinalDeadline($dto->finalDeadline);
-        $activity->setStatus($dto->status);
+
+        if ($activity->getStatus() !== Activity::STATUS_IN_VALIDATION) {
+            $activity->setStatus($dto->status);
+        }
+
         $activity->setPublic($dto->public);
 
         $this->addTechnologies($dto, $activity);

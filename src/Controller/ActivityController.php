@@ -275,9 +275,11 @@ class ActivityController extends AbstractController
     {
         $user = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $user);
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $hasAccess = $this->isGranted('ROLE_PM');
 
-        if ($rights === false && !$hasAccess) {
+        if (($rights === false && !$hasAccess) ||
+            ($activity->getStatus() === Activity::STATUS_IN_VALIDATION &&
+                !$hasAccess && $activity->getOwner() !== $user)) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -414,6 +416,7 @@ class ActivityController extends AbstractController
      * @param ActivityRepository $activityRepository
      * @param Request $request
      * @param ValidationErrorSerializer $validationErrorSerializer
+     * @param Swift_Mailer $mailer
      * @return Response
      * @throws ORMException
      * @throws OptimisticLockException
@@ -421,7 +424,8 @@ class ActivityController extends AbstractController
     public function createAction(
         ActivityRepository $activityRepository,
         Request $request,
-        ValidationErrorSerializer $validationErrorSerializer
+        ValidationErrorSerializer $validationErrorSerializer,
+        Swift_Mailer $mailer
     ): Response {
         $owner = $this->getUser();
 
@@ -470,6 +474,24 @@ class ActivityController extends AbstractController
 
         $activityRepository->save($newActivity);
 
+        $message = (new Swift_Message(
+            $owner->getName() . ' ' . $owner->getSurname() .
+            ' has created a new activity waiting for your validation '
+        ))
+            ->setFrom($_ENV['EMAIL_FROM'])
+            ->setTo($owner->getProjectManager()->getEmail())
+            ->setBody(
+                $this->renderView(
+                    'mail/mail_for_PM.html.twig',
+                    [
+                        'PM' => $owner->getProjectManager(),
+                        'owner' => $owner,
+                        'activity' => $newActivity
+                    ]
+                ),
+                'text/html'
+            );
+        $mailer->send($message);
         return new JsonResponse(['message' => 'Activity successfully created!'], Response::HTTP_CREATED);
     }
 
@@ -1544,5 +1566,65 @@ class ActivityController extends AbstractController
             [],
             true
         );
+    }
+
+    /**
+     * Get activities for validation
+     * @Rest\Get("/validation")
+     * @SWG\Get(
+     *     tags={"Activity"},
+     *     summary="Get activities for validation",
+     *     description="Get activities for validation",
+     *     operationId="getActivities",
+     *     produces={"application/json"}
+     * )
+     * @SWG\Response(
+     *     response=200,
+     *     description="Successfull operation!",
+     *     @Model(type=Activity::class, groups={"ActivityList"})
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @param ActivityRepository $activityRepository
+     * @return JsonResponse
+     */
+    public function getActivitiesForValidation(ActivityRepository $activityRepository): JsonResponse
+    {
+        $authenticatedUser = $this->getUser();
+        $hasAccess = $this->isGranted('ROLE_PM');
+        if (!$hasAccess) {
+            return new JsonResponse([
+                'code' => Response::HTTP_FORBIDDEN,
+                'message' => 'Access denied!'
+            ], Response::HTTP_FORBIDDEN);
+        }
+        $listOfActivities = $activityRepository
+            ->getActivitiesForValidation($authenticatedUser)
+            ->getQuery()
+            ->getResult();
+
+        /** @var SerializationContext $context */
+        $context = SerializationContext::create()->setGroups(array('ActivityList'));
+
+        $json = $this->serializer->serialize(
+            $listOfActivities,
+            'json',
+            $context
+        );
+        return new JsonResponse($json, 200, [], true);
     }
 }
