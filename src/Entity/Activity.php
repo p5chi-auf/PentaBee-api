@@ -18,9 +18,10 @@ use Swagger\Annotations as SWG;
  */
 class Activity
 {
-    public const STATUS_NEW = 0;
-    public const STATUS_FINISHED = 1;
-    public const STATUS_CLOSED = 2;
+    public const STATUS_IN_VALIDATION = 1;
+    public const STATUS_NEW = 2;
+    public const STATUS_FINISHED = 3;
+    public const STATUS_CLOSED = 4;
 
     /**
      * Activity ID
@@ -72,13 +73,13 @@ class Activity
     private $finalDeadline;
 
     /**
-     * Activity status (NEW, FINISHED, CLOSED int(0-2))
+     * Activity status (IN_VALIDATION, NEW, FINISHED, CLOSED int(1-4))
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
      * @Groups({"ActivityList", "ActivityDetails", "ActivityEdit"})
      * @SWG\Property()
      */
-    private $status = self::STATUS_NEW;
+    private $status = self::STATUS_IN_VALIDATION;
 
     /**
      * Activity owner (User)
@@ -278,6 +279,7 @@ class Activity
     public static function getAllStatuses(): array
     {
         return [
+            self::STATUS_IN_VALIDATION,
             self::STATUS_NEW,
             self::STATUS_FINISHED,
             self::STATUS_CLOSED
