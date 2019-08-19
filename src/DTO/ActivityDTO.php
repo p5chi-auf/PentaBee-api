@@ -16,10 +16,10 @@ use Swagger\Annotations as SWG;
  */
 class ActivityDTO
 {
-    public const STATUS_IN_VALIDATION = 0;
-    public const STATUS_NEW = 1;
-    public const STATUS_FINISHED = 2;
-    public const STATUS_CLOSED = 3;
+    public const STATUS_IN_VALIDATION = 1;
+    public const STATUS_NEW = 2;
+    public const STATUS_FINISHED = 3;
+    public const STATUS_CLOSED = 4;
 
     /**
      * @var int
