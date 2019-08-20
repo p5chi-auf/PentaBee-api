@@ -371,9 +371,9 @@ class ActivityController extends AbstractController
     public function deleteActivity(Activity $activity, ActivityRepository $activityRepository): JsonResponse
     {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
+        if (!$isAdmin && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -569,9 +569,9 @@ class ActivityController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ): Response {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
+        if (!$isAdmin && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -710,9 +710,9 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         /** @var User $applierUser */
         $applierUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $activity->isPublic() === false) {
+        if (!$isAdmin && $activity->isPublic() === false) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -859,9 +859,9 @@ class ActivityController extends AbstractController
     ): JsonResponse {
         /** @var User $authenticatedUser */
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $activity->getOwner() !== $authenticatedUser) {
+        if (!$isAdmin && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -990,9 +990,9 @@ class ActivityController extends AbstractController
         ActivityUserRepository $activityUserRepo
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $activity->getOwner() !== $authenticatedUser) {
+        if (!$isAdmin && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1099,9 +1099,9 @@ class ActivityController extends AbstractController
         ActivityUserRepository $activityUserRepo
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $activity->getOwner() !== $authenticatedUser) {
+        if (!$isAdmin && $activity->getOwner() !== $authenticatedUser) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -1330,9 +1330,9 @@ class ActivityController extends AbstractController
         ActivityCoverManager $activityCoverManager
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $authenticatedUser !== $activity->getOwner()) {
+        if (!$isAdmin && $authenticatedUser !== $activity->getOwner()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -1494,8 +1494,8 @@ class ActivityController extends AbstractController
     public function getActivitiesForValidation(ActivityRepository $activityRepository): JsonResponse
     {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_PM');
-        if (!$hasAccess) {
+        $isAdmin = $this->isGranted('ROLE_PM');
+        if (!$isAdmin) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'

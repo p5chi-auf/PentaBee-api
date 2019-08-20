@@ -201,8 +201,8 @@ class UserController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ) {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
-        if (!$hasAccess && $authenticatedUser->getId() !== $user->getId()) {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isAdmin && $authenticatedUser->getId() !== $user->getId()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -322,9 +322,9 @@ class UserController extends AbstractController
     public function deleteUser(User $user, UserRepository $userRepository): JsonResponse
     {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $authenticatedUser->getId() !== $user->getId()) {
+        if (!$isAdmin && $authenticatedUser->getId() !== $user->getId()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -601,8 +601,8 @@ class UserController extends AbstractController
         UserAvatarManager $userAvatarManager
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
-        if ($authenticatedUser !== $user && !$hasAccess) {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        if ($authenticatedUser !== $user && !$isAdmin) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -688,8 +688,8 @@ class UserController extends AbstractController
         Request $request,
         ValidationErrorSerializer $validationErrorSerializer
     ): JsonResponse {
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
-        if (!$hasAccess) {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isAdmin) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -799,8 +799,8 @@ class UserController extends AbstractController
         UserRepository $userRepository,
         Request $request
     ): JsonResponse {
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
-        if (!$hasAccess) {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        if (!$isAdmin) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'

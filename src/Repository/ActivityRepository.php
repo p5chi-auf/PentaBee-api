@@ -68,8 +68,8 @@ class ActivityRepository extends ServiceEntityRepository
         User $user
     ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('activity');
-        $hasAccess = $this->checker->isGranted('ROLE_ADMIN');
-        if ($hasAccess) {
+        $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
+        if ($isAdmin) {
             $queryBuilder
                 ->select('activity');
             if ((int)$activityListFilter->status !== Activity::STATUS_IN_VALIDATION) {
@@ -165,8 +165,8 @@ class ActivityRepository extends ServiceEntityRepository
             ->join('activity.owner', 'user')
             ->where('activity.status = :in_validation')
             ->setParameter(':in_validation', Activity::STATUS_IN_VALIDATION);
-        $hasAccess = $this->checker->isGranted('ROLE_ADMIN');
-        if (!$hasAccess) {
+        $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
+        if (!$isAdmin) {
             $queryBuilder
                 ->andWhere('user.projectManager = :project_manager')
                 ->setParameter(':project_manager', $user);

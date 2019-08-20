@@ -136,9 +136,9 @@ class CommentController extends AbstractController
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if ($rights === false && !$hasAccess) {
+        if ($rights === false && !$isAdmin) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -273,9 +273,9 @@ class CommentController extends AbstractController
         ValidationErrorSerializer $validationErrorSerializer
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $authenticatedUser !== $comment->getUser()) {
+        if (!$isAdmin && $authenticatedUser !== $comment->getUser()) {
             return new JsonResponse(
                 [
                     'code' => Response::HTTP_FORBIDDEN,
@@ -359,8 +359,8 @@ class CommentController extends AbstractController
     {
         $authenticatedUser = $this->getUser();
         $rights = $this->accessRightsPolicy->canAccessActivity($activity, $authenticatedUser);
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
-        if ($rights === false && !$hasAccess) {
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+        if ($rights === false && !$isAdmin) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
@@ -441,9 +441,9 @@ class CommentController extends AbstractController
         CommentRepository $commentRepository
     ): JsonResponse {
         $authenticatedUser = $this->getUser();
-        $hasAccess = $this->isGranted('ROLE_ADMIN');
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
 
-        if (!$hasAccess && $authenticatedUser->getId() !== $comment->getUser()->getId()) {
+        if (!$isAdmin && $authenticatedUser->getId() !== $comment->getUser()->getId()) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
                 'message' => 'Access denied!'
