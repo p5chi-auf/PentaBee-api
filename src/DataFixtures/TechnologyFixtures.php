@@ -4,9 +4,10 @@ namespace App\DataFixtures;
 
 use App\Entity\Technology;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class TechnologyFixtures extends Fixture
+class TechnologyFixtures extends Fixture implements FixtureInterface
 {
     public const TECHNOLOGIES = [
         'PHP' => 'Backend language.',

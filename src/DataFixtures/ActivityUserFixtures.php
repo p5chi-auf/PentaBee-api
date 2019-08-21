@@ -7,9 +7,10 @@ use App\Entity\ActivityUser;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 
-class ActivityUserFixtures extends Fixture implements DependentFixtureInterface
+class ActivityUserFixtures extends Fixture implements DependentFixtureInterface, FixtureInterface
 {
     public function load(ObjectManager $manager): void
     {

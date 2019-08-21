@@ -4,10 +4,11 @@ namespace App\DataFixtures;
 
 use App\Entity\ActivityType;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 
-class TypeFixtures extends Fixture
+class TypeFixtures extends Fixture implements FixtureInterface
 {
     public const TYPES = [
         'dt estimation',
