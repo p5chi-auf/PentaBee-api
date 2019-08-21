@@ -283,11 +283,7 @@ class ActivityController extends AbstractController
         $isAdmin = $this->isGranted('ROLE_ADMIN');
 
         if ($activity->getStatus() === Activity::STATUS_IN_VALIDATION &&
-            (
-                !$isAdmin ||
-                $user !== $activity->getOwner() ||
-                $user !== $activity->getOwner()->getProjectManager()
-            )
+            (!$isAdmin || $user !== $activity->getOwner() || $user !== $activity->getOwner()->getProjectManager())
         ) {
             return new JsonResponse([
                 'code' => Response::HTTP_FORBIDDEN,
