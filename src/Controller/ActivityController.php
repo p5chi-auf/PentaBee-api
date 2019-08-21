@@ -1538,12 +1538,12 @@ class ActivityController extends AbstractController
     }
 
     /**
-     * Validate an applicant.
+     * Validate a Job.
      * @Rest\Post("/{id}/validate")
      * @SWG\Post(
      *     tags={"Activity"},
-     *     summary="Validate an Job.",
-     *     description="Validate an Job.",
+     *     summary="Validate a Job.",
+     *     description="Validate a Job.",
      *     operationId="validateJob",
      *     produces={"application/json"},
      *     @SWG\Parameter(
