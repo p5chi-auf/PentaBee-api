@@ -1536,4 +1536,103 @@ class ActivityController extends AbstractController
         );
         return new JsonResponse($json, 200, [], true);
     }
+
+    /**
+     * Validate an applicant.
+     * @Rest\Post("/{id}/validate")
+     * @SWG\Post(
+     *     tags={"Activity"},
+     *     summary="Validate an Job.",
+     *     description="Validate an Job.",
+     *     operationId="validateJob",
+     *     produces={"application/json"},
+     *     @SWG\Parameter(
+     *     description="ID of Activity for validation",
+     *     in="path",
+     *     name="id",
+     *     required=true,
+     *     type="integer",
+     * )
+     * )
+     * @SWG\Response(
+     *     response=401,
+     *     description="Unauthorized.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=401),
+     *     @SWG\Property(property="message", type="string", example="JWT Token not found"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="200",
+     *     description="Successfull operation!",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="message", type="string", example="Job was validated with success!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="403",
+     *     description="Forbidden",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=403),
+     *     @SWG\Property(property="message", type="string", example="Access denied!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response="400",
+     *     description="Bad request.",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=400),
+     *     @SWG\Property(property="message", type="string", example="This Job dont need a validation!"),
+     *     )
+     * )
+     * @SWG\Response(
+     *     response=404,
+     *     description="Not found",
+     *     @SWG\Schema(
+     *     @SWG\Property(property="code", type="integer", example=404),
+     *     @SWG\Property(property="message", type="string", example="Not found!"),
+     *     )
+     * )
+     * @param Activity $activity
+     * @param ActivityRepository $activityRepo
+     * @return JsonResponse
+     * @throws LoaderError
+     * @throws ORMException
+     * @throws OptimisticLockException
+     * @throws RuntimeError
+     * @throws SyntaxError
+     */
+    public function validateJob(
+        Activity $activity,
+        ActivityRepository $activityRepo
+    ): JsonResponse {
+        $authenticatedUser = $this->getUser();
+        $isAdmin = $this->isGranted('ROLE_ADMIN');
+
+        if (!$isAdmin && $activity->getOwner()->getProjectManager() !== $authenticatedUser) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_FORBIDDEN,
+                    'message' => 'Access denied'
+                ],
+                Response::HTTP_FORBIDDEN
+            );
+        }
+
+        if ($activity->getStatus() !== Activity::STATUS_IN_VALIDATION) {
+            return new JsonResponse(
+                [
+                    'code' => Response::HTTP_BAD_REQUEST,
+                    'message' => 'This Job dont need a validation!'
+                ],
+                Response::HTTP_BAD_REQUEST
+            );
+        }
+
+        $subject = ' validated your Job: ';
+        $this->emailSender->sendEmail($authenticatedUser, $activity->getOwner(), $activity, $subject);
+        $activity->setStatus(Activity::STATUS_NEW);
+        $activityRepo->save($activity);
+        return new JsonResponse(['message' => 'Job was validated with success!'], Response::HTTP_OK);
+    }
 }
