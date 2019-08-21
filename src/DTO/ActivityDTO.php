@@ -16,9 +16,10 @@ use Swagger\Annotations as SWG;
  */
 class ActivityDTO
 {
-    public const STATUS_NEW = 0;
-    public const STATUS_FINISHED = 1;
-    public const STATUS_CLOSED = 2;
+    public const STATUS_IN_VALIDATION = 1;
+    public const STATUS_NEW = 2;
+    public const STATUS_FINISHED = 3;
+    public const STATUS_CLOSED = 4;
 
     /**
      * @var int
@@ -87,7 +88,7 @@ class ActivityDTO
      * @Groups({"ActivityEdit"})
      *
      */
-    public $status = self::STATUS_NEW;
+    public $status = self::STATUS_IN_VALIDATION;
 
 
     /**

@@ -68,19 +68,25 @@ class ActivityRepository extends ServiceEntityRepository
         User $user
     ): QueryBuilder {
         $queryBuilder = $this->createQueryBuilder('activity');
-        $hasAccess = $this->checker->isGranted('ROLE_ADMIN');
-        if ($hasAccess) {
+        $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
+        if ($isAdmin) {
             $queryBuilder
                 ->select('activity');
+            if ((int)$activityListFilter->status !== Activity::STATUS_IN_VALIDATION) {
+                $queryBuilder->where('activity.status != :need_validation')
+                    ->setParameter(':need_validation', Activity::STATUS_IN_VALIDATION);
+            }
         } else {
             $queryBuilder
                 ->select('DISTINCT activity')
                 ->leftJoin('activity.activityUsers', 'activityUsers')
                 ->where($queryBuilder->expr()->orX(
                     $queryBuilder->expr()->eq('activity.public', 1),
+                    $queryBuilder->expr()->neq('activity.status', ':need_validation'),
                     $queryBuilder->expr()->eq('activity.owner', ':user'),
                     $queryBuilder->expr()->eq('activityUsers.user', ':user')
                 ))
+                ->setParameter(':need_validation', Activity::STATUS_IN_VALIDATION)
                 ->setParameter('user', $user);
         }
         if ($activityListFilter->name !== null) {
@@ -148,5 +154,24 @@ class ActivityRepository extends ServiceEntityRepository
             ->getQuery();
 
         return $query;
+    }
+
+    public function getActivitiesForValidation(
+        User $user
+    ): QueryBuilder {
+        $queryBuilder = $this->createQueryBuilder('activity');
+        $queryBuilder
+            ->select('activity')
+            ->join('activity.owner', 'user')
+            ->where('activity.status = :in_validation')
+            ->setParameter(':in_validation', Activity::STATUS_IN_VALIDATION);
+        $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
+        if (!$isAdmin) {
+            $queryBuilder
+                ->andWhere('user.projectManager = :project_manager')
+                ->setParameter(':project_manager', $user);
+        }
+
+        return $queryBuilder;
     }
 }
