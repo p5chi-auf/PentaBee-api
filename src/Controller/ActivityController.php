@@ -41,6 +41,9 @@ use Symfony\Component\Routing\Annotation\Route;
 use FOS\RestBundle\Controller\Annotations as Rest;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Swagger\Annotations as SWG;
+use Twig\Error\LoaderError;
+use Twig\Error\RuntimeError;
+use Twig\Error\SyntaxError;
 
 /**
  * Activity controller.
@@ -430,8 +433,11 @@ class ActivityController extends AbstractController
      * @param Request $request
      * @param ValidationErrorSerializer $validationErrorSerializer
      * @return Response
+     * @throws LoaderError
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function createAction(
         ActivityRepository $activityRepository,
@@ -696,9 +702,12 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
      * @return JsonResponse
+     * @throws LoaderError
      * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function applyForActivity(
         Activity $activity,
@@ -844,9 +853,12 @@ class ActivityController extends AbstractController
      * @param User $invitedUser
      * @param ActivityUserRepository $activityUserRepo
      * @return JsonResponse
+     * @throws LoaderError
      * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function inviteUserToActivity(
         Activity $activity,
@@ -976,9 +988,12 @@ class ActivityController extends AbstractController
      * @param User $user
      * @param ActivityUserRepository $activityUserRepo
      * @return JsonResponse
+     * @throws LoaderError
      * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function acceptAnUserAppliance(
         Activity $activity,
@@ -1088,6 +1103,9 @@ class ActivityController extends AbstractController
      * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function rejectAnUserAppliance(
         Activity $activity,
@@ -1170,6 +1188,9 @@ class ActivityController extends AbstractController
      * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws LoaderError
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function acceptInvitation(
         Activity $activity,
@@ -1237,9 +1258,12 @@ class ActivityController extends AbstractController
      * @param Activity $activity
      * @param ActivityUserRepository $activityUserRepo
      * @return JsonResponse
+     * @throws LoaderError
      * @throws NonUniqueResultException
      * @throws ORMException
      * @throws OptimisticLockException
+     * @throws RuntimeError
+     * @throws SyntaxError
      */
     public function declineInvitation(
         Activity $activity,
