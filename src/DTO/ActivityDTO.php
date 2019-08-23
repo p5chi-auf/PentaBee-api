@@ -78,11 +78,11 @@ class ActivityDTO
      * @var int
      * @Serializer\Type("integer")
      * @Assert\Range(
-     *     min = 0,
-     *     max = 2,
-     *     minMessage="Status must be in range 0-2!",
-     *     maxMessage="Status must be in range 0-2!",
-     *     groups={"ActivityEdit", "ActivityCreate"}
+     *     min = 1,
+     *     max = 4,
+     *     minMessage="Status must be in range 1-4!",
+     *     maxMessage="Status must be in range 1-4!",
+     *     groups={"ActivityEdit"}
      * )
      * @Serializer\Expose()
      * @Groups({"ActivityEdit"})

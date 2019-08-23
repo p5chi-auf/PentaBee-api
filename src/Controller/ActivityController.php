@@ -490,11 +490,10 @@ class ActivityController extends AbstractController
         }
 
         $activityRepository->save($newActivity);
-
-        $subject = ' has created a new activity waiting for your validation ';
-
-        $this->emailSender->sendEmail($owner, $owner->getProjectManager(), $newActivity, $subject);
-
+        if ($owner->getProjectManager()) {
+            $subject = ' has created a new activity waiting for your validation ';
+            $this->emailSender->sendEmail($owner, $owner->getProjectManager(), $newActivity, $subject);
+        }
         return new JsonResponse(['message' => 'Activity successfully created!'], Response::HTTP_CREATED);
     }
 

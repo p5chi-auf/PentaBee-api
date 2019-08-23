@@ -4,8 +4,11 @@ namespace App\DataFixtures;
 
 use App\Entity\Technology;
 use App\Entity\User;
+use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\ORM\OptimisticLockException;
+use Doctrine\ORM\ORMException;
 use Faker\Factory;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -22,13 +25,25 @@ class UserFixtures extends Fixture
      */
     private $encoder;
 
-    public function __construct(UserPasswordEncoderInterface $encoder)
+    /**
+     * @param UserPasswordEncoderInterface $encoder
+     * @param UserRepository $userRepository
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function __construct(UserPasswordEncoderInterface $encoder, UserRepository $userRepository)
     {
         $this->encoder = $encoder;
+        $users = $userRepository->findAll();
+        foreach ($users as $user) {
+            $userRepository->unassignProjectManager($user);
+        }
     }
+
 
     public function load(ObjectManager $manager): void
     {
+
         $faker = Factory::create();
 
         $user = new User();
@@ -46,6 +61,21 @@ class UserFixtures extends Fixture
         $manager->persist($user);
 
         $user = new User();
+        $user->setUsername('project_manager');
+        $user->setPassword($this->encoder->encodePassword($user, 'iampm'));
+        $user->setPosition(self::POSITIONS[rand(0, 2)]);
+        $user->setSeniority(1);
+        $user->setLocation(User::LOCATION[rand(0, 12)]);
+        $user->setName('Project');
+        $user->setSurname('Manager');
+        $user->setEmail('pm@pentalog.com');
+        $user->setBiography($faker->sentence);
+        $user->setStars(0);
+        $user->setRoles((array)'ROLE_PM');
+        $this->setReference('projectManager', $user);
+        $manager->persist($user);
+
+        $user = new User();
         $user->setUsername('USER');
         $user->setPassword($this->encoder->encodePassword($user, 'passtester'));
         $user->setPosition(self::POSITIONS[rand(0, 2)]);
@@ -57,6 +87,10 @@ class UserFixtures extends Fixture
         $user->setBiography($faker->sentence);
         $user->setStars(0);
         $user->setRoles((array)'ROLE_USER');
+
+        /** @var User $projectManager */
+        $projectManager = $this->getReference('projectManager');
+        $user->setProjectManager($projectManager);
         $manager->persist($user);
 
         for ($i = 0; $i < 10; $i++) {
