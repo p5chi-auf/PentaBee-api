@@ -35,7 +35,30 @@ class LoginTest extends WebTestCase
         );
     }
 
-    public function testSuccessfulLogin()
+    private function tokenDecode(string $token)
+    {
+        $tokenParts = explode('.', $token);
+        $tokenHeader = base64_decode($tokenParts[0]);
+        $tokenPayload = base64_decode($tokenParts[1]);
+        $jwtHeader = json_decode($tokenHeader);
+        $jwtPayload = json_decode($tokenPayload);
+
+        return [
+            'header' => (array)$jwtHeader,
+            'payload' => (array)$jwtPayload,
+        ];
+    }
+
+    private function getUsernameRoles($token)
+    {
+        $decodedToken = $this->tokenDecode($token);
+        return [
+            'username' => $decodedToken['payload']['username'],
+            'roles' => $decodedToken['payload']['roles'][0],
+        ];
+    }
+
+    public function testSuccessfulAdminLogin()
     {
         $data = [
             'username' => 'ADMIN',
@@ -45,6 +68,24 @@ class LoginTest extends WebTestCase
 
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertArrayHasKey('token', json_decode($this->client->getResponse()->getContent(), true));
+        $token = json_decode($this->client->getResponse()->getContent(), true)['token'];
+        $this->assertEquals($data['username'], $this->getUsernameRoles($token)['username']);
+        $this->assertEquals('ROLE_ADMIN', $this->getUsernameRoles($token)['roles']);
+    }
+
+    public function testSuccessfulUserLogin()
+    {
+        $data = [
+            'username' => 'USER',
+            'password' => 'passtester'
+        ];
+        $this->loginPostRequest($data);
+
+        $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
+        $this->assertArrayHasKey('token', json_decode($this->client->getResponse()->getContent(), true));
+        $token = json_decode($this->client->getResponse()->getContent(), true)['token'];
+        $this->assertEquals($data['username'], $this->getUsernameRoles($token)['username']);
+        $this->assertEquals('ROLE_USER', $this->getUsernameRoles($token)['roles']);
     }
 
     public function testUnsuccessfulLogin()
