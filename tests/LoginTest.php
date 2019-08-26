@@ -23,7 +23,7 @@ class LoginTest extends WebTestCase
         $this->client = self::createClient();
     }
 
-    private function loginPostRequest($data)
+    private function loginPostRequest($data): void
     {
         $this->client->request(
             'POST',
@@ -35,7 +35,7 @@ class LoginTest extends WebTestCase
         );
     }
 
-    private function tokenDecode(string $token)
+    private function tokenDecode(string $token): array
     {
         $tokenParts = explode('.', $token);
         $tokenHeader = base64_decode($tokenParts[0]);
@@ -49,7 +49,7 @@ class LoginTest extends WebTestCase
         ];
     }
 
-    private function getUsernameRoles($token)
+    private function getUsernameRoles($token): array
     {
         $decodedToken = $this->tokenDecode($token);
         return [
@@ -58,7 +58,7 @@ class LoginTest extends WebTestCase
         ];
     }
 
-    public function testSuccessfulAdminLogin()
+    public function testSuccessfulAdminLogin(): void
     {
         $data = [
             'username' => 'ADMIN',
@@ -73,7 +73,7 @@ class LoginTest extends WebTestCase
         $this->assertEquals('ROLE_ADMIN', $this->getUsernameRoles($token)['roles']);
     }
 
-    public function testSuccessfulUserLogin()
+    public function testSuccessfulUserLogin(): void
     {
         $data = [
             'username' => 'USER',
@@ -88,7 +88,7 @@ class LoginTest extends WebTestCase
         $this->assertEquals('ROLE_USER', $this->getUsernameRoles($token)['roles']);
     }
 
-    public function testUnsuccessfulLogin()
+    public function testUnsuccessfulLogin(): void
     {
         $data = [
             'username' => 'incorrectUsername',
