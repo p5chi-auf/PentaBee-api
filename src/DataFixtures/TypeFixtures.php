@@ -13,7 +13,13 @@ class TypeFixtures extends Fixture implements FixtureInterface
     public const TYPES = [
         'dt estimation',
         'dt audit',
-        'kss session'
+        'kss session',
+        'coaching',
+        'mentoring',
+        'roadmap',
+        'skillvalue test',
+        'public event',
+        'knowledge sharing'
     ];
 
     public function load(ObjectManager $manager): void

@@ -32,7 +32,7 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface, Fix
             $activity->setOwner($owner);
 
             /** @var ActivityType $type */
-            $type = $this->getReference('type_' . TypeFixtures::TYPES[rand(0, 2)]);
+            $type = $this->getReference('type_' . TypeFixtures::TYPES[rand(0, 8)]);
             $activity->addType($type);
 
             /** @var Technology $technology */
