@@ -4,11 +4,8 @@ namespace App\DataFixtures;
 
 use App\Entity\Technology;
 use App\Entity\User;
-use App\Repository\UserRepository;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
 use Faker\Factory;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
@@ -27,17 +24,10 @@ class UserFixtures extends Fixture
 
     /**
      * @param UserPasswordEncoderInterface $encoder
-     * @param UserRepository $userRepository
-     * @throws ORMException
-     * @throws OptimisticLockException
      */
-    public function __construct(UserPasswordEncoderInterface $encoder, UserRepository $userRepository)
+    public function __construct(UserPasswordEncoderInterface $encoder)
     {
         $this->encoder = $encoder;
-        $users = $userRepository->findAll();
-        foreach ($users as $user) {
-            $userRepository->unassignProjectManager($user);
-        }
     }
 
 
