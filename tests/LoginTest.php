@@ -4,6 +4,8 @@ namespace App\Tests;
 
 use App\DataFixtures\TechnologyFixtures;
 use App\DataFixtures\UserFixtures;
+use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
+use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 
@@ -13,10 +15,13 @@ class LoginTest extends WebTestCase
 
     private $client;
 
+    private $tokenEncoder;
+
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
         $this->client = self::createClient();
+        $this->tokenEncoder = static::$container->get(JWTEncoderInterface::class);
     }
 
     private function loadFixturesForTest(): void
@@ -39,29 +44,21 @@ class LoginTest extends WebTestCase
         );
     }
 
-    private function tokenDecode(string $token): array
-    {
-        $tokenParts = explode('.', $token);
-        $tokenHeader = base64_decode($tokenParts[0]);
-        $tokenPayload = base64_decode($tokenParts[1]);
-        $jwtHeader = json_decode($tokenHeader);
-        $jwtPayload = json_decode($tokenPayload);
-
-        return [
-            'header' => (array)$jwtHeader,
-            'payload' => (array)$jwtPayload,
-        ];
-    }
-
+    /**
+     * @throws JWTDecodeFailureException
+     */
     private function getUsernameRoles($token): array
     {
-        $decodedToken = $this->tokenDecode($token);
+        $decodedToken = $this->tokenEncoder->decode($token);
         return [
-            'username' => $decodedToken['payload']['username'],
-            'roles' => $decodedToken['payload']['roles'][0],
+            'username' => $decodedToken['username'],
+            'roles' => $decodedToken['roles'][0],
         ];
     }
 
+    /**
+     * @throws JWTDecodeFailureException
+     */
     public function testSuccessfulAdminLogin(): void
     {
         $this->loadFixturesForTest();
@@ -78,6 +75,9 @@ class LoginTest extends WebTestCase
         $this->assertEquals('ROLE_ADMIN', $this->getUsernameRoles($token)['roles']);
     }
 
+    /**
+     * @throws JWTDecodeFailureException
+     */
     public function testSuccessfulUserLogin(): void
     {
         $this->loadFixturesForTest();

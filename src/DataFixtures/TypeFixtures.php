@@ -10,15 +10,14 @@ use Faker\Factory;
 class TypeFixtures extends Fixture
 {
     public const TYPES = [
-        'dt estimation',
-        'dt audit',
-        'kss session',
-        'coaching',
-        'mentoring',
-        'roadmap',
-        'skillvalue test',
-        'public event',
-        'knowledge sharing'
+        'DT Estimation',
+        'DT Audit',
+        'Knowledge Sharing Session',
+        'Coaching',
+        'Mentoring',
+        'Roadmap',
+        'SkillValue Test',
+        'Public Event',
     ];
 
     public function load(ObjectManager $manager): void
