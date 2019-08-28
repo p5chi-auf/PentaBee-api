@@ -16,11 +16,15 @@ class LoginTest extends WebTestCase
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
+        $this->client = self::createClient();
+    }
+
+    private function loadFixturesForTest(): void
+    {
         $this->loadFixtures([
             TechnologyFixtures::class,
             UserFixtures::class,
         ]);
-        $this->client = self::createClient();
     }
 
     private function loginPostRequest($data): void
@@ -60,6 +64,7 @@ class LoginTest extends WebTestCase
 
     public function testSuccessfulAdminLogin(): void
     {
+        $this->loadFixturesForTest();
         $data = [
             'username' => 'ADMIN',
             'password' => 'iamadmin'
@@ -75,6 +80,7 @@ class LoginTest extends WebTestCase
 
     public function testSuccessfulUserLogin(): void
     {
+        $this->loadFixturesForTest();
         $data = [
             'username' => 'USER',
             'password' => 'passtester'
