@@ -1636,7 +1636,7 @@ class ActivityController extends AbstractController
     }
 
     /**
-     * Validate a Job.
+     * Reject a Job.
      * @Rest\Post("/{id}/reject")
      * @SWG\Post(
      *     tags={"Activity"},
