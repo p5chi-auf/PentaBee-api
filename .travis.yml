@@ -17,7 +17,7 @@ before_script:
   - php composer.phar install -n
 
 script:
-  - php bin/phpunit --coverage-clover build/coverage/xml
+  - php bin/phpunit --verbose --coverage-clover build/coverage/xml
 
 after_script:
   - php bin/codacycoverage clover build/coverage/xml
