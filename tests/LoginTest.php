@@ -71,7 +71,6 @@ class LoginTest extends WebTestCase
         ];
         $this->loginPostRequest($data);
 
-        $this->assertNotEquals('', $this->client->getResponse()->getContent());
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertArrayHasKey('token', json_decode($this->client->getResponse()->getContent(), true));
         $token = json_decode($this->client->getResponse()->getContent(), true)['token'];
@@ -88,7 +87,6 @@ class LoginTest extends WebTestCase
         ];
         $this->loginPostRequest($data);
 
-        $this->assertEquals('', $this->client->getResponse()->getContent());
         $this->assertEquals(200, $this->client->getResponse()->getStatusCode());
         $this->assertArrayHasKey('token', json_decode($this->client->getResponse()->getContent(), true));
         $token = json_decode($this->client->getResponse()->getContent(), true)['token'];

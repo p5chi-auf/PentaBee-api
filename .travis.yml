@@ -15,6 +15,8 @@ before_script:
   - yes '' | pecl install imagick
   - curl -s http://getcomposer.org/installer | php
   - php composer.phar install -n
+  - openssl genpkey -out config/jwt/private.pem -aes256 -algorithm rsa -pkeyopt rsa_keygen_bits:4096 -pass pass:passphrase
+  - openssl pkey -in config/jwt/private.pem -out config/jwt/public.pem -pubout -passin pass:passphrase
 
 script:
   - php bin/phpunit --verbose --coverage-clover build/coverage/xml
