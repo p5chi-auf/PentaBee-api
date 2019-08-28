@@ -22,13 +22,18 @@ class UserFixtures extends Fixture
      */
     private $encoder;
 
+    /**
+     * @param UserPasswordEncoderInterface $encoder
+     */
     public function __construct(UserPasswordEncoderInterface $encoder)
     {
         $this->encoder = $encoder;
     }
 
+
     public function load(ObjectManager $manager): void
     {
+
         $faker = Factory::create();
 
         $user = new User();
@@ -46,6 +51,21 @@ class UserFixtures extends Fixture
         $manager->persist($user);
 
         $user = new User();
+        $user->setUsername('project_manager');
+        $user->setPassword($this->encoder->encodePassword($user, 'iampm'));
+        $user->setPosition(self::POSITIONS[rand(0, 2)]);
+        $user->setSeniority(1);
+        $user->setLocation(User::LOCATION[rand(0, 12)]);
+        $user->setName('Project');
+        $user->setSurname('Manager');
+        $user->setEmail('pm@pentalog.com');
+        $user->setBiography($faker->sentence);
+        $user->setStars(0);
+        $user->setRoles((array)'ROLE_PM');
+        $this->setReference('projectManager', $user);
+        $manager->persist($user);
+
+        $user = new User();
         $user->setUsername('USER');
         $user->setPassword($this->encoder->encodePassword($user, 'passtester'));
         $user->setPosition(self::POSITIONS[rand(0, 2)]);
@@ -57,6 +77,10 @@ class UserFixtures extends Fixture
         $user->setBiography($faker->sentence);
         $user->setStars(0);
         $user->setRoles((array)'ROLE_USER');
+
+        /** @var User $projectManager */
+        $projectManager = $this->getReference('projectManager');
+        $user->setProjectManager($projectManager);
         $manager->persist($user);
 
         for ($i = 0; $i < 10; $i++) {
