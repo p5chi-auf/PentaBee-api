@@ -5,12 +5,11 @@ namespace App\DataFixtures;
 use App\Entity\Technology;
 use App\Entity\User;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Common\Persistence\ObjectManager;
 use Faker\Factory;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class UserFixtures extends Fixture implements FixtureInterface
+class UserFixtures extends Fixture
 {
     public const POSITIONS = [
         'dev',
