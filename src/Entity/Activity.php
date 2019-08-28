@@ -22,6 +22,7 @@ class Activity
     public const STATUS_NEW = 2;
     public const STATUS_FINISHED = 3;
     public const STATUS_CLOSED = 4;
+    public const STATUS_REJECTED = 5;
 
     /**
      * Activity ID
@@ -73,7 +74,7 @@ class Activity
     private $finalDeadline;
 
     /**
-     * Activity status (IN_VALIDATION, NEW, FINISHED, CLOSED int(1-4))
+     * Activity status (IN_VALIDATION, NEW, FINISHED, CLOSED, REJECTED int(1-5))
      * @ORM\Column(type="integer")
      * @Serializer\Expose()
      * @Groups({"ActivityList", "ActivityDetails", "ActivityEdit"})
@@ -282,7 +283,8 @@ class Activity
             self::STATUS_IN_VALIDATION,
             self::STATUS_NEW,
             self::STATUS_FINISHED,
-            self::STATUS_CLOSED
+            self::STATUS_CLOSED,
+            self::STATUS_REJECTED
         ];
     }
 
