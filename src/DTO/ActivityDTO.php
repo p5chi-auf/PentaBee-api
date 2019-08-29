@@ -20,6 +20,7 @@ class ActivityDTO
     public const STATUS_NEW = 2;
     public const STATUS_FINISHED = 3;
     public const STATUS_CLOSED = 4;
+    public const STATUS_REJECTED = 5;
 
     /**
      * @var int
