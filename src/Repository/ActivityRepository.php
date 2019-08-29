@@ -71,20 +71,21 @@ class ActivityRepository extends ServiceEntityRepository
         $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
         if ($isAdmin) {
             $queryBuilder
-                ->select('activity');
+                ->select('activity')
+                ->where('1=1');
             if ((int)$activityListFilter->status !== Activity::STATUS_IN_VALIDATION) {
-                $queryBuilder->where('activity.status != :need_validation')
+                $queryBuilder->andWhere('activity.status != :need_validation')
                     ->setParameter(':need_validation', Activity::STATUS_IN_VALIDATION);
             }
             if ((int)$activityListFilter->status !== Activity::STATUS_REJECTED) {
-                $queryBuilder->where('activity.status != :rejected')
+                $queryBuilder->andWhere('activity.status != :rejected')
                     ->setParameter(':rejected', Activity::STATUS_REJECTED);
             }
         } else {
             $queryBuilder
                 ->select('DISTINCT activity')
                 ->leftJoin('activity.activityUsers', 'activityUsers')
-                ->where($queryBuilder->expr()->orX(
+                ->andWhere($queryBuilder->expr()->orX(
                     $queryBuilder->expr()->eq('activity.public', 1),
                     $queryBuilder->expr()->eq('activity.owner', ':user'),
                     $queryBuilder->expr()->eq('activityUsers.user', ':user')
