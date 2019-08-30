@@ -20,6 +20,7 @@ use App\Service\ActivityCoverManager;
 use App\Service\ImageManager;
 use Doctrine\ORM\OptimisticLockException;
 use Doctrine\ORM\ORMException;
+use Symfony\Component\Security\Core\Authorization\AuthorizationCheckerInterface;
 
 class ActivityTransformer
 {
@@ -44,19 +45,25 @@ class ActivityTransformer
      * @var ImageManager
      */
     private $activityCoverManager;
+    /**
+     * @var AuthorizationCheckerInterface
+     */
+    private $checker;
 
     public function __construct(
         TechnologyRepository $techRepo,
         ActivityTypeRepository $typeRepo,
         ActivityRepository $activityRepository,
         ImageRepository $imageRepository,
-        ActivityCoverManager $activityCoverManager
+        ActivityCoverManager $activityCoverManager,
+        AuthorizationCheckerInterface $checker
     ) {
         $this->techRepo = $techRepo;
         $this->typeRepo = $typeRepo;
         $this->activityRepository = $activityRepository;
         $this->imageRepository = $imageRepository;
         $this->activityCoverManager = $activityCoverManager;
+        $this->checker = $checker;
     }
 
 
@@ -164,8 +171,8 @@ class ActivityTransformer
         $activity->setDescription($dto->description);
         $activity->setApplicationDeadline($dto->applicationDeadline);
         $activity->setFinalDeadline($dto->finalDeadline);
-
-        if ($activity->getStatus() !== Activity::STATUS_IN_VALIDATION) {
+        $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
+        if ($isAdmin || $activity->getStatus() !== (Activity::STATUS_IN_VALIDATION || Activity::STATUS_REJECTED)) {
             $activity->setStatus($dto->status);
         }
 

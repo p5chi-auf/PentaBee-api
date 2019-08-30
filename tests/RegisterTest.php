@@ -2,6 +2,10 @@
 
 namespace App\Tests;
 
+use App\DataFixtures\ActivityFixtures;
+use App\DataFixtures\TechnologyFixtures;
+use App\DataFixtures\TypeFixtures;
+use App\DataFixtures\UserFixtures;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 use Liip\TestFixturesBundle\Test\FixturesTrait;
@@ -17,7 +21,12 @@ class RegisterTest extends WebTestCase
     public function __construct($name = null, array $data = [], $dataName = '')
     {
         parent::__construct($name, $data, $dataName);
-        $this->loadFixtures();
+        $this->loadFixtures([
+            TechnologyFixtures::class,
+            UserFixtures::class,
+            TypeFixtures::class,
+            ActivityFixtures::class
+        ]);
         $this->client = self::createClient();
     }
 
@@ -246,8 +255,7 @@ class RegisterTest extends WebTestCase
         ?string $expectedPropertyPath,
         ?string $expectedErrorCode,
         ?string $expectedValidationErrorMessage
-    ): void
-    {
+    ): void {
         $initialData = [
             'username' => 'TestUsername1',
             'password' => 'TestPassword_1',

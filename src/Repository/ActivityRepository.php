@@ -82,33 +82,25 @@ class ActivityRepository extends ServiceEntityRepository
         $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
         if ($isAdmin) {
             $queryBuilder
-                ->select('activity')
-                ->where('1=1');
-            if ((int)$activityListFilter->status !== Activity::STATUS_IN_VALIDATION) {
-                $queryBuilder->andWhere('activity.status != :need_validation')
-                    ->setParameter(':need_validation', Activity::STATUS_IN_VALIDATION);
-            }
-            if ((int)$activityListFilter->status !== Activity::STATUS_REJECTED) {
-                $queryBuilder->andWhere('activity.status != :rejected')
-                    ->setParameter(':rejected', Activity::STATUS_REJECTED);
-            }
+                ->select('activity');
         } else {
             $queryBuilder
                 ->select('DISTINCT activity')
                 ->leftJoin('activity.activityUsers', 'activityUsers')
-                ->andWhere($queryBuilder->expr()->orX(
-                    $queryBuilder->expr()->eq('activity.public', 1),
+                ->where($queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('activity.public', 1),
+                        $queryBuilder->expr()->neq('activity.status', ':rejected'),
+                        $queryBuilder->expr()->neq('activity.status', ':need_validation')
+                    ),
                     $queryBuilder->expr()->eq('activity.owner', ':user'),
                     $queryBuilder->expr()->eq('activityUsers.user', ':user')
                 ))
-                ->andWhere($queryBuilder->expr()->andX(
-                    $queryBuilder->expr()->neq('activity.status', ':need_validation'),
-                    $queryBuilder->expr()->neq('activity.status', ':rejected')
-                ))
                 ->setParameter(':rejected', Activity::STATUS_REJECTED)
                 ->setParameter(':need_validation', Activity::STATUS_IN_VALIDATION)
-                ->setParameter('user', $user);
+                ->setParameter(':user', $user);
         }
+
         if ($activityListFilter->name !== null) {
             $queryBuilder->andWhere('activity.name LIKE :nameFilter')
                 ->setParameter('nameFilter', $activityListFilter->name . '%');
