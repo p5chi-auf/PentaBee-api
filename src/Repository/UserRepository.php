@@ -27,13 +27,20 @@ class UserRepository extends ServiceEntityRepository
      * @var CommentRepository
      */
     private $commentRepository;
+    /**
+     * @var FeedbackRepository
+     */
+    private $feedbackRepository;
 
     public function __construct(
         RegistryInterface $registry,
-        CommentRepository $commentRepository
-    ) {
+        CommentRepository $commentRepository,
+        FeedbackRepository $feedbackRepository
+    )
+    {
         parent::__construct($registry, User::class);
         $this->commentRepository = $commentRepository;
+        $this->feedbackRepository = $feedbackRepository;
     }
 
     /**
@@ -60,6 +67,7 @@ class UserRepository extends ServiceEntityRepository
     {
         $this->commentRepository->anonymizeUserComments($user);
         $this->unassignProjectManager($user);
+        $this->feedbackRepository->anonymizeUserFeedback($user);
         $em = $this->getEntityManager();
         $em->remove($user);
         $em->flush();
@@ -87,7 +95,8 @@ class UserRepository extends ServiceEntityRepository
     public function getUserList(
         UserListFilter $userListFilter,
         UserListSort $userListSort
-    ): QueryBuilder {
+    ): QueryBuilder
+    {
         $queryBuilder = $this->createQueryBuilder('user');
         $queryBuilder
             ->select('user');
@@ -106,7 +115,8 @@ class UserRepository extends ServiceEntityRepository
         UserListPagination $userListPagination,
         UserListSort $userListSort,
         UserListFilter $userListFilter
-    ): Query {
+    ): Query
+    {
         $queryBuilder = $this->getUserList($userListFilter, $userListSort);
         if ($userListPagination->pageSize === -1) {
             return $queryBuilder->getQuery();
@@ -127,7 +137,8 @@ class UserRepository extends ServiceEntityRepository
         UserListSort $userListSort,
         UserListFilter $userListFilter,
         Activity $activity
-    ): Query {
+    ): Query
+    {
         $queryBuilder = $this->getUsersForActivity($userListFilter, $userListSort, $activity);
         if ($userListPagination->pageSize === -1) {
             return $queryBuilder->getQuery();
@@ -147,7 +158,8 @@ class UserRepository extends ServiceEntityRepository
         UserListFilter $userListFilter,
         UserListSort $userListSort,
         Activity $activity
-    ): QueryBuilder {
+    ): QueryBuilder
+    {
         $queryBuilder = $this->createQueryBuilder('user');
         $queryBuilder
             ->select('DISTINCT user')

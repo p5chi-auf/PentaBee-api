@@ -99,4 +99,39 @@ class FeedbackRepository extends ServiceEntityRepository
         }
         return false;
     }
+
+    /**
+     * @param User $user
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function anonymizeUserFeedback(User $user): void
+    {
+
+        $em = $this->getEntityManager();
+        $userToFeedbacks = $this->findBy(array('userTo' => $user));
+        foreach ($userToFeedbacks as $userToFeedback) {
+            $em->remove($userToFeedback);
+        }
+        $userFromFeedbacks = $this->findBy(array('userFrom' => $user));
+        foreach ($userFromFeedbacks as $userFromFeedback) {
+            $userFromFeedback->setUserFrom(null);
+        }
+        $em->flush();
+    }
+
+    /**
+     * @param Activity $activity
+     * @throws ORMException
+     * @throws OptimisticLockException
+     */
+    public function anonymizeFeedbackOnActivity(Activity $activity): void
+    {
+        $activityFeedbacks = $this->findBy(array('activity' => $activity));
+        foreach ($activityFeedbacks as $activityFeedback) {
+            $activityFeedback->setActivity(null);
+        }
+        $em = $this->getEntityManager();
+        $em->flush();
+    }
 }
