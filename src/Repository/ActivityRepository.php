@@ -72,10 +72,6 @@ class ActivityRepository extends ServiceEntityRepository
         if ($isAdmin) {
             $queryBuilder
                 ->select('activity');
-            if ((int)$activityListFilter->status !== Activity::STATUS_IN_VALIDATION) {
-                $queryBuilder->where('activity.status != :need_validation')
-                    ->setParameter(':need_validation', Activity::STATUS_IN_VALIDATION);
-            }
         } else {
             $queryBuilder
                 ->select('DISTINCT activity')

@@ -28,12 +28,12 @@ class RejectJobTest extends WebTestCase
         ]);
     }
 
-    private function rejectJobPostRequest(Activity $activityToReject, Client $client): void
+    private function rejectJobPostRequest($activityToReject, Client $client): void
     {
         $format = '/api/activities/%d/reject';
         $client->request(
             'POST',
-            sprintf($format, $activityToReject->getId()),
+            sprintf($format, $activityToReject),
             [],
             [],
             ['CONTENT_TYPE' => 'application/json']
@@ -71,7 +71,7 @@ class RejectJobTest extends WebTestCase
         $activityToReject = $activityRepository->findOneBy(array(
             'status' => 1,
         ));
-        $this->rejectJobPostRequest($activityToReject, $client);
+        $this->rejectJobPostRequest($activityToReject->getId(), $client);
         $em = self::$container->get(EntityManagerInterface::class);
         $em->refresh($activityToReject);
         $this->assertEquals(200, $client->getResponse()->getStatusCode());

@@ -2,7 +2,9 @@
 
 namespace App\Tests;
 
+use App\DataFixtures\ActivityFixtures;
 use App\DataFixtures\TechnologyFixtures;
+use App\DataFixtures\TypeFixtures;
 use App\DataFixtures\UserFixtures;
 use Lexik\Bundle\JWTAuthenticationBundle\Encoder\JWTEncoderInterface;
 use Lexik\Bundle\JWTAuthenticationBundle\Exception\JWTDecodeFailureException;
@@ -29,6 +31,8 @@ class LoginTest extends WebTestCase
         $this->loadFixtures([
             TechnologyFixtures::class,
             UserFixtures::class,
+            TypeFixtures::class,
+            ActivityFixtures::class
         ]);
     }
 
