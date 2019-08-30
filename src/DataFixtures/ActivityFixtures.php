@@ -16,6 +16,27 @@ class ActivityFixtures extends Fixture implements DependentFixtureInterface
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
+        $activity = new Activity();
+        $activity->setName($faker->jobTitle);
+        $activity->setDescription($faker->sentence);
+        $activity->setApplicationDeadline($faker->dateTimeInInterval('now', '+10 days'));
+        $activity->setFinalDeadline($faker->dateTimeInInterval('+10 days', '+30 days'));
+        $activity->setStatus(1);
+        $activity->setPublic((bool)rand(0, 1));
+
+        /** @var User $owner */
+        $owner = $this->getReference('user_' . rand(3, 6));
+        $activity->setOwner($owner);
+
+        /** @var ActivityType $type */
+        $type = $this->getReference('type_' . TypeFixtures::TYPES[rand(0, 2)]);
+        $activity->addType($type);
+
+        /** @var Technology $technology */
+        $technology = $this->getReference('tech_' . array_rand(TechnologyFixtures::TECHNOLOGIES));
+        $activity->addTechnology($technology);
+        $manager->persist($activity);
+
         for ($i = 0; $i < 10; $i++) {
             $activity = new Activity();
             $activity->setName($faker->jobTitle);
