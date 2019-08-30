@@ -28,11 +28,20 @@ class ActivityRepository extends ServiceEntityRepository
      * @var AuthorizationCheckerInterface
      */
     private $checker;
+    /**
+     * @var FeedbackRepository
+     */
+    private $feedbackRepository;
 
-    public function __construct(RegistryInterface $registry, AuthorizationCheckerInterface $checker)
+    public function __construct(
+        RegistryInterface $registry,
+        AuthorizationCheckerInterface $checker,
+        FeedbackRepository $feedbackRepository
+    )
     {
         parent::__construct($registry, Activity::class);
         $this->checker = $checker;
+        $this->feedbackRepository = $feedbackRepository;
     }
 
     /**
@@ -44,6 +53,7 @@ class ActivityRepository extends ServiceEntityRepository
     public function delete(Activity $activity): void
     {
         $em = $this->getEntityManager();
+        $this->feedbackRepository->anonymizeFeedbackOnActivity($activity);
         $em->remove($activity);
         $em->flush();
     }
@@ -66,7 +76,8 @@ class ActivityRepository extends ServiceEntityRepository
         ActivityListSort $activityListSort,
         ActivityListFilter $activityListFilter,
         User $user
-    ): QueryBuilder {
+    ): QueryBuilder
+    {
         $queryBuilder = $this->createQueryBuilder('activity');
         $isAdmin = $this->checker->isGranted('ROLE_ADMIN');
         if ($isAdmin) {
@@ -148,7 +159,8 @@ class ActivityRepository extends ServiceEntityRepository
         ActivityListSort $activityListSort,
         ActivityListFilter $activityListFilter,
         User $user
-    ): Query {
+    ): Query
+    {
         $queryBuilder = $this->getAvailableActivities($activityListSort, $activityListFilter, $user);
         if ($activityListPagination->pageSize === -1) {
             return $queryBuilder->getQuery();
@@ -167,7 +179,8 @@ class ActivityRepository extends ServiceEntityRepository
 
     public function getActivitiesForValidation(
         User $user
-    ): QueryBuilder {
+    ): QueryBuilder
+    {
         $queryBuilder = $this->createQueryBuilder('activity');
         $queryBuilder
             ->select('activity')
